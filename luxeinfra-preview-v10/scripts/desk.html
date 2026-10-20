@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>LuxeInfra · Enquiry desk</title>
+    <link rel="stylesheet" href="/desk.css" />
+    <script type="module" src="/desk.js"></script>
+  </head>
+  <body>
+    <header>
+      <a href="/" class="brand">LUXEINFRA <small>THE ENQUIRY DESK</small></a
+      ><span>LOCAL WORKSPACE · NO EMAIL DELIVERY</span><button id="lock" hidden>Lock desk</button>
+    </header>
+    <main>
+      <section id="login" class="login">
+        <span class="eyebrow">A PLACE FOR EVERY CONVERSATION</span>
+        <h1>Your next project<br />starts here.</h1>
+        <p>
+          Enter the session access code from your enquiry desk terminal. This workspace reads
+          requests saved on this computer.
+        </p>
+        <form id="login-form">
+          <label for="code">Session access code</label
+          ><input id="code" type="password" autocomplete="off" required /><button type="submit">
+            Open enquiry desk →
+          </button>
+        </form>
+      </section>
+      <p id="message" role="status" aria-live="polite"></p>
+      <section id="desk" hidden>
+        <div class="page-heading">
+          <div>
+            <span class="eyebrow">FROM A BRIEF TO A CONVERSATION</span>
+            <h1>Enquiries, considered.</h1>
+          </div>
+          <button id="refresh">Refresh requests</button>
+        </div>
+        <div id="counts" class="counts"></div>
+        <div class="toolbar">
+          <label
+            >Find a project<input
+              id="search"
+              type="search"
+              placeholder="Name, city, or reference" /></label
+          ><label
+            >Follow-up stage<select id="stage">
+              <option>All stages</option>
+            </select></label
+          >
+          <p id="results" aria-live="polite"></p>
+        </div>
+        <div id="list" class="cards"></div>
+        <p class="footnote">
+          Local preview only. Status changes do not send notifications. Production hosting needs
+          separate team accounts, durable storage and an approved privacy policy.
+        </p>
+      </section>
+    </main>
+    <dialog id="detail">
+      <div class="dialog-top">
+        <span class="eyebrow">PROJECT BRIEF</span><button id="close">Close ✕</button>
+      </div>
+      <h2 id="detail-title"></h2>
+      <p id="reference"></p>
+      <div id="brief-fields" class="brief-fields"></div>
+      <h3>Selected rooms & work</h3>
+      <div id="room-work"></div>
+      <h3>Inspiration & attachments</h3>
+      <div id="references"></div>
+      <div id="attachments"></div>
+      <button id="download">Download brief</button>
+      <section class="workflow">
+        <h3>Keep the next step clear.</h3>
+        <form id="workflow-form">
+          <label>Follow-up stage<select id="workflow-status"></select></label
+          ><label
+            >Internal follow-up notes<textarea
+              id="note"
+              maxlength="2000"
+              rows="4"
+              placeholder="What was discussed? What needs to happen next?"
+            ></textarea>
+          </label>
+          <p>
+            Notes stay in this local desk. They are not included in the downloaded customer brief.
+          </p>
+          <button id="save" type="submit">Save follow-up</button>
+        </form>
+        <p id="detail-message" role="status" aria-live="polite"></p>
+        <div id="history"></div>
+      </section>
+    </dialog>
+  </body>
+</html>
