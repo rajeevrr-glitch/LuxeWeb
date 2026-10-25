@@ -1,0 +1,10 @@
+{
+  "pages": 5,
+  "assets": 45,
+  "stagingNoindex": true,
+  "privatePathsBlocked": true,
+  "legacyIntake": 405,
+  "automaticDelivery": "unconfigured, 503",
+  "publicAI": "disabled",
+  "actualMessageSent": false
+}

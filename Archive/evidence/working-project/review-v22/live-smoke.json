@@ -1,0 +1,12 @@
+{
+  "pages": 11,
+  "assets": 67,
+  "sitemapPages": 27,
+  "stagingNoindex": true,
+  "privatePathsBlocked": true,
+  "unknownGuide": 404,
+  "legacyIntake": 405,
+  "automaticDelivery": "unconfigured,503",
+  "publicAI": "disabled",
+  "actualMessageSent": false
+}

@@ -1,0 +1,47 @@
+
+> test
+> node --test tests/*.test.mjs
+
+✔ desk requires access code and rejects foreign origins; records omit internal fingerprint (215.8068ms)
+✔ workflow updates persist separately and reject stale versions or invalid stages (121.5547ms)
+✔ attachment downloads are authenticated and confined to recorded files (64.9557ms)
+✔ valid brief and PDF persist privately; concurrent retries return one receipt (625.6141ms)
+✔ reject invalid contact, consent, empty room work, bot field, and missing email (73.9616ms)
+✔ room priorities support older briefs and persist different priorities for each room (38.8139ms)
+✔ reject disguised or excessive uploads and foreign origin (46.9301ms)
+✔ reject cross-room work and unselected room payloads (48.4629ms)
+✔ public errors never display internal exception text (0.9715ms)
+✔ prices remain unavailable without approved, current, complete commercial data (4.4492ms)
+✔ modular totals use frontage quantities and exact region, finish and condition (0.4453ms)
+✔ unknown or unsafe measurements never produce a partial price (0.4238ms)
+✔ whole-home packages never add modular items again and require area bounds (0.9927ms)
+✔ summary preserves relevant choices without irrelevant kitchen questions (0.4802ms)
+✔ public server never enables pilot APIs or exposes private files (228.3737ms)
+✔ malformed paths return 400 and the sitemap contains public room collections (44.5909ms)
+✔ unapproved and incomplete offers stay unavailable in a normal build (2.0059ms)
+✔ an approved complete campaign runs only within its booking window (0.473ms)
+✔ partner introductions validate role, required details and Indian phone (2.4982ms)
+✔ each opportunity produces the right short handoff without invented rewards (1.3011ms)
+✔ example reviews are available only when content preview is explicitly enabled (1.7516ms)
+✔ only approved, permissioned reviews appear as client stories, ahead of layout samples (0.2977ms)
+✔ dimension switches convert the same room, preserve blanks, and handle decimal inputs (17.1484ms)
+✔ older drafts lose kitchen work in bedrooms and preserve valid choices (1.9758ms)
+✔ bathrooms offer wet-area work; living rooms and bedrooms do not offer kitchens (0.3584ms)
+✔ saved studio-home bands survive reload and legacy ambiguous configurations require a new choice (1.2491ms)
+✔ contact step validates required identity, contact and location without requiring email (0.5607ms)
+✔ quote handoff carries contact preference and project context without claiming a booking or receipt (0.4303ms)
+✔ home discovery supports studio homes and preserves approximate size without inventing measurements (0.538ms)
+✔ only explicitly approved size-band packages can price an approximate home size (0.4197ms)
+✔ AI is off by default and a disabled endpoint cannot call a provider (70.4665ms)
+✔ OpenAI adapter sends one image edit and decodes its result without external traffic (1.5442ms)
+✔ consent, photo signature, dimensions, origin and session are enforced before generation (122.5772ms)
+✔ completed image stays session-private; retries deduplicate and metadata is stripped (110.0755ms)
+✔ failed provider attempts consume the persistent pilot allowance without exposing errors (74.5303ms)
+ℹ tests 35
+ℹ suites 0
+ℹ pass 35
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1181.2883

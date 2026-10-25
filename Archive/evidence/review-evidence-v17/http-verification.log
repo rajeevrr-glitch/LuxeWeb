@@ -1,0 +1,15 @@
+{
+  "pages": 20,
+  "assets": 78,
+  "sitemapPages": 22,
+  "bhkFirstEntry": "passed",
+  "sizeChoices": "up-to / above 800 sq ft",
+  "wardrobeEntry": "no BHK questions",
+  "staging": "noindex",
+  "missing": 404,
+  "malformed": 400,
+  "privatePaths": "blocked",
+  "publicAI": "off",
+  "automaticEnquiryPost": 405,
+  "browserVisualVerification": "not completed: Computer Use URL policy restriction"
+}

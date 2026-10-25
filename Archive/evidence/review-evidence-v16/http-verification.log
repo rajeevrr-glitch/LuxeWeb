@@ -1,0 +1,12 @@
+{
+  "pages": 17,
+  "assets": 76,
+  "sitemapPages": 22,
+  "reviewSection": "visible with labelled samples",
+  "staging": "noindex",
+  "missing": 404,
+  "malformed": 400,
+  "privatePaths": "blocked",
+  "publicAI": "off",
+  "automaticEnquiryPost": 405
+}

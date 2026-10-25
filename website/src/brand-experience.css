@@ -1,0 +1,285 @@
+/* Use the supplied artwork itself: the skyline and lettering stay unaltered. */
+.luxe-brand-logo {
+  position: relative;
+  display: block;
+  flex: 0 0 auto;
+  width: 154px;
+  aspect-ratio: 525 / 187;
+  overflow: hidden;
+  border-radius: 3px;
+  background: #2d479c;
+}
+.luxe-brand-logo img,
+.luxe-commerce .lx-header .brand .luxe-brand-logo img {
+  position: absolute;
+  display: block;
+  width: 214.285715%;
+  max-width: none;
+  height: auto;
+  left: -57.142858%;
+  top: -121.390375%;
+}
+.luxe-brand-logo-inverse {
+  outline: 1px solid #ffffff20;
+}
+.lx-footer-grid .luxe-brand-logo {
+  width: 192px;
+  margin-bottom: 20px;
+}
+.luxe-commerce .button.quote-action {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  background: #173d71;
+  border: 1px solid #173d71;
+  color: #fff;
+  box-shadow:
+    0 4px 0 #102e57,
+    0 8px 18px #173d7117;
+  transition:
+    transform 160ms ease,
+    box-shadow 160ms ease,
+    background 160ms ease;
+}
+.quote-button-icon {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  color: #173d71;
+  background: #efe0bc;
+}
+.quote-button-copy {
+  display: grid;
+  gap: 2px;
+  text-align: left;
+  line-height: 1.35;
+}
+.quote-button-copy > span {
+  font-size: 14px;
+  font-weight: 800;
+}
+.quote-button-copy small {
+  font-size: 10px;
+  font-weight: 400;
+  color: #e2e9f0;
+}
+.luxe-commerce .button.quote-action:hover {
+  background: #214c84;
+  transform: translateY(-2px);
+  box-shadow:
+    0 6px 0 #102e57,
+    0 12px 22px #173d7124;
+}
+.luxe-commerce .button.quote-action:active {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 #102e57;
+}
+.luxe-commerce .button.quote-action:focus-visible {
+  outline: 3px solid #9d772e;
+  outline-offset: 5px;
+}
+.luxe-commerce .button.light.quote-action {
+  background: #efe0bc;
+  border-color: #efe0bc;
+  color: #173d71;
+  box-shadow: 0 4px 0 #b79c66;
+}
+.luxe-commerce .button.light.quote-action .quote-button-icon {
+  color: #fff;
+  background: #173d71;
+}
+.luxe-commerce .lc-hero.lc-hero-editorial {
+  display: block;
+}
+.lc-hero-editorial .lc-hero-scene {
+  min-height: 560px;
+  border-radius: 8px;
+}
+.lc-hero-editorial .lc-hero-copy {
+  max-width: 700px;
+  padding: 95px 48px 100px;
+}
+.lc-hero-editorial .lc-hero-copy > p {
+  max-width: 430px;
+}
+.lc-hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 24px;
+  margin-top: 28px;
+}
+.luxe-commerce .lc-hero-actions .quote-action {
+  min-height: 54px;
+  padding: 10px 20px;
+}
+.lc-hero-browse {
+  color: #fff;
+  font-size: 13px;
+  font-weight: 500;
+  text-decoration: underline;
+  text-underline-offset: 6px;
+  text-decoration-color: #ffffff80;
+  padding-block: 12px;
+}
+.lc-hero-browse:hover {
+  text-decoration-color: #efe0bc;
+  color: #efe0bc;
+}
+.luxe-commerce .lc-mobile-actions a.quote-mobile-action {
+  background: #173d71;
+  color: #fff;
+}
+.luxe-commerce .lc-mobile-actions .quote-button-copy > span {
+  font-size: 12px;
+}
+.lc-mobile-actions .quote-button-icon {
+  width: 27px;
+  height: 27px;
+}
+@media (max-width: 760px) {
+  .lc-hero-editorial .lc-hero-scene {
+    min-height: 510px;
+  }
+  .lc-hero-editorial .lc-hero-copy {
+    padding: 80px 24px 100px;
+  }
+  .lc-hero-editorial .lc-hero-copy > p {
+    max-width: 300px;
+  }
+  .lc-hero-actions {
+    align-items: flex-start;
+    gap: 18px;
+    margin-top: 22px;
+  }
+  .lc-hero-browse {
+    font-size: 12px;
+  }
+  .luxe-commerce .lx-header .luxe-brand-logo {
+    width: 125px;
+  }
+  .luxe-commerce .lx-header .button.quote-action {
+    padding: 8px 11px;
+    gap: 7px;
+    min-height: 40px;
+  }
+  .luxe-commerce .lx-nav-budget .quote-button-icon {
+    width: 23px;
+    height: 23px;
+  }
+  .luxe-commerce .lx-nav-budget .quote-button-icon svg {
+    display: block;
+    width: 14px;
+    height: 14px;
+  }
+  .luxe-commerce .lx-nav-budget .quote-button-copy > span {
+    font-size: 11px;
+  }
+}
+@media (max-width: 420px) {
+  .lc-hero-editorial .lc-hero-actions {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .lc-hero-editorial .lc-hero-copy {
+    padding-bottom: 105px;
+  }
+  .lc-hero-editorial .lc-hero-scene {
+    min-height: 560px;
+  }
+}
+@media (max-width: 370px) {
+  .luxe-commerce .lx-header .luxe-brand-logo {
+    width: 110px;
+  }
+  .luxe-commerce .lx-nav-budget .quote-button-icon {
+    display: none;
+  }
+}
+.lc-work-discovery {
+  display: grid;
+  grid-template-columns: 1fr 1.25fr;
+  align-items: center;
+  gap: 40px;
+  padding-block: 45px;
+  border-block: 1px solid #dce1dd;
+  margin-block: 24px;
+}
+.luxe-commerce .lc-work-discovery h2 {
+  margin-top: 9px;
+  font-size: clamp(25px, 2.7vw, 34px);
+}
+.lc-work-discovery-links {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+.lc-work-discovery-links > a {
+  display: flex;
+  align-items: flex-start;
+  gap: 13px;
+  padding: 20px;
+  border: 1px solid #dce1dd;
+  border-radius: 9px;
+  background: #f4f4ed;
+  color: #173d71;
+  transition:
+    background 0.2s,
+    border-color 0.2s;
+}
+.lc-work-discovery-links > a:hover {
+  background: #eaf0eb;
+  border-color: #8da6a2;
+}
+.lc-work-discovery-links > a:focus-visible {
+  outline: 3px solid #173d71;
+  outline-offset: 4px;
+}
+.lc-work-discovery-links svg {
+  flex-shrink: 0;
+  margin-top: 3px;
+}
+.lc-work-discovery-links strong {
+  display: block;
+  font-size: 15px;
+}
+.lc-work-discovery-links span > span {
+  display: block;
+  margin-top: 5px;
+  color: #586771;
+  font-size: 12px;
+  line-height: 1.6;
+}
+@media (max-width: 1000px) {
+  .lc-work-discovery {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+}
+@media (max-width: 520px) {
+  .lc-work-discovery-links {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  .lc-work-discovery-links > a {
+    padding: 18px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .lc-work-discovery-links > a {
+    transition: none;
+  }
+  .luxe-commerce .button.quote-action {
+    transition: none;
+  }
+  .luxe-commerce .button.quote-action:hover,
+  .luxe-commerce .button.quote-action:active {
+    transform: none;
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "pages": 20,
+  "assets": 74,
+  "sitemapPages": 22,
+  "welcomeLauncher": "present on homepage, omitted on protected journeys",
+  "privacyNotice": "seen flag explained",
+  "staging": "noindex",
+  "missing": 404,
+  "malformed": 400,
+  "privatePaths": "blocked",
+  "publicAI": "off",
+  "automaticEnquiryPost": 405
+}

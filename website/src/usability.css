@@ -1,0 +1,756 @@
+/* Shared journey and gallery refinements from the product audit. */
+.planning-guide-preview {
+  background: #edf1ef;
+  padding-block: 48px;
+}
+.planning-guide-preview > .wrap {
+  display: grid;
+  grid-template-columns: 0.8fr 1.2fr;
+  align-items: center;
+  gap: 48px;
+}
+.planning-guide-preview-intro h2 {
+  max-width: 420px;
+  margin-block: 12px 16px;
+}
+.planning-guide-preview-intro p {
+  max-width: 420px;
+  color: #526577;
+  margin-bottom: 16px;
+}
+.planning-guide-preview-links {
+  display: grid;
+  gap: 14px;
+}
+.planning-guide-preview-links > a {
+  display: grid;
+  grid-template-columns: 112px 1fr;
+  gap: 22px;
+  align-items: center;
+  background: #fcfbf8;
+  padding: 16px;
+  border: 1px solid #dce2df;
+  border-radius: 5px;
+}
+.planning-guide-preview-links img {
+  width: 112px;
+  height: 96px;
+  object-fit: cover;
+  border-radius: 3px;
+}
+.planning-guide-preview-links span {
+  color: #526577;
+  font-size: 12px;
+}
+.luxe-commerce .planning-guide-preview-links h3 {
+  font-size: 18px;
+  margin-block: 4px;
+}
+.planning-guide-preview-links small {
+  color: #173d71;
+  font-size: 13px;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+.lx-spec-guide-link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 32px;
+  padding-block: 44px;
+  border-top: 1px solid #dce2df;
+}
+.luxe-commerce .lx-spec-guide-link h2 {
+  font-size: 24px;
+  margin-bottom: 8px;
+}
+@media (max-width: 800px) {
+  .planning-guide-preview > .wrap {
+    grid-template-columns: 1fr;
+    gap: 28px;
+  }
+  .lx-spec-guide-link {
+    align-items: start;
+    flex-direction: column;
+    gap: 20px;
+  }
+}
+@media (max-width: 480px) {
+  .planning-guide-preview-links > a {
+    grid-template-columns: 72px minmax(0, 1fr);
+    padding: 12px;
+    gap: 14px;
+  }
+  .planning-guide-preview-links img {
+    width: 72px;
+    height: 96px;
+  }
+  .luxe-commerce .planning-guide-preview-links h3 {
+    font-size: 16px;
+  }
+}
+.lf-selection-pill {
+  font-size: 13px;
+  flex-wrap: wrap;
+}
+.lf-reset {
+  margin-top: -20px;
+  margin-bottom: 28px;
+}
+.lf-reset button {
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+  min-height: 44px;
+  font-size: 14px;
+}
+.lf-tailored-note p,
+.lf-result-summary > span {
+  font-size: 14px;
+  line-height: 1.65;
+  color: #526577;
+}
+.journey-exit {
+  margin-left: auto;
+  color: #173d71;
+  font-size: 14px;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+}
+.lc-focused-journey .studio-nav {
+  min-height: 76px;
+  padding-block: 14px;
+}
+.journey-footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 12px 28px;
+  border-top: 1px solid #dbe2e6;
+  padding-block: 20px;
+  font-size: 13px;
+  color: #526577;
+}
+.journey-footer a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  color: #173d71;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+.lc-focused-journey .lf-step-heading {
+  scroll-margin-top: 100px;
+}
+.lf-progress {
+  grid-template-columns: none;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(0, 1fr);
+}
+.lf-progress small {
+  font-size: 12px;
+  color: #526577;
+}
+.lf-step-label {
+  font-size: 11px;
+}
+.lf-intro p,
+.lf-step-copy,
+.lf-choice-field > p,
+.lf-finish-grid small,
+.lf-funnel-note,
+.lf-disclosure {
+  font-size: 14px;
+  line-height: 1.65;
+  color: #526577;
+}
+.lf-intro p {
+  max-width: 730px;
+}
+.lf-scope-tabs button,
+.lf-bhk-card > span,
+.lf-size-options button,
+.lf-room-options button,
+.lf-finish-grid strong {
+  font-size: 13px;
+}
+.lf-scope-tabs button,
+.lf-size-options button,
+.lf-contact-extra summary,
+.lf-exact-size summary,
+.lf-contact-context button,
+.lf-contact-context a {
+  min-height: 44px;
+}
+.lf-bhk-card {
+  padding: 13px;
+}
+.lf-bhk-card strong,
+.lf-choice-field legend {
+  font-size: 16px;
+}
+.lf-plan-mark {
+  width: 52px;
+  height: 38px;
+}
+.lf-step-actions {
+  position: sticky;
+  bottom: 0;
+  z-index: 3;
+  background: #fffefa;
+  padding-block: 16px;
+  border-top: 1px solid #e0e5e8;
+  box-shadow: 0 -8px 15px #fffefa;
+}
+.lf-step-actions > span,
+.lf-step-actions > .lx-underlink {
+  font-size: 13px;
+}
+.lf-quote-story-copy {
+  padding-top: 110px;
+}
+.lf-quote-story p,
+.lf-story-benefits,
+.lf-contact-context,
+.lf-ideas-check,
+.lf-contact-extra summary,
+.lf-contact-extra small,
+.lf-explore-budget,
+.lf-quote-alternative span,
+.lf-quote-alternative a {
+  font-size: 14px;
+}
+.lf-quote-choices small {
+  font-size: 12px;
+  color: #526577;
+}
+.lf-quote-choices strong {
+  font-size: 15px;
+}
+.lf-input-pair label {
+  font-size: 14px;
+}
+.lf-input-pair input,
+.lf-input-pair select {
+  font-size: 16px;
+  min-height: 48px;
+}
+.lf-contact-context button,
+.lf-contact-extra summary > span {
+  font-size: 13px;
+}
+.lf-scope-next {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 14px;
+  margin-top: 28px;
+  padding-top: 24px;
+  border-top: 1px solid #dbe2e6;
+}
+.lf-scope-next h3,
+.lf-scope-next p {
+  flex-basis: 100%;
+  margin: 0;
+}
+.lf-scope-next p {
+  color: #526577;
+  font-size: 14px;
+}
+.lf-scope-next .text-link {
+  min-height: 44px;
+  font-size: 14px;
+}
+.lf-handoff .lf-handoff-status {
+  font-size: 13px;
+  color: #526577;
+  padding: 12px;
+  background: #f0f3f5;
+  border-radius: 8px;
+}
+.lf-send-buttons {
+  align-items: stretch;
+}
+.lf-send-buttons .lf-whatsapp {
+  min-height: 54px;
+}
+.lf-message-preview summary,
+.lf-handoff > .lx-underlink {
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  font-size: 14px;
+}
+.lc-service-coverage {
+  font-size: 12px !important;
+  letter-spacing: 0.02em;
+  color: #f4e6c9 !important;
+}
+.lc-benefit-strip .wrap {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+.lc-benefit-strip .wrap > a {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 20px 0;
+  color: #173d71;
+}
+.lc-benefit-strip strong,
+.lc-benefit-strip small {
+  display: block;
+}
+.lc-benefit-strip small {
+  font-size: 13px;
+  color: #526577;
+  margin-top: 4px;
+}
+.lc-home-tools {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 20px;
+}
+.lc-home-tools > a {
+  border: 1px solid #dbe2e6;
+  border-radius: 14px;
+  padding: 26px;
+  background: #fffefa;
+  transition: border-color 0.2s;
+}
+.lc-home-tools > a:hover {
+  border-color: #173d71;
+}
+.lc-home-tools svg {
+  color: #173d71;
+}
+.lc-home-tools h3 {
+  margin: 20px 0 10px;
+  font-size: 19px;
+}
+.lc-home-tools p {
+  font-size: 14px;
+  color: #526577;
+}
+.lc-home-tools span {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  font-size: 13px;
+  color: #173d71;
+  font-weight: 700;
+}
+.lc-partner-note {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #dbe2e6;
+  padding-block: 22px;
+  font-size: 14px;
+}
+.lc-partner-note a {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+.luxe-commerce.design-lightbox {
+  width: min(1120px, calc(100% - 32px));
+  max-width: 1120px;
+  max-height: calc(100dvh - 32px);
+  overflow-y: auto;
+  padding: 28px;
+}
+.design-detail-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) minmax(260px, 1fr);
+  gap: 28px;
+  align-items: start;
+}
+.design-detail-grid > img {
+  width: 100%;
+  height: min(56vh, 540px);
+  object-fit: contain;
+  background: #eeeee7;
+  border-radius: 8px;
+}
+.design-detail-notes {
+  color: #526577;
+}
+.design-detail-notes h3 {
+  color: #23333f;
+  font-size: 23px;
+  margin: 12px 0;
+}
+.design-detail-notes p,
+.design-detail-notes li {
+  font-size: 14px;
+  line-height: 1.65;
+}
+.design-detail-notes ul {
+  margin: 16px 0 22px;
+  padding-left: 18px;
+}
+.design-detail-notes li + li {
+  margin-top: 10px;
+}
+.design-detail-notes .button {
+  width: 100%;
+  font-size: 14px;
+}
+.design-detail-notes small {
+  display: block;
+  font-size: 12px;
+  line-height: 1.65;
+  margin-top: 14px;
+}
+.lightbox-actions {
+  gap: 14px;
+}
+.lightbox-actions button {
+  min-height: 44px;
+  font-size: 14px;
+}
+.luxe-commerce.design-lightbox > button:last-child {
+  width: 44px;
+  height: 44px;
+  top: 12px;
+  right: 12px;
+}
+.luxe-commerce.design-lightbox > h2 {
+  padding-right: 40px;
+}
+.luxe-commerce :is(a, button, summary, input, select, textarea):focus-visible {
+  outline: 3px solid #9c742b;
+  outline-offset: 4px;
+}
+/* Let room photography and clear information carry the page. */
+.luxe-commerce .lc-hero h1 {
+  font-family: "Cormorant Garamond", Georgia, serif;
+  font-size: clamp(48px, 4.8vw, 70px);
+  font-weight: 500;
+  line-height: 0.98;
+  letter-spacing: -0.025em;
+}
+.lc-hero-scene {
+  border-radius: 0;
+}
+.lc-hero-copy {
+  padding-top: 96px;
+}
+.lc-photo-label {
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  padding: 0;
+  font-size: 12px;
+}
+.lc-photo-label > span {
+  display: none;
+}
+.lc-overline,
+.lc-kicker,
+.lf-kicker,
+.lx-footer-invite .eyebrow {
+  text-transform: none;
+  letter-spacing: 0.02em;
+  font-size: 12px;
+  font-weight: 500;
+}
+.luxe-commerce .button {
+  border-radius: 5px;
+}
+.lc-solutions article,
+.lc-design-grid article,
+.lc-home-tools > a {
+  box-shadow: none;
+  border-radius: 5px;
+}
+.lc-solutions article:hover,
+.luxe-commerce .button:hover {
+  box-shadow: none;
+  transform: none;
+}
+.lc-room-shortcuts a:hover img {
+  transform: none;
+  box-shadow: none;
+}
+.lf-quote-story,
+.lf-quote-card {
+  border-radius: 6px;
+  box-shadow: none;
+}
+.lf-quote-story-copy {
+  padding-top: 270px;
+}
+.luxe-commerce .lf-quote-story h1 {
+  font-family: "Cormorant Garamond", Georgia, serif;
+  font-weight: 500;
+  font-size: 54px;
+  line-height: 1.04;
+}
+.lf-quote-story::after {
+  background: linear-gradient(180deg, transparent 15%, #10283a85 45%, #10283aeb);
+}
+.lf-quote-card .lf-step-label {
+  display: none;
+}
+.lf-quote-card .lf-step-heading {
+  font-size: 26px;
+}
+.lf-quote-progress {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.lf-quote-choices button:hover,
+.lf-bhk-card:hover {
+  transform: none;
+}
+.lf-email-fallback {
+  margin: 18px 0 8px;
+  font-size: 14px;
+}
+.lf-contact-fields {
+  border: 0;
+  padding: 0;
+  margin: 0;
+  min-width: 0;
+}
+.lf-delivery-error {
+  border-left: 3px solid #9c742b;
+  background: #faf4e7;
+  padding: 14px 16px;
+  margin-block: 16px;
+  font-size: 14px;
+}
+.lf-delivery-error a {
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+  min-height: 44px;
+}
+.lf-delivery-error small {
+  display: block;
+  font-size: 12px;
+  line-height: 1.6;
+  color: #526577;
+}
+.lf-reference {
+  padding: 16px;
+  background: #eef2f5;
+  font-size: 14px;
+}
+.lf-reference strong {
+  display: block;
+  margin-top: 6px;
+  overflow-wrap: anywhere;
+}
+.lf-email-fallback summary {
+  cursor: pointer;
+  min-height: 44px;
+  padding-block: 10px;
+}
+.lf-email-fallback a {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+}
+.lw-dialog[data-step="2"] .lw-progress,
+.lw-dialog[data-step="2"] .lw-title,
+.lw-dialog[data-step="2"] .lw-description {
+  display: none;
+}
+.lw-dialog[data-step="2"] .lf-handoff {
+  margin-top: 24px;
+}
+@media (max-width: 760px) {
+  .luxe-commerce .lc-hero h1 {
+    font-size: clamp(42px, 11.5vw, 58px);
+    line-height: 1;
+  }
+  .lc-hero-scene {
+    border-radius: 5px;
+  }
+  .lc-hero-copy {
+    padding-top: 74px;
+  }
+  .journey-exit {
+    font-size: 13px;
+    max-width: 125px;
+    text-align: right;
+  }
+  .lc-focused-journey .studio-nav {
+    min-height: 68px;
+    gap: 12px;
+  }
+  .lc-focused-journey .brand {
+    font-size: 20px;
+  }
+  .lc-focused-journey .brand small {
+    font-size: 7px;
+  }
+  .lf-intro {
+    padding-block: 22px 16px;
+  }
+  .lf-intro p,
+  .lf-step-copy,
+  .lf-choice-field > p,
+  .lf-funnel-note {
+    font-size: 14px;
+  }
+  .lf-progress small {
+    font-size: 11px;
+  }
+  .lf-scope-tabs button {
+    font-size: 12px;
+  }
+  .lf-bhk-card > span {
+    font-size: 12px;
+  }
+  .lf-size-options button,
+  .lf-room-options button {
+    font-size: 13px;
+  }
+  .lf-finish-grid {
+    grid-template-columns: 1fr;
+  }
+  .lf-finish-grid button {
+    display: grid;
+    grid-template-columns: 55px minmax(0, 1fr);
+    text-align: left;
+    gap: 4px 12px;
+    padding: 12px;
+  }
+  .lf-finish-grid button > span {
+    grid-row: span 2;
+    height: 54px;
+    margin: 0;
+  }
+  .lf-finish-grid strong {
+    font-size: 15px;
+  }
+  .lf-finish-grid small {
+    font-size: 13px;
+  }
+  .lf-quote-story {
+    min-height: 0;
+    background: transparent;
+    border-radius: 0;
+  }
+  .lf-quote-story-copy {
+    padding: 0;
+  }
+  .lf-quote-story > img,
+  .lf-quote-story::after,
+  .lf-quote-story .lf-kicker,
+  .lf-quote-story p {
+    display: none;
+  }
+  .lf-quote-story .lf-story-benefits,
+  .lf-quote-story .lf-image-credit {
+    display: none;
+  }
+  .luxe-commerce .lf-quote-story h1 {
+    font-family: "Manrope", sans-serif;
+    font-weight: 600;
+    font-size: 24px;
+    margin: 0;
+    color: #23333f;
+    line-height: 1.25;
+  }
+  .lf-quote-story h1 span {
+    color: #8a6c35;
+  }
+  .lf-quote-story p {
+    font-size: 14px;
+  }
+  .lf-quote-layout {
+    margin-top: 18px;
+    gap: 18px;
+  }
+  .lf-contact-context {
+    align-items: start;
+    margin-block: 12px;
+    gap: 10px;
+  }
+  .lf-contact-context a {
+    display: inline-flex;
+    align-items: center;
+    font-size: 13px;
+    text-decoration: underline;
+    flex-shrink: 0;
+  }
+  .lf-quote-card .lf-step-label,
+  .lf-quote-card .lf-step-copy {
+    display: none;
+  }
+  .lf-quote-card .lf-progress {
+    margin-bottom: 16px;
+  }
+  .lf-contact-context span {
+    flex-wrap: wrap;
+  }
+  .lf-quote-choices {
+    gap: 10px;
+  }
+  .lf-quote-choices button {
+    min-height: 110px;
+    padding: 14px 12px;
+  }
+  .lf-quote-choices strong {
+    font-size: 14px;
+  }
+  .lf-quote-choices small {
+    font-size: 12px;
+  }
+  .lc-benefit-strip .wrap {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+  .lc-benefit-strip .wrap > a {
+    padding-block: 14px;
+    border-bottom: 1px solid #dbe2e6;
+  }
+  .lc-benefit-strip .wrap > a:last-child {
+    border: 0;
+  }
+  .lc-home-tools {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  .lc-home-tools > a {
+    padding: 22px;
+  }
+  .lc-home-tools h3 {
+    margin-top: 12px;
+  }
+  .lc-service-coverage {
+    font-size: 12px !important;
+  }
+  .design-detail-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  .design-detail-grid > img {
+    height: auto;
+    max-height: 42vh;
+  }
+  .luxe-commerce.design-lightbox {
+    padding: 22px 18px;
+  }
+  .design-detail-notes h3 {
+    font-size: 21px;
+  }
+  .lightbox-actions {
+    flex-wrap: wrap;
+  }
+  .lc-mobile-actions a {
+    font-size: 13px;
+    min-height: 48px;
+  }
+}

@@ -1,0 +1,254 @@
+
+> build
+> vite build
+
+vite v7.3.7 building client environment for production...
+transforming...
+✓ 2182 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/client/assets/wardrobe-160-BDdLmtme.webp            2.10 kB
+dist/client/assets/kitchen-160-fJXftT6U.webp             2.22 kB
+dist/client/assets/kids-160-CTRSY_4c.webp                2.66 kB
+dist/client/assets/pooja-160-DNdLa4XN.webp               3.25 kB
+dist/client/assets/living-160-BcBCT0k1.webp              3.79 kB
+dist/client/assets/bedroom-160-DXA42UDr.webp             3.88 kB
+dist/client/assets/full-home-160-D7u6QRPp.webp           4.60 kB
+dist/client/assets/wardrobe-320-Bxrdjzn0.webp            4.68 kB
+dist/client/assets/office-160-BobhsyqJ.webp              4.72 kB
+dist/client/assets/kitchen-320-BsJV8i08.webp             5.36 kB
+dist/client/assets/kids-320-Cn1Opd6o.webp                6.86 kB
+dist/client/assets/pooja-320-BUQNnsOK.webp               8.58 kB
+dist/client/assets/living-320--QKZIKXe.webp             10.41 kB
+dist/client/assets/bedroom-320-hWlL6UNc.webp            11.15 kB
+dist/client/assets/full-home-320-C2MPzyvm.webp          12.52 kB
+dist/client/assets/office-320-BtelHPNt.webp             12.75 kB
+dist/client/assets/02-DGwcHCus.jpg                      50.10 kB
+dist/client/assets/03-NjxdOS1I.jpg                      52.72 kB
+dist/client/assets/01-DDklcx-E.jpg                      55.93 kB
+dist/client/assets/wardrobe-Cx8t1SRB.jpg                59.10 kB
+dist/client/assets/05-DeXos0qq.jpg                      61.33 kB
+dist/client/assets/08-BhPKASVA.jpg                      61.47 kB
+dist/client/assets/09-C-_1SIF3.jpg                      62.03 kB
+dist/client/assets/02-CJ_ZEY0G.jpg                      63.14 kB
+dist/client/assets/kitchen-iRwV_3x1.jpg                 65.07 kB
+dist/client/assets/02-C3e7Uotb.jpg                      66.29 kB
+dist/client/assets/kids-CqrAiPWz.jpg                    66.53 kB
+dist/client/assets/02-D7nVzwQf.jpg                      67.69 kB
+dist/client/assets/04-dm0upbJE.jpg                      68.02 kB
+dist/client/assets/01-D7o4bhn-.jpg                      68.17 kB
+dist/client/assets/06-DcZjoAgr.jpg                      68.31 kB
+dist/client/assets/03-Ck_VocTD.jpg                      71.48 kB
+dist/client/assets/09-5TnGyU50.jpg                      72.61 kB
+dist/client/assets/08-DPum14ZW.jpg                      74.76 kB
+dist/client/assets/03-B2C8T3Lo.jpg                      74.77 kB
+dist/client/assets/04-wDllYdlV.jpg                      75.06 kB
+dist/client/assets/09-DhFJPJ0x.jpg                      75.43 kB
+dist/client/assets/08-CVkhQ1wZ.jpg                      75.75 kB
+dist/client/assets/bathroom-gMz_nkic.jpg                76.03 kB
+dist/client/assets/foyer-CONJUIB7.jpg                   76.66 kB
+dist/client/assets/07-wE7MM_uq.jpg                      76.69 kB
+dist/client/assets/03-BXRbG5MA.jpg                      77.46 kB
+dist/client/assets/03-022DgPP8.jpg                      78.20 kB
+dist/client/assets/06-B_oMftCT.jpg                      78.46 kB
+dist/client/assets/10-B1VN4lQo.jpg                      78.80 kB
+dist/client/assets/07-CX9F0mFI.jpg                      78.90 kB
+dist/client/assets/10-CiINV2UN.jpg                      78.99 kB
+dist/client/assets/10-BxL0VyJW.jpg                      79.47 kB
+dist/client/assets/05-CpEspHAL.jpg                      79.56 kB
+dist/client/assets/02-oVYQfC7Q.jpg                      80.14 kB
+dist/client/assets/09-rfegCB3J.jpg                      80.81 kB
+dist/client/assets/05-DKrLfXWS.jpg                      80.90 kB
+dist/client/assets/02-x2hi_Ani.jpg                      80.94 kB
+dist/client/assets/10-Bub3CZUB.jpg                      81.44 kB
+dist/client/assets/01-SF_rKP8q.jpg                      83.33 kB
+dist/client/assets/04-bI1QKGvq.jpg                      84.06 kB
+dist/client/assets/07-ZHzkBm7M.jpg                      84.30 kB
+dist/client/assets/10-Dex87XLT.jpg                      84.37 kB
+dist/client/assets/10-DzMiU4Le.jpg                      85.15 kB
+dist/client/assets/03-DcfbweuG.jpg                      85.45 kB
+dist/client/assets/07-Dr_3vmfn.jpg                      85.59 kB
+dist/client/assets/03-CmUuvzhg.jpg                      85.73 kB
+dist/client/assets/06-DyKx35Bs.jpg                      85.92 kB
+dist/client/assets/10-d_yH4Bwt.jpg                      88.60 kB
+dist/client/assets/09-B06WCJ0c.jpg                      89.70 kB
+dist/client/assets/03-pLaGv8ys.jpg                      90.43 kB
+dist/client/assets/04-CAU6kn2m.jpg                      90.49 kB
+dist/client/assets/09-CyFevIfb.jpg                      91.41 kB
+dist/client/assets/04-BfT55yoH.jpg                      91.52 kB
+dist/client/assets/06-EzmwCb2c.jpg                      91.98 kB
+dist/client/assets/01-Cf9HRuiI.jpg                      92.28 kB
+dist/client/assets/01-CpPkuCO0.jpg                      92.60 kB
+dist/client/assets/09-B_AdoCmX.jpg                      93.00 kB
+dist/client/assets/07-G5Z_a1Aj.jpg                      94.78 kB
+dist/client/assets/01-CS0DoVvB.jpg                      97.61 kB
+dist/client/assets/07-Cqy-NHNk.jpg                      98.19 kB
+dist/client/assets/08-Dd1sjPdK.jpg                      98.38 kB
+dist/client/assets/02-BdyxVAbT.jpg                      99.15 kB
+dist/client/assets/pooja-C-HFES7c.jpg                   99.47 kB
+dist/client/assets/06-UgRbuz1l.jpg                      99.75 kB
+dist/client/assets/06-BFWXiLc6.jpg                     101.45 kB
+dist/client/assets/08-BQZlwI2z.jpg                     103.88 kB
+dist/client/assets/06-DYwmwLTO.jpg                     103.90 kB
+dist/client/assets/04-DBPJjVms.jpg                     104.79 kB
+dist/client/assets/living-DVucwDHP.jpg                 104.89 kB
+dist/client/assets/02-kdH2kGqQ.jpg                     105.06 kB
+dist/client/assets/02-CPUaZXiF.jpg                     105.80 kB
+dist/client/assets/06-tph-wH3r.jpg                     106.12 kB
+dist/client/assets/05-Cn93_xes.jpg                     106.59 kB
+dist/client/assets/01-DSwM45ct.jpg                     108.67 kB
+dist/client/assets/09-CHG-23sd.jpg                     109.88 kB
+dist/client/assets/06-CwWyFJpY.jpg                     110.23 kB
+dist/client/assets/bedroom-C80cwgpm.jpg                110.24 kB
+dist/client/assets/08-BNh247LM.jpg                     112.61 kB
+dist/client/assets/08--udTm-H8.jpg                     113.94 kB
+dist/client/assets/08-WTTkDTaB.jpg                     114.42 kB
+dist/client/assets/06-qD4_bJuL.jpg                     114.84 kB
+dist/client/assets/05-DUeZAy1T.jpg                     114.98 kB
+dist/client/assets/03-BXWDHMcm.jpg                     115.76 kB
+dist/client/assets/02-2Po3iEYE.jpg                     115.77 kB
+dist/client/assets/07-BBK3tSvD.jpg                     115.79 kB
+dist/client/assets/07-C9d_FahW.jpg                     116.77 kB
+dist/client/assets/01-nrknaKYX.jpg                     118.63 kB
+dist/client/assets/10-7XiowdKE.jpg                     119.64 kB
+dist/client/assets/09-CrpkdcCc.jpg                     121.57 kB
+dist/client/assets/01-BnSMOljS.jpg                     122.51 kB
+dist/client/assets/05-BL2RLTSD.jpg                     123.94 kB
+dist/client/assets/full-home-33LOdweo.jpg              124.01 kB
+dist/client/assets/10-bifBP8FI.jpg                     124.21 kB
+dist/client/assets/07-DYv5fbRZ.jpg                     125.22 kB
+dist/client/assets/01-BGMJUOJ8.jpg                     125.41 kB
+dist/client/assets/08-DIvZOHGy.jpg                     126.28 kB
+dist/client/assets/01-BtS4ou8Z.jpg                     126.37 kB
+dist/client/assets/10-DjM9awEf.jpg                     128.43 kB
+dist/client/assets/office-D1hbfc56.jpg                 130.52 kB
+dist/client/assets/04-DA7Cec4F.jpg                     133.61 kB
+dist/client/assets/dining-B4tq-q7k.jpg                 133.87 kB
+dist/client/assets/02-COWmlNZG.jpg                     134.52 kB
+dist/client/assets/04-CV6NXDfH.jpg                     134.76 kB
+dist/client/assets/04-MWoTp_0l.jpg                     135.92 kB
+dist/client/assets/04-KxFOV5gr.jpg                     140.37 kB
+dist/client/assets/05-o5SESi28.jpg                     141.06 kB
+dist/client/assets/10-CUUgeaBa.jpg                     142.15 kB
+dist/client/assets/09-xzBRyeWY.jpg                     146.46 kB
+dist/client/assets/08-DzjodjZ_.jpg                     146.96 kB
+dist/client/assets/03-BezQ_R7J.jpg                     147.49 kB
+dist/client/assets/03-6yLeK55G.jpg                     147.91 kB
+dist/client/assets/08-C6Ep4yaB.jpg                     148.36 kB
+dist/client/assets/05-Bd1nr8L2.jpg                     151.55 kB
+dist/client/assets/06-Dm7xhPAR.jpg                     156.42 kB
+dist/client/assets/04-Bi61hIy4.jpg                     157.90 kB
+dist/client/assets/09-BU0zOujv.jpg                     158.15 kB
+dist/client/assets/07-CQmlryHd.jpg                     162.11 kB
+dist/client/assets/05-zTqepxOZ.jpg                     165.71 kB
+dist/client/assets/05-CYG6DAw5.jpg                     174.47 kB
+dist/client/assets/05-Cxpqngia.jpg                     175.25 kB
+dist/client/assets/07-DlPDuM5X.jpg                     194.24 kB
+dist/client/assets/hero-living-CGsa48KZ.jpg            255.74 kB
+dist/client/assets/reviews-Rj4UDmLD.css                  3.91 kB │ gzip:   1.26 kB
+dist/client/assets/design-decisions-BV4taMZV.css         6.17 kB │ gzip:   1.63 kB
+dist/client/assets/guides-hI18eKU9.css                   8.89 kB │ gzip:   2.24 kB
+dist/client/assets/welcome-CLfsRa6a.css                  9.06 kB │ gzip:   2.50 kB
+dist/client/assets/usability-29zW74TP.css               11.65 kB │ gzip:   2.98 kB
+dist/client/assets/campaigns-DvFekGGR.css               13.41 kB │ gzip:   3.30 kB
+dist/client/assets/sales-Dql734d6.css                   16.55 kB │ gzip:   4.04 kB
+dist/client/assets/styles-Bbdm_Bjr.css                  20.48 kB │ gzip:   4.70 kB
+dist/client/assets/commerce-DuT-ddla.css                29.98 kB │ gzip:   6.32 kB
+dist/client/assets/launch-6hofhLRG.css                  30.17 kB │ gzip:   6.87 kB
+dist/client/assets/refinement-Bd6yLVlj.css              30.65 kB │ gzip:   6.90 kB
+dist/client/assets/studio-DaR_5aa8.css                  41.61 kB │ gzip:   8.97 kB
+dist/client/assets/04-DuulkwZk.js                        0.09 kB │ gzip:   0.09 kB
+dist/client/assets/design-ideas.route-hgzjl-4R.js        0.10 kB │ gzip:   0.11 kB
+dist/client/assets/guides.route-DIteFhUy.js              0.10 kB │ gzip:   0.11 kB
+dist/client/assets/index-Ci4Mq5yz.js                     0.10 kB │ gzip:   0.12 kB
+dist/client/assets/index-9XnWzEd3.js                     0.13 kB │ gzip:   0.13 kB
+dist/client/assets/design-ideas.route-CjyrKRib.js        0.13 kB │ gzip:   0.13 kB
+dist/client/assets/guides.route-DmJv4iFN.js              0.13 kB │ gzip:   0.13 kB
+dist/client/assets/plus-fOiGHD0D.js                      0.15 kB │ gzip:   0.15 kB
+dist/client/assets/visualiser-brief-DOrmZ6sC.js          0.16 kB │ gzip:   0.14 kB
+dist/client/assets/arrow-right-BAVsQVKc.js               0.17 kB │ gzip:   0.16 kB
+dist/client/assets/design-ideas.route-DPMv1-qY.js        0.18 kB │ gzip:   0.17 kB
+dist/client/assets/testimonials-D8bz1NXP.js              0.19 kB │ gzip:   0.18 kB
+dist/client/assets/rotate-ccw-CUeyjdxr.js                0.20 kB │ gzip:   0.18 kB
+dist/client/assets/guides.route-1fSe-Rys.js              0.21 kB │ gzip:   0.19 kB
+dist/client/assets/download-e_5iQLA2.js                  0.23 kB │ gzip:   0.19 kB
+dist/client/assets/book-open-BacKdDzO.js                 0.28 kB │ gzip:   0.21 kB
+dist/client/assets/file-text-BYUzyWE7.js                 0.39 kB │ gzip:   0.25 kB
+dist/client/assets/ruler-ByTgVbsK.js                     0.40 kB │ gzip:   0.25 kB
+dist/client/assets/layers-nACXpg2X.js                    0.42 kB │ gzip:   0.24 kB
+dist/client/assets/palette-fP9x3hoW.js                   0.51 kB │ gzip:   0.28 kB
+dist/client/assets/SaveInspiration-kj8w0WnW.js           0.90 kB │ gzip:   0.55 kB
+dist/client/assets/about-CXAJsGGm.js                     1.09 kB │ gzip:   0.55 kB
+dist/client/assets/design-comparison-PsVJ37P9.js         1.11 kB │ gzip:   0.64 kB
+dist/client/assets/projects-bdH4lLtr.js                  1.43 kB │ gzip:   0.65 kB
+dist/client/assets/contact-8CKdjWC7.js                   1.44 kB │ gzip:   0.61 kB
+dist/client/assets/plan-C5xxVXDD.js                      2.51 kB │ gzip:   1.03 kB
+dist/client/assets/guides.index-DdkmHhR8.js              3.19 kB │ gzip:   1.24 kB
+dist/client/assets/design-ideas.index-B-SZFcYa.js        3.22 kB │ gzip:   1.39 kB
+dist/client/assets/find-your-style-CxtNor1x.js           4.17 kB │ gzip:   1.92 kB
+dist/client/assets/services-Di3DO03z.js                  4.30 kB │ gzip:   1.96 kB
+dist/client/assets/offers-DNnla17W.js                    4.35 kB │ gzip:   1.65 kB
+dist/client/assets/design-ideas._category-BbZDQBiA.js    4.60 kB │ gzip:   1.70 kB
+dist/client/assets/materials-CItbdNZp.js                 4.86 kB │ gzip:   2.02 kB
+dist/client/assets/ClientStories-C0Q5R2WW.js             4.91 kB │ gzip:   1.94 kB
+dist/client/assets/guides._guide-Ci_YUbI4.js             5.21 kB │ gzip:   1.91 kB
+dist/client/assets/privacy-Q2760uC9.js                   6.65 kB │ gzip:   2.45 kB
+dist/client/assets/my-inspiration-BW6H8UXf.js            8.12 kB │ gzip:   3.04 kB
+dist/client/assets/callback-9XFMxO_-.js                  8.55 kB │ gzip:   3.48 kB
+dist/client/assets/partner-with-us-Y0CcyB-6.js          11.32 kB │ gzip:   4.20 kB
+dist/client/assets/how-it-works-SyQ6n7FK.js             12.57 kB │ gzip:   4.82 kB
+dist/client/assets/index-C8Qx4QUk.js                    13.73 kB │ gzip:   4.27 kB
+dist/client/assets/estimate-C-RYDdeT.js                 15.34 kB │ gzip:   5.22 kB
+dist/client/assets/reimagine-CG7I4Ewn.js                21.92 kB │ gzip:   7.79 kB
+dist/client/assets/project-brief-BE_40g0a.js            26.57 kB │ gzip:   8.67 kB
+dist/client/assets/index-B0_bepOC.js                   465.87 kB │ gzip: 152.37 kB
+✓ built in 28.09s
+vite v7.3.7 building ssr environment for production...
+transforming...
+"createRequestHandler", "defineHandlerCallback", "transformPipeableStreamWithRouter" and "transformReadableStreamWithRouter" are imported from external module "@tanstack/router-core/ssr/server" but never used in "node_modules/@tanstack/start-server-core/dist/esm/index.js".
+"RawStream" is imported from external module "@tanstack/router-core" but never used in "node_modules/@tanstack/start-client-core/dist/esm/index.js".
+"defaultSerovalDeserializerPlugins", "hydrate" and "json" are imported from external module "@tanstack/router-core/ssr/client" but never used in "node_modules/@tanstack/start-client-core/dist/esm/index.js".
+✓ 316 modules transformed.
+rendering chunks...
+dist/server/assets/empty-plugin-adapters-BFgPZ6_d.js         0.13 kB
+dist/server/assets/04-ClabtQMb.js                            0.15 kB
+dist/server/assets/design-ideas.route-BFsOu0JM.js            0.19 kB
+dist/server/assets/guides.route-BFsOu0JM.js                  0.19 kB
+dist/server/assets/visualiser-brief-DLVX-ZNC.js              0.31 kB
+dist/server/assets/index-vl8ufR_K.js                         0.38 kB
+dist/server/assets/index-DDAoQui7.js                         0.42 kB
+dist/server/assets/design-ideas.route-uySFQDzt.js            0.42 kB
+dist/server/assets/guides.route-D3Db-EXa.js                  0.42 kB
+dist/server/assets/design-ideas.route-DLCQFZxw.js            0.46 kB
+dist/server/assets/guides.route-CqSQfiZ7.js                  0.49 kB
+dist/server/assets/testimonials-Ciwq4Rg5.js                  0.50 kB
+dist/server/assets/SaveInspiration-CorM05rg.js               1.70 kB
+dist/server/assets/about-Cc3GsNcm.js                         1.71 kB
+dist/server/assets/start-DwwArS1i.js                         1.71 kB
+dist/server/assets/design-comparison-DYQGiXeR.js             2.25 kB
+dist/server/assets/projects-BnIUTnnE.js                      2.30 kB
+dist/server/assets/contact-B6ZAfpr8.js                       2.44 kB
+dist/server/server.js                                        3.86 kB
+dist/server/assets/plan-rY3Xxakk.js                          4.39 kB
+dist/server/assets/guides.index-CDb2vh1x.js                  4.84 kB
+dist/server/assets/design-ideas.index-BnK3-9gn.js            5.09 kB
+dist/server/assets/services-CJBRwIni.js                      5.96 kB
+dist/server/assets/find-your-style-Q7pMjQQz.js               6.28 kB
+dist/server/assets/_tanstack-start-manifest_v-BqbTj36R.js    6.71 kB
+dist/server/assets/materials-DoIx6YKI.js                     6.90 kB
+dist/server/assets/offers-CPMieL-3.js                        7.11 kB
+dist/server/assets/privacy-CLXe9U5C.js                       7.66 kB
+dist/server/assets/ClientStories-Nus3Qg4z.js                 7.70 kB
+dist/server/assets/design-ideas._category-CvZSnZXn.js        8.06 kB
+dist/server/assets/guides._guide-YLLFqIDq.js                 8.78 kB
+dist/server/assets/my-inspiration-a_aAcepE.js               13.11 kB
+dist/server/assets/callback-mlevlBbZ.js                     14.55 kB
+dist/server/assets/partner-with-us-XSjLWAij.js              16.77 kB
+dist/server/assets/how-it-works-CIi189aM.js                 18.40 kB
+dist/server/assets/index-DMbHcZN1.js                        23.43 kB
+dist/server/assets/estimate-CSZudj09.js                     25.70 kB
+dist/server/assets/reimagine-CSXfgUd1.js                    35.38 kB
+dist/server/assets/project-brief-CyfkfgYi.js                42.36 kB
+dist/server/assets/server-C_RSBTj8.js                       68.70 kB
+dist/server/assets/router-CiSUF566.js                      130.67 kB
+✓ built in 8.13s

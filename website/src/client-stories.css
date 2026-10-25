@@ -1,0 +1,44 @@
+.lc-stories .lc-story-cards figcaption strong {
+  font-size: 13px;
+}
+.lc-stories .lc-story-cards figcaption small {
+  font-size: 11px;
+  line-height: 1.5;
+}
+.lx-review-locations {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin: 0 0 1.7rem;
+}
+.lx-review-locations button {
+  padding: 0.75rem 1.1rem;
+  border: 1px solid #cdd7d2;
+  border-radius: 999px;
+  background: #fffdf8;
+  color: #284457;
+  font: inherit;
+  font-size: 0.82rem;
+  cursor: pointer;
+}
+.lx-review-locations button[aria-pressed="true"] {
+  background: #183e6b;
+  color: #fff;
+  border-color: #183e6b;
+}
+.lx-review-locations button:hover {
+  border-color: #183e6b;
+}
+.lx-review-locations button:focus-visible {
+  outline: 3px solid #b47643;
+  outline-offset: 3px;
+}
+.lx-review-more {
+  margin-top: 1.75rem;
+  text-align: center;
+}
+@media (max-width: 600px) {
+  .lx-review-locations button {
+    padding: 0.7rem 0.9rem;
+  }
+}

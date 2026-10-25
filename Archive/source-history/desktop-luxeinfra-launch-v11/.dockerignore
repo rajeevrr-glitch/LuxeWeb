@@ -1,0 +1,8 @@
+node_modules
+dist
+.git
+.private
+.env
+.env.*
+*.zip
+outputs

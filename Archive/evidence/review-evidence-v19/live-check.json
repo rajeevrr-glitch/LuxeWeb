@@ -1,0 +1,8 @@
+{
+  "pages": 5,
+  "assets": 51,
+  "privatePaths": "blocked",
+  "staging": "noindex",
+  "automaticIntake": "off",
+  "publicAI": "off"
+}
