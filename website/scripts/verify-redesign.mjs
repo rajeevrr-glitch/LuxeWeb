@@ -1,10 +1,16 @@
 // Read-only checks of the built release, without sending any customer messages.
 import assert from "node:assert/strict";
-import { access } from "node:fs/promises";
+import { access, readdir } from "node:fs/promises";
 import path from "node:path";
-import handler from "../dist/server/server.js";
 
 const review = process.argv.includes("--review");
+const netlify = process.argv.includes("--netlify");
+const production = process.argv.includes("--production");
+const outputRoot = "dist/client";
+const entry = await import(
+  netlify ? "../.netlify/v1/functions/server.mjs" : "../dist/server/server.js"
+);
+const handler = netlify ? { fetch: (request) => entry.default(request, {}) } : entry.default;
 const routes = [
   "/",
   "/offers",
@@ -191,7 +197,7 @@ for (const route of routes) {
     ])
       assert.ok(html.includes(brand), "brand visible: " + brand);
     for (const match of html.matchAll(/src="(\/brands\/[^"?#]+)"/g))
-      await access(path.join("dist/client", decodeURIComponent(match[1])));
+      await access(path.join(outputRoot, decodeURIComponent(match[1])));
   }
   if (route === "/callback?module=Kitchen&design=kitchen-1") {
     assert.match(html, /Design reference included/);
@@ -204,12 +210,47 @@ for (const route of routes) {
   for (const match of html.matchAll(/(?:src|href)="(\/assets\/[^"?#]+)[^"\s]*"/g))
     assets.add(match[1]);
 }
-for (const asset of assets) await access(path.join("dist/client", decodeURIComponent(asset)));
+for (const asset of assets) await access(path.join(outputRoot, decodeURIComponent(asset)));
 assert.equal((await handler.fetch(new Request("http://localhost/not-a-real-page"))).status, 404);
 assert.equal((await handler.fetch(new Request("http://localhost/guides/not-a-guide"))).status, 404);
+if (netlify) {
+  assert.equal(entry.config.path, "/*");
+  assert.equal(entry.config.preferStatic, true);
+  assert.match(entry.config.generator, /@netlify\/vite-plugin@/);
+  for (const entry of await readdir(outputRoot))
+    assert.ok(
+      ["assets", "brands", "projects", "favicon.svg"].includes(entry),
+      "public file: " + entry,
+    );
+  for (const pathname of [
+    "/api/luxe-chat/status",
+    "/api/enquiry-delivery/status",
+    "/api/visualiser/status",
+  ]) {
+    const response = await handler.fetch(new Request("https://preview.netlify.app" + pathname));
+    assert.equal(response.status, 200);
+    assert.equal(response.headers.get("cache-control"), "no-store");
+    assert.equal((await response.json()).enabled, false);
+  }
+  const blocked = await handler.fetch(new Request("https://preview.netlify.app/.env.local"));
+  assert.equal(blocked.status, 404);
+  const robots = await handler.fetch(new Request("https://preview.netlify.app/robots.txt"));
+  assert.equal(await robots.text(), "User-agent: *\nDisallow: /\n");
+  assert.equal(robots.headers.get("x-robots-tag"), "noindex, nofollow");
+  const canonicalRobots = await handler.fetch(new Request("https://luxeinfra.in/robots.txt"));
+  const canonicalRobotsText = await canonicalRobots.text();
+  assert.equal(canonicalRobotsText.includes("Allow: /\n"), production);
+  assert.equal(canonicalRobots.headers.has("x-robots-tag"), !production);
+  const head = await handler.fetch(
+    new Request("https://preview.netlify.app/healthz", { method: "HEAD" }),
+  );
+  assert.equal(head.status, 200);
+  assert.equal(await head.text(), "");
+}
 console.log(
   JSON.stringify({
     mode: review ? "review" : "public",
+    target: netlify ? "netlify" : "node",
     routes: routes.length,
     builtAssets: assets.size,
     offerGate: "passed",

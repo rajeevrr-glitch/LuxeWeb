@@ -39,4 +39,12 @@ dist-ssr
 .npm-cache/
 outputs/
 .cache/
+.vercel/
+.netlify/
+
+# Owner notes stay on this laptop; they are not deployment inputs.
+/workdone.md
+/docs/OWNER-INPUTS.md
+/docs/BLUEPRINT.md
+/docs/UI-AUDIT.md
 

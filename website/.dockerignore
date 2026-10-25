@@ -6,3 +6,6 @@ dist
 .env.*
 *.zip
 outputs
+.vercel
+.nitro
+.netlify

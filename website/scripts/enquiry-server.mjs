@@ -31,7 +31,7 @@ const schema = z
       .default("To discuss"),
     scope: z.enum(["Whole home", "Selected rooms", "Help me decide"]),
     roomPriorities: z
-      .record(z.enum(["Discuss with designer", "First priority", "Can wait"]))
+      .record(z.string(), z.enum(["Discuss with designer", "First priority", "Can wait"]))
       .default({}),
     rooms: z
       .array(

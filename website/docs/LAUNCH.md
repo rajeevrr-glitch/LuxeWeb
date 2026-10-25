@@ -8,7 +8,7 @@ The root `.env.local` file is private. Gemini setup is in AI-SETUP.md. Automatic
 
 ## Quality checks
 
-Requires Node 24 or later and `npm ci` when dependencies are missing.
+Requires Node 24.x and `npm ci` when dependencies are missing.
 
 ```text
 npm run typecheck
@@ -33,3 +33,37 @@ For a public-mode local check, stop development, then run `npm start` after a no
 - Only after explicit launch authorization, connect the new host to luxeinfra.in. GoDaddy currently manages the domain; domain registration is separate from website hosting.
 
 There is one working source directory and one workdone.md. Future changes update them in place. Versioned preview folders, ZIPs and handover reports are created only when requested.
+
+## Git to Netlify import
+
+The owner selected Netlify and will push the source and import it themselves. The assistant has prepared the code, not created a remote repository or public deployment. Netlify Free currently permits commercial sites and includes custom domains/SSL with 300 monthly credits and a hard limit. Projects pause at that limit. Domain renewals and external AI usage are separate.
+
+1. Open Desktop/LuxeWeb/website in your Git client. Push this website folder only; its package.json and netlify.toml should be at the repository root. Do not push the parent LuxeWeb folder or its Archive. Prefer a private repository for the business source.
+2. Include package.json, package-lock.json, netlify.toml, vite.config.ts, tsconfig.json, src/, public/ and scripts/, with the repository's .gitignore. Git ignores local keys, .private, dependency/build outputs, Netlify state, workdone.md and internal owner/planning notes. Do not upload those private files manually through a browser.
+3. In Netlify, choose Add new project → Import an existing project. Select your Git provider and the repository you just pushed. Choose the intended production branch.
+4. Leave Base directory blank when the website is at the repository root. If you deliberately pushed an outer repository containing a website subfolder, set Base directory to that website folder instead. The directory must contain package.json and netlify.toml.
+5. Build command: npm run build:netlify. Publish directory: dist/client. Node version: 24. These are already set in netlify.toml; the official adapter creates the server function automatically. Do not use a static Vite preset with a fallback to index.html, and do not set the functions folder to scripts/.
+6. No API key or account token is needed in the repository to deploy the current public site. Keep secrets unprefixed in Netlify environment settings only when their corresponding hosted service is ready. Never copy .env.local or use VITE_ for a secret. Do not enable VITE_CONTENT_PREVIEW or VITE_CAMPAIGN_PREVIEW.
+7. Deploy first to the generated netlify.app URL. Review home, /projects, /testimonials, /callback, /estimate, /reimagine, both project films, navigation and manual WhatsApp/email links. Preview/default Netlify URLs stay noindex. Confirm the production deployment succeeds before editing domain DNS.
+8. Add luxeinfra.in and www.luxeinfra.in in Netlify's domain settings when ready. Copy the exact DNS instructions shown for this project to GoDaddy, preserving email MX/TXT records. Do not use old Lovable DNS values or change nameservers unnecessarily. The committed www redirect points to the apex domain. Only HTTPS production requests on https://luxeinfra.in advertise indexing; verify /robots.txt and /sitemap.xml after domain connection.
+
+Local deployment checks:
+
+```text
+npm ci
+npm run build:netlify
+node scripts/verify-redesign.mjs --netlify
+```
+
+The build checks TypeScript first and forces public content flags off. For a production-context check, set CONTEXT=production for the build process and run the verifier with --netlify --production. The context is recorded at build time because build context variables are not assumed to exist in function runtime.
+
+The hosted gateway preserves SSR, redirects/404s, security headers, robots/sitemap and safe service statuses. Netlify's adapter prefers static assets before the SSR function, so portfolio images and films use the CDN. Keep generated .netlify and dist folders out of Git; Netlify rebuilds them from the committed source.
+
+The current public release includes manual WhatsApp/email, built-in Ask Luxe answers and the room-fit planner. External Gemini conversation, AI image generation and automatic enquiry delivery remain disconnected on serverless hosting until durable private storage, shared allowance limits and delivery configuration are implemented. Adding a local key does not provide that hosted backend or transfer private local records. Local AI settings and records remain unchanged.
+
+Official references checked on 26 October 2026:
+
+- https://docs.netlify.com/build/frameworks/framework-setup-guides/tanstack-start/
+- https://docs.netlify.com/build/configure-builds/manage-dependencies/
+- https://docs.netlify.com/manage/accounts-and-billing/billing/billing-for-credit-based-plans/credit-based-pricing-plans/
+- https://www.netlify.com/blog/introducing-netlify-free-plan/

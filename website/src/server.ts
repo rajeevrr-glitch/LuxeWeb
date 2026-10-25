@@ -2,6 +2,7 @@ import "./lib/error-capture";
 
 import { consumeLastCapturedError } from "./lib/error-capture";
 import { renderErrorPage } from "./lib/error-page";
+import { handleHostedRequest, protectHostedResponse } from "./lib/hosted-runtime";
 
 type ServerEntry = {
   fetch: (request: Request, env: unknown, ctx: unknown) => Promise<Response> | Response;
@@ -68,13 +69,21 @@ async function normalizeCatastrophicSsrResponse(response: Response): Promise<Res
 
 export default {
   async fetch(request: Request, env: unknown, ctx: unknown) {
+    const hosted = Boolean(import.meta.env.LUXE_HOSTED_BUILD);
+    const options = { environment: import.meta.env.LUXE_HOSTED_CONTEXT };
     try {
+      if (hosted) {
+        const response = handleHostedRequest(request, options);
+        if (response) return response;
+      }
       const handler = await getServerEntry();
       const response = await handler.fetch(request, env, ctx);
-      return await normalizeCatastrophicSsrResponse(response);
+      const normalized = await normalizeCatastrophicSsrResponse(response);
+      return hosted ? protectHostedResponse(request, normalized, options) : normalized;
     } catch (error) {
       console.error(error);
-      return brandedErrorResponse();
+      const response = brandedErrorResponse();
+      return hosted ? protectHostedResponse(request, response, options) : response;
     }
   },
 };
