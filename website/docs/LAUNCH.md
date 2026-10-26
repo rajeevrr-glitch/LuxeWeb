@@ -115,7 +115,7 @@ Official architecture references checked on 26 October 2026:
 
 ## Supabase lead saving: Luxe Infra / Luxe Web
 
-The owner created the Supabase project at https://wmifcaakggcsrovqqyhq.supabase.co. The first hosted implementation is database-only intake for quote, callback, welcome, detailed-brief and partnership requests. It saves the existing text/contact payload, not uploaded photos/files. Its success means a private database commit with a reference, not an email/WhatsApp notification, a quotation or an appointment. Gemini chat, room contact capture/generation, staff login/inbox and automatic notifications remain separate work.
+The owner created Supabase organisation Luxe Infra / project Luxe Web. Obtain its Project URL from the dashboard or the private SUPABASE_URL setting rather than committing a project-specific value to this guide. The first hosted implementation is database-only intake for quote, callback, welcome, detailed-brief and partnership requests. It saves the existing text/contact payload, not uploaded photos/files. Its success means a private database commit with a reference, not an email/WhatsApp notification, a quotation or an appointment. Gemini chat, room contact capture/generation, staff login/inbox and automatic notifications remain separate work.
 
 The owner supplied the current production website URL https://fantastic-liger-68a1da.netlify.app. Use that exact value for SITE_URL during this initial connection; change it deliberately when the custom domain becomes the canonical submission origin. It is already recorded in the private local setup for readiness checks.
 
@@ -133,7 +133,7 @@ Push the current website source, including its new supabase/ folder and hosted-l
 
 | Variable | Value |
 | --- | --- |
-| SUPABASE_URL | https://wmifcaakggcsrovqqyhq.supabase.co |
+| SUPABASE_URL | The HTTPS Project URL copied from the Supabase dashboard or private local setup |
 | SUPABASE_SECRET_KEY | The private server Secret key |
 | LUXE_LEADS_HMAC_SECRET | The generated 64-character hex secret in local .env.local; use the same value across function instances |
 | SITE_URL | Exact current production HTTPS website origin, with no trailing slash/path; use the owner's Netlify URL until the custom domain is connected |
@@ -161,3 +161,7 @@ References:
 - https://supabase.com/docs/guides/getting-started/api-keys
 - https://supabase.com/docs/guides/database/functions
 - https://docs.netlify.com/build/functions/api/
+
+### Netlify secret scan flags a configured project URL
+
+If compilation and function packaging succeed but the secret scan reports SUPABASE_URL in this guide, update the repository with the current generic guide and deploy again. The Project URL is an address, not the server Secret key, but Netlify scans any value that was explicitly marked secret. Keep deployment-specific values in private runtime settings so this guide does not trigger that match. No scanner exclusion, key rotation or change to working runtime values is required for this documentation-only case. Do not disable secret scanning to bypass a genuine credential finding.
