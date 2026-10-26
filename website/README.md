@@ -20,6 +20,7 @@ The homepage keeps the main room photograph and simple quote/design links. The p
 - `public/` — public static files.
 - `scripts/` — local services, production server and maintenance tools; optional Windows launchers are in `scripts/windows/`.
 - `tests/` — regression tests.
+- `supabase/` — private lead database migration and disposable-database SQL tests.
 - `docs/` — current AI, enquiry delivery, launch, owner-input, blueprint and UI-audit guidance.
 - `workdone.md` — the single continuing work log.
 - `.private/` and `.env.local` — private local data/configuration; never include them in shared source.
@@ -33,7 +34,13 @@ Use Node 24.x. Run `npm ci` if dependencies are missing.
 
 `npm run build:netlify` prepares the Netlify deployment, using its official TanStack adapter. The committed `netlify.toml` sets the build command, `dist/client` publish folder and Node 24 automatically. Import this repository into Netlify using **Import an existing project**; no API key is needed to publish the current website. See the exact [Git and Netlify steps](docs/LAUNCH.md#git-to-netlify-import).
 
-Push this website folder itself, with `package.json` and `netlify.toml` at the repository root. Use a private repository for the business planning documents. Local keys, `.private/`, generated folders, `workdone.md` and the owner-input notes are ignored; keep them on this laptop. No push or Netlify import has been performed by the assistant.
+For the existing rajeevrr-glitch/LuxeWeb repository, the source is inside `website/`: keep Netlify Base directory `website` and publish directory `dist/client`. In a new repository containing only this website, package.json and netlify.toml can instead live at its root with a blank Base directory. Local keys, `.private/`, generated folders, `workdone.md` and the owner-input notes are ignored; keep them on this laptop. The owner manages Git pushes and the Netlify import.
+
+## Hosted enquiry database
+
+Supabase lead saving is prepared for the owner's Luxe Infra / Luxe Web project. Set up the committed SQL migration, privately configure the server Secret key and signing secret, and run `npm run leads:check -- --connect` before activation. Its output contains only readiness booleans and an HTTP status. Keep `LUXE_LEADS_ENABLED=false` until the migration, exact public website origin and deployment are verified. Follow [Supabase setup](docs/LAUNCH.md#supabase-lead-saving-luxe-infra--luxe-web).
+
+An accepted online request means it was saved privately with a reference. Automatic WhatsApp/email alerts, the staff inbox and hosted AI remain separate connections. Photos and floor plans are not automatically uploaded by the enquiry form.
 
 The portfolio includes eleven unique photos and two project films. Films are assigned to Harsh Pal and Dharmendra Singh as instructed; other photographs stay unassigned and review wording needs confirmation. The floating WhatsApp button stays above the mobile actions and steps aside while the welcome popup or Luxe chat is open. It opens the confirmed studio number; visitors still send their own messages. Rates, detailed warranty coverage and remaining business terms are still needed; the owner-input notes remain local and are excluded from Git. Automatic WhatsApp delivery and public image AI are not activated merely by adding a local Gemini key.
 

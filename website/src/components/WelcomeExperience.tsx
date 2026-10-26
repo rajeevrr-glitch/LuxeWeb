@@ -318,7 +318,8 @@ export function WelcomeExperience() {
             const target =
               previous?.isConnected && previous.tagName !== "BODY"
                 ? previous
-                : document.querySelector<HTMLElement>('header a[href="/callback"], header a');
+                : (document.querySelector<HTMLElement>('header a[href="/callback"]') ??
+                  document.querySelector<HTMLElement>("header a.brand"));
             target?.focus({ preventScroll: true });
           }}
         >
@@ -402,7 +403,7 @@ export function WelcomeExperience() {
                     ? "An office, a showroom or a place to welcome guests. Start something worth celebrating."
                     : "A festive refresh or a whole new beginning? Choose your space. We’ll help with the rest."
                   : step === 1
-                    ? "We’ll include your project and contact details in the message."
+                    ? "Share your project and contact details with our team."
                     : delivery.result
                       ? "Your request has been saved for our team."
                       : "Press Send in WhatsApp to share your request with our team."}

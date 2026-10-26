@@ -46,9 +46,6 @@ export function StudioHeader() {
   ] as const;
   return (
     <header className="studio-header lx-header">
-      <a href="#main-content" className="skip-link">
-        Skip to content
-      </a>
       <PromotionBar />
       <div className="studio-nav wrap">
         <Link to="/" aria-label="LuxeInfra home" className="brand">

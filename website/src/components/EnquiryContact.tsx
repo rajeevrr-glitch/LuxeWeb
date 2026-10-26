@@ -106,7 +106,7 @@ export function ContactDisclosure({
   return (
     <p className="lf-disclosure">
       {automatic
-        ? "Submitting saves your request privately and notifies our team through WhatsApp. "
+        ? "Submitting saves your request privately for our team to review. "
         : direct
           ? "WhatsApp will open with your details. Press Send there to contact us. "
           : "Choose WhatsApp or email on the next screen, then send your request. "}

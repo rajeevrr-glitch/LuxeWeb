@@ -91,6 +91,7 @@ test("source, secrets, hidden and ambiguous encoded paths never reach SSR", () =
     "/.vercel/output/config.json",
     "/netlify.toml",
     "/netlify/functions/source.ts",
+    "/supabase/migrations/202610260001_lead_intake.sql",
     "/src/server.ts",
     "/scripts/production-server.mjs",
     "/docs/OWNER-INPUTS.md",

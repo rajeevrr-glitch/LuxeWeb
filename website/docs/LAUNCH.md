@@ -61,9 +61,103 @@ The hosted gateway preserves SSR, redirects/404s, security headers, robots/sitem
 
 The current public release includes manual WhatsApp/email, built-in Ask Luxe answers and the room-fit planner. External Gemini conversation, AI image generation and automatic enquiry delivery remain disconnected on serverless hosting until durable private storage, shared allowance limits and delivery configuration are implemented. Adding a local key does not provide that hosted backend or transfer private local records. Local AI settings and records remain unchanged.
 
+### Missing package.json during a Netlify build
+
+The owner's imported repository is https://github.com/rajeevrr-glitch/LuxeWeb, branch main. Its file listing was checked on 26 October 2026: the current app is inside website/, with website/package.json and website/netlify.toml. For this existing repository, set Base directory to website, leave Package directory unset, keep Build command npm run build:netlify and Publish directory dist/client, and use Node 24. Save and retry the deployment. The publish path is relative to website; do not enter website/dist/client. The repository root also contains historical archives and ZIP packages, which are not build inputs.
+
+If the log says `ENOENT /opt/build/repo/package.json` and `No config file was defined`, the selected repository root does not contain the required build files. This failure happens before the website compiles. Confirm the connected repository and production branch, then open that branch in the Git provider and locate package.json and netlify.toml.
+
+| Location in the Git repository | Netlify Base directory |
+| --- | --- |
+| package.json and netlify.toml at the top level | Leave blank |
+| website/package.json and website/netlify.toml | website |
+| LuxeWeb/website/package.json and LuxeWeb/website/netlify.toml | LuxeWeb/website |
+
+Use the actual repository path, preserving capitalisation. Change Base directory in Project configuration → Developer settings → Continuous deployment → Build settings. Keep the build command `npm run build:netlify` and publish directory `dist/client`, relative to that base. Save and retry the deployment. The next log should identify the correct working directory and netlify.toml.
+
+If package.json or netlify.toml is absent from the connected branch, push the complete source from Desktop/LuxeWeb/website using Git with its .gitignore. Do not upload private files manually. Do not upload only dist/ or compensate by changing the build command; the remote source must include the required files. The local project is not currently a Git checkout, so it does not identify which remote repository or branch was imported.
+
 Official references checked on 26 October 2026:
 
+- https://docs.netlify.com/build/configure-builds/overview/
 - https://docs.netlify.com/build/frameworks/framework-setup-guides/tanstack-start/
 - https://docs.netlify.com/build/configure-builds/manage-dependencies/
 - https://docs.netlify.com/manage/accounts-and-billing/billing/billing-for-credit-based-plans/credit-based-pricing-plans/
 - https://www.netlify.com/blog/introducing-netlify-free-plan/
+
+## Backend work for full public functionality — 26 October 2026
+
+The initial audit covered source/configuration, not the owner's live deployment URL. The public Netlify build supports browsing, portfolio, manual WhatsApp/email handoff, built-in Luxe quick answers and room-fit planning. Its hosted services default to disconnected. The Supabase lead-only implementation described below adds opt-in database saving after migration and private runtime setup; external Gemini conversation, room lead capture and image generation remain disconnected. The laptop's private files, in-memory jobs/sessions and file-based quotas cannot be used unchanged as a distributed serverless backend.
+
+Recommended implementation order:
+
+1. Build a shared private lead database and server-side intake for the popup, quote/callback, partnership and room requests. Validate inputs/consent, prevent duplicate retries and return a reference only after the lead is saved. Preserve records when a notification fails.
+2. Connect automatic internal email alerts to sales@luxeinfra.in and infoluxeinfra@gmail.com through a verified sending domain. Provide a password-protected owner/team inbox with follow-up states and notification failure/recovery visibility. The existing local desk is not a hosted staff inbox. Visitors do not need an account for ordinary quote requests.
+3. Connect the WhatsApp Business Platform sender, approved notification template and consenting internal recipient. Distinguish provider acceptance from actual delivery; process signed status webhooks and prevent duplicate sends. Current manual WhatsApp remains available until the account is connected. Provider messaging charges may apply.
+4. Port Gemini text chat to a hosted server API using private runtime settings, shared sessions and atomic attempt limits. Keep the existing opt-in, maintained site knowledge and quick-answer fallback.
+5. Port Room Studio to private photo/result storage, expiring access, upload validation/metadata stripping and durable generation jobs. Enforce visitor ownership, contact consent, shared quotas and generation limits before the provider call. Protect against function retries generating or billing twice; recover known jobs instead of blindly repeating them. Delete expired photos/results according to the approved retention rule. Keep the existing local pilot counter and completed comparison receipt unchanged.
+6. Add server-enforced abuse controls, restricted staff access, backups/restore, retention/deletion, redacted monitoring and provider usage alerts. Test saved enquiry, notification receipt/failure, duplicate submission, blocked upload, unauthorised access and restart behavior on staging before activation. Update the privacy page to describe the actual hosted arrangement.
+7. Numerical estimates can be activated separately when the owner supplies an approved rate book, units, taxes, inclusions/exclusions and validity. This is a business-data dependency; it does not prevent a working request-for-quote launch.
+
+A suitable stack is the existing Netlify site/functions with Supabase for shared Postgres, staff authentication and private file storage, plus a transactional email provider such as Resend. Keep service-role/provider secrets in private Netlify runtime settings. Restrict database/storage access through policies; do not expose private leads or photos in a public bucket. For image jobs, Netlify background functions are an option, with durable job locking because failed invocations are retried by the platform. Lead saving is prepared below; the other services are architecture recommendations, not completed account connections.
+
+Start with lead saving, email notifications and staff access before advertising automatic enquiries or AI as available. Supabase currently has a Free plan with limits and inactivity pausing; paid messaging/image generation and hosting usage are separate costs. No provider plan, billing setting, account or quota was changed during this audit.
+
+Official architecture references checked on 26 October 2026:
+
+- https://docs.netlify.com/build/functions/environment-variables/
+- https://docs.netlify.com/build/functions/background-functions/
+- https://supabase.com/docs/guides/database/postgres/row-level-security
+- https://supabase.com/docs/guides/storage/security/access-control
+- https://supabase.com/pricing
+- https://resend.com/docs/dashboard/domains/introduction
+- https://whatsappbusiness.com/products/platform-pricing/
+
+## Supabase lead saving: Luxe Infra / Luxe Web
+
+The owner created the Supabase project at https://wmifcaakggcsrovqqyhq.supabase.co. The first hosted implementation is database-only intake for quote, callback, welcome, detailed-brief and partnership requests. It saves the existing text/contact payload, not uploaded photos/files. Its success means a private database commit with a reference, not an email/WhatsApp notification, a quotation or an appointment. Gemini chat, room contact capture/generation, staff login/inbox and automatic notifications remain separate work.
+
+The owner supplied the current production website URL https://fantastic-liger-68a1da.netlify.app. Use that exact value for SITE_URL during this initial connection; change it deliberately when the custom domain becomes the canonical submission origin. It is already recorded in the private local setup for readiness checks.
+
+### One-time database setup
+
+1. In the Luxe Web Supabase dashboard, open SQL Editor → New query. Paste the entire committed supabase/migrations/202610260001_lead_intake.sql and Run it as the database owner. It creates private tables and restricted RPCs without dropping existing data. Running it again preserves existing leads.
+   If an error mentions an inline_code_block and missing luxe_private schema, the test script may have been run before the migration. The setup file contains create schema if not exists luxe_private; the tests file does not. Open a fresh query with the complete migration rather than only a selected part or the SQL tests.
+2. Keep luxe_private out of exposed API schemas. The migration enables RLS, revokes anonymous/authenticated access and permits the server service role to call only the two public functions; it cannot directly read the private tables through this configuration. Do not enable anonymous direct database writes or make customer records public.
+3. Use the existing project's Secret key from Settings → API Keys. Put it only after SUPABASE_SECRET_KEY in the ignored local .env.local for a connection check, and later in Netlify environment settings. It starts sb_secret_; a Publishable key will not activate this backend. No database password or Supabase personal access token is needed for this integration.
+4. Run npm run leads:check for local configuration booleans. Run npm run leads:check -- --connect for a read-only RPC check that creates no lead and sends no notification. All values printed are booleans or a numeric HTTP status; the key and provider error bodies are never printed. databaseReady must be true before enabling intake. HTTP 404 normally means the migration/RPC is missing from the API schema cache; 401/403 requires checking the credential/permissions. A network failure is reported without its raw error text.
+
+### Netlify connection after database readiness
+
+Push the current website source, including its new supabase/ folder and hosted-leads.server.ts, using Git's ignore rules. Keep website as the Base directory for the existing LuxeWeb repository. In Netlify's environment settings, enter these private runtime values; do not put them in netlify.toml, GitHub or VITE_ variables:
+
+| Variable | Value |
+| --- | --- |
+| SUPABASE_URL | https://wmifcaakggcsrovqqyhq.supabase.co |
+| SUPABASE_SECRET_KEY | The private server Secret key |
+| LUXE_LEADS_HMAC_SECRET | The generated 64-character hex secret in local .env.local; use the same value across function instances |
+| SITE_URL | Exact current production HTTPS website origin, with no trailing slash/path; use the owner's Netlify URL until the custom domain is connected |
+| LUXE_LEADS_ENABLED | Keep false during setup; set true only after migration/readiness and the current site origin are confirmed |
+
+Redeploy after runtime settings are saved. Public database intake requires the baked production context, exact configured site origin and Netlify's trusted context.ip. Preview deployments and an unconfigured Node/local runner retain the manual fallback. The status endpoint gives an HttpOnly, Secure, SameSite=Strict signed session cookie; submissions require that cookie, same-origin JSON, bounded contact fields and explicit consent. Forwarded-IP headers supplied by a caller are not trusted. If the deployed context lacks an IP, the capability fails closed rather than bypassing rate controls.
+
+Confirm /api/enquiry-delivery/status shows enabled:true, channel:database, notifications.email:false and notifications.whatsapp:false. Test one clearly labelled synthetic enquiry through the deployed form and confirm one matching row in Supabase before treating automatic capture as live. A timeout can follow a successful database commit; browser retries keep the same ID and the database returns the same reference. Do not create repeated tests with real customer data, and do not confuse a stored lead with a message sent to the business team.
+
+Until the separate staff inbox/alerts are connected, the owner can inspect enquiries privately in Supabase SQL Editor:
+
+```sql
+select reference, created_at, kind, name, phone, city, message, status
+from luxe_private.leads
+order by created_at desc
+limit 100;
+```
+
+No public listing endpoint exists. Keep a team review process in place before enabling public capture. The database enforces atomic duplicate handling, 12 enquiries per IP per rolling 10 minutes, five per phone per rolling hour, 500 total per UTC day and 10,000 retained leads. These are launch safeguards, not a spam-proof identity check. Quota keys are HMACs; raw IP addresses are not stored. All customer requests remain until managed under the agreed retention/deletion policy; expired rate events are cleaned after 24 hours. The migration does not silently delete leads. Add monitoring, an agreed retention/deletion routine and staff access before scaling.
+
+The SQL tests in supabase/tests/lead_intake.sql are for a disposable database only, with rollback. They cover restricted access, idempotency/conflicts, rate/capacity limits and timestamps. The implementation was also checked locally against an in-memory Postgres-compatible database; that does not replace the actual Supabase readiness and deployed form checks.
+
+References:
+
+- https://supabase.com/docs/guides/getting-started/api-keys
+- https://supabase.com/docs/guides/database/functions
+- https://docs.netlify.com/build/functions/api/

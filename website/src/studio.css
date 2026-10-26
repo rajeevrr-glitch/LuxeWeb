@@ -576,16 +576,6 @@ p {
   flex-direction: column;
   gap: 16px;
 }
-.skip-link {
-  position: absolute;
-  left: 10px;
-  top: -100px;
-  background: #fff;
-  padding: 12px;
-}
-.skip-link:focus {
-  top: 10px;
-}
 .hero {
   display: grid;
   grid-template-columns: 1fr 1.05fr;

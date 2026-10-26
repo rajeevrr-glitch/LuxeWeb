@@ -17,13 +17,13 @@ function Page() {
           <p>This notice explains how this website handles your project information.</p>
           <h2>You choose when to contact us</h2>
           <p>
-            When automatic submission is configured, the form shows Send my quote request (or Submit
-            my brief / Send my introduction). Submitting sends your name, phone, city, project
-            details and consent to LuxeInfra’s server. Your full text request is kept in private
-            storage for the team to follow up. A summary and contact details are sent to the
-            configured internal team number through the WhatsApp Business Platform. A reference
-            confirms submission; it does not confirm a booking, quotation, or that a team member has
-            read the notification. Photos and plans are not uploaded by this automatic submission.
+            When automatic online submission is enabled, the form shows Send my quote request (or
+            Submit my brief / Send my introduction). Submitting sends your name, phone, city,
+            project details and consent through LuxeInfra’s server handler hosted by Netlify. Your
+            full text request is saved in a private Supabase database for the team to review. A
+            reference confirms that your request was saved; it does not confirm a booking, quotation
+            or that a team member has read it. This submission does not send an automatic email or
+            WhatsApp alert. Photos and plans are not uploaded with it.
           </p>
           <p>
             When the form offers Continue in WhatsApp, it follows the manual process below. If
@@ -54,19 +54,19 @@ function Page() {
           <h2>Partnership and career introductions</h2>
           <p>
             The partnership form prepares your interest, name, phone number, city and any optional
-            organisation or introduction you add. When automatic submission is configured, these
-            details follow the private-server and internal notification process above. Otherwise,
-            continuing opens a WhatsApp draft for you to review and send yourself. Email remains
-            available as a fallback. These details are not saved to browser storage. LuxeInfra uses
-            the details you send to review and respond to your introduction.
+            organisation or introduction you add. When automatic online submission is enabled, these
+            details follow the private saving process above. Otherwise, continuing opens a WhatsApp
+            draft for you to review and send yourself. Email remains available as a fallback. These
+            details are not saved to browser storage. LuxeInfra uses the details you send to review
+            and respond to your introduction.
           </p>
           <h2>The optional detailed brief</h2>
           <p>
             The planner brings together your room choices, city, contact details, notes and
-            inspiration references. When automatic submission is configured, its full text is saved
-            privately, with a summary notification sent to the team. Otherwise, continuing opens
-            WhatsApp with your brief or a shorter introduction for long briefs. Press Send there to
-            contact LuxeInfra. The full brief can also be downloaded in your browser.
+            inspiration references. When automatic online submission is enabled, its full text is
+            saved privately for the team to review. Otherwise, continuing opens WhatsApp with your
+            brief or a shorter introduction for long briefs. Press Send there to contact LuxeInfra.
+            The full brief can also be downloaded in your browser.
           </p>
           <p>
             When using manual sharing, WhatsApp opens a message for you to review and send. Email
@@ -146,10 +146,11 @@ function Page() {
           <h2>Questions or deletion requests</h2>
           <p>
             Contact <a href={"mailto:" + business.email}>{business.email}</a> about your project
-            information, corrections or deletion requests. Automatic text submissions remain in
-            LuxeInfra’s private hosting storage until managed by the team. Contact details and files
-            shared through WhatsApp or email also remain in those receiving services until managed
-            there. Closing a form or leaving the page does not withdraw a request already submitted.
+            information, corrections or deletion requests. When automatic online submission is
+            enabled, text requests remain in LuxeInfra’s private Supabase database until managed or
+            deleted by the team. Contact details and files shared through WhatsApp or email also
+            remain in those receiving services until managed there. Closing a form or leaving the
+            page does not withdraw a request already submitted.
           </p>
         </div>
       </section>

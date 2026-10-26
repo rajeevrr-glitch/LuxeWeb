@@ -367,7 +367,7 @@ function Partners() {
                     </button>
                     <p className="lx-form-disclosure">
                       {delivery.enabled
-                        ? "Submitting saves your introduction privately and notifies our team through WhatsApp. "
+                        ? "Submitting saves your introduction privately for our team to review. "
                         : "WhatsApp opens with your introduction. Review it and press Send there. "}
                       By {delivery.enabled ? "submitting" : "sending"}, you ask LuxeInfra to contact
                       you about this opportunity. <Link to="/privacy">Privacy details</Link>

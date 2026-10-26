@@ -40,6 +40,7 @@ const privateDirectories = new Set([
   ".netlify",
   ".vercel",
   "netlify",
+  "supabase",
   "src",
   "scripts",
   "tests",

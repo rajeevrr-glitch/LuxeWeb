@@ -80,8 +80,7 @@ export const Route = createFileRoute("/callback")({
       { name: "robots", content: "noindex, follow" },
       {
         name: "description",
-        content:
-          "Choose your space, add your details and continue directly to LuxeInfra on WhatsApp.",
+        content: "Choose your space and share a short project request with the LuxeInfra team.",
       },
     ],
   }),
@@ -249,8 +248,8 @@ function Callback() {
             <span className="lf-kicker">Talk to LuxeInfra</span>
             <h1>Tell us what you need.</h1>
             <p>
-              A kitchen, a complete home or a space for your business. Share a few details and
-              discuss your project with our team on WhatsApp.
+              A kitchen, a complete home or a space for your business. Share a few details so our
+              team can help you plan the next step.
             </p>
             <div className="lf-story-benefits">
               <span>
@@ -292,7 +291,7 @@ function Callback() {
               <p className="lf-step-copy">
                 {step === 0
                   ? "Choose the work you need."
-                  : "Your project details will be included in the WhatsApp message."}
+                  : "Your project choices will be included with your request."}
               </p>
             </>
           )}

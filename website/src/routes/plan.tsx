@@ -87,7 +87,7 @@ function Begin() {
                 <Check size={15} /> No measurements needed
               </li>
               <li>
-                <Check size={15} /> Continue directly to WhatsApp
+                <Check size={15} /> Send a short request to our team
               </li>
             </ul>
             <Link
