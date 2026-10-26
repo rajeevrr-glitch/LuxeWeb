@@ -128,10 +128,19 @@ export function protectHostedResponse(
   headers.set("Cache-Control", "no-store");
   const pathname = new URL(request.url).pathname;
   if (
+    pathname === "/reset-password" ||
+    pathname === "/admin" ||
+    pathname.startsWith("/admin/") ||
+    pathname === "/api/admin" ||
+    pathname.startsWith("/api/admin/")
+  )
+    headers.set("Referrer-Policy", "no-referrer");
+  if (
     !indexable(request, options) ||
     response.status >= 400 ||
     pathname === "/admin" ||
     pathname.startsWith("/admin/") ||
+    pathname === "/reset-password" ||
     pathname === "/healthz" ||
     pathname === "/api" ||
     pathname.startsWith("/api/")
@@ -215,7 +224,7 @@ export function handleHostedRequest(
     return respond(
       200,
       indexable(request, options)
-        ? `User-agent: *\nAllow: /\nDisallow: /api/\nDisallow: /admin\nSitemap: ${ownedOrigin}/sitemap.xml\n`
+        ? `User-agent: *\nAllow: /\nDisallow: /api/\nDisallow: /admin\nDisallow: /reset-password\nSitemap: ${ownedOrigin}/sitemap.xml\n`
         : "User-agent: *\nDisallow: /\n",
     );
   if (pathname === "/sitemap.xml")

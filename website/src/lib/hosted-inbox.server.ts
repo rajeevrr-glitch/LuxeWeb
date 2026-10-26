@@ -8,6 +8,7 @@ import {
 import { isIP } from "node:net";
 import { hostedLeadConfiguration } from "./hosted-config.server.ts";
 import { emailAlertConfiguration } from "./lead-email-worker.server.ts";
+import { createHostedRecovery } from "./hosted-recovery.server.ts";
 
 type Environment = Record<string, string | undefined>;
 type Options = { env?: Environment; fetch?: typeof fetch; now?: () => number };
@@ -19,6 +20,7 @@ type RecordValue = Record<string, unknown>;
 const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const statuses = ["new", "contacted", "qualified", "closed"];
 const kinds = ["quote", "project-brief", "partner"];
+const workViews = ["", "today", "overdue", "unscheduled", "unassigned", "mine"];
 const maximumAge = 30 * 60 * 1000;
 const errorMessage = "The private inbox could not complete this request. Please try again.";
 const cookieAad = Buffer.from("luxe-inbox-session:v1");
@@ -134,7 +136,63 @@ function member(value: unknown) {
   if (!record(value) || typeof value.active !== "boolean") throw new InboxError(503);
   return { ...safe, active: value.active };
 }
-function lead(value: unknown) {
+function assignee(value: unknown) {
+  if (value === null) return null;
+  if (
+    !record(value) ||
+    !string(value.id, 36) ||
+    !uuid.test(value.id) ||
+    !string(value.displayName, 80) ||
+    !value.displayName.trim() ||
+    typeof value.active !== "boolean"
+  )
+    throw new InboxError(503);
+  return { id: value.id, displayName: value.displayName, active: value.active };
+}
+
+function workflow(value: unknown, user: Actor) {
+  if (
+    !record(value) ||
+    value.enabled !== true ||
+    value.canAssign !== (user.role === "owner") ||
+    !Array.isArray(value.assignees) ||
+    value.assignees.length > 100 ||
+    !record(value.counts) ||
+    !date(value.asOf) ||
+    value.timeZone !== "Asia/Kolkata"
+  )
+    throw new InboxError(503);
+  const counts: Record<string, number> = {};
+  for (const key of ["today", "overdue", "unscheduled", "unassigned", "mine"]) {
+    if (!count(value.counts[key]) || value.counts[key] > 10000) throw new InboxError(503);
+    counts[key] = value.counts[key] as number;
+  }
+  const ids = new Set<string>();
+  const assignees = value.assignees.map((entry: unknown) => {
+    if (
+      !record(entry) ||
+      !string(entry.id, 36) ||
+      !uuid.test(entry.id) ||
+      !string(entry.displayName, 80) ||
+      !entry.displayName.trim() ||
+      !["owner", "staff"].includes(String(entry.role)) ||
+      ids.has(entry.id.toLowerCase())
+    )
+      throw new InboxError(503);
+    ids.add(entry.id.toLowerCase());
+    return { id: entry.id, displayName: entry.displayName, role: entry.role };
+  });
+  return {
+    enabled: true,
+    canAssign: user.role === "owner",
+    assignees,
+    counts,
+    asOf: value.asOf,
+    timeZone: "Asia/Kolkata",
+  };
+}
+
+function lead(value: unknown, workflowEnabled = false) {
   if (
     !record(value) ||
     !string(value.id, 36) ||
@@ -165,6 +223,7 @@ function lead(value: unknown) {
     status: value.status,
     notes: value.notes,
     followUpAt: value.followUpAt,
+    ...(workflowEnabled ? { assignedTo: assignee(value.assignedTo) } : {}),
   };
 }
 function count(value: unknown): value is number {
@@ -172,8 +231,10 @@ function count(value: unknown): value is number {
 }
 
 export function createHostedInbox(options: Options = {}) {
+  const recovery = createHostedRecovery(options);
   const environment = options.env ?? process.env;
   const config = hostedLeadConfiguration(environment);
+  const workflowEnabled = environment.LUXE_WORKFLOW_ENABLED === "true";
   const requestFetch = options.fetch ?? fetch;
   const now = options.now ?? Date.now;
   const digest = (value: string) => createHmac("sha256", config.secret).update(value).digest("hex");
@@ -298,6 +359,7 @@ export function createHostedInbox(options: Options = {}) {
     async handle(request: Request, context: Context = {}): Promise<Response | null> {
       const url = new URL(request.url);
       if (url.pathname !== "/api/admin" && !url.pathname.startsWith("/api/admin/")) return null;
+      if (url.pathname.startsWith("/api/admin/recovery/")) return recovery.handle(request, context);
       const ip = address(context.runtime);
       const local =
         environment.LUXE_INBOX_LOCAL === "true" &&
@@ -445,7 +507,7 @@ export function createHostedInbox(options: Options = {}) {
             return json(405, { error: "Use GET to view leads." }, { Allow: "GET" });
           if (
             [...url.searchParams.keys()].some(
-              (key) => !["search", "status", "kind", "page"].includes(key),
+              (key) => !["search", "status", "kind", "page", "work"].includes(key),
             ) ||
             [...url.searchParams.keys()].some((key) => url.searchParams.getAll(key).length !== 1)
           )
@@ -454,20 +516,24 @@ export function createHostedInbox(options: Options = {}) {
           const status = url.searchParams.get("status") ?? "";
           const kind = url.searchParams.get("kind") ?? "";
           const page = url.searchParams.get("page") ?? "1";
+          const work = url.searchParams.get("work") ?? "";
           if (
             !string(search, 100) ||
             (status && !statuses.includes(status)) ||
             (kind && !kinds.includes(kind)) ||
+            !workViews.includes(work) ||
+            (!workflowEnabled && work !== "") ||
             !/^[1-9]\d{0,2}$/.test(page) ||
             Number(page) > 400
           )
             throw new InboxError(400);
-          const result = await rpc("luxe_inbox_list", {
+          const result = await rpc(workflowEnabled ? "luxe_inbox_work_list" : "luxe_inbox_list", {
             p_actor: user.id,
             p_search: search,
             p_status: status,
             p_kind: kind,
             p_page: Number(page),
+            ...(workflowEnabled ? { p_work: work } : {}),
           });
           if (
             !record(result) ||
@@ -485,11 +551,12 @@ export function createHostedInbox(options: Options = {}) {
             summary[key] = result.summary[key] as number;
           }
           return json(200, {
-            items: result.items.map(lead),
+            items: result.items.map((item: unknown) => lead(item, workflowEnabled)),
             total: result.total,
             page: result.page,
             pageSize: 25,
             summary,
+            ...(workflowEnabled ? { workflow: workflow(result.workflow, user) } : {}),
           });
         }
         const leadMatch = url.pathname.match(/^\/api\/admin\/leads\/([^/]+)$/);
@@ -498,7 +565,10 @@ export function createHostedInbox(options: Options = {}) {
           if (request.method === "GET")
             return json(
               200,
-              lead(await rpc("luxe_inbox_lead", { p_actor: user.id, p_id: leadMatch[1] })),
+              lead(
+                await rpc("luxe_inbox_lead", { p_actor: user.id, p_id: leadMatch[1] }),
+                workflowEnabled,
+              ),
             );
           if (request.method !== "PATCH")
             return json(405, { error: "Use GET or PATCH for a lead." }, { Allow: "GET, PATCH" });
@@ -509,25 +579,45 @@ export function createHostedInbox(options: Options = {}) {
           )
             throw new InboxError(415);
           const input = await boundedJson(request, 12 * 1024);
+          const hasAssignment = record(input) && Object.hasOwn(input, "assignedTo");
+          if (workflowEnabled && hasAssignment && user.role !== "owner") throw new InboxError(403);
           if (
-            !exact(input, ["status", "notes", "followUpAt", "expectedUpdatedAt"]) ||
+            !exact(input, [
+              "status",
+              "notes",
+              "followUpAt",
+              "expectedUpdatedAt",
+              ...(workflowEnabled && hasAssignment ? ["assignedTo"] : []),
+            ]) ||
             !statuses.includes(String(input.status)) ||
             !string(input.notes, 4000) ||
             !(input.followUpAt === null || date(input.followUpAt)) ||
-            !date(input.expectedUpdatedAt)
+            !date(input.expectedUpdatedAt) ||
+            (hasAssignment &&
+              !(
+                input.assignedTo === null ||
+                (string(input.assignedTo, 36) && uuid.test(input.assignedTo))
+              ))
           )
             throw new InboxError(400);
           return json(
             200,
             lead(
-              await rpc("luxe_inbox_update", {
+              await rpc(workflowEnabled ? "luxe_inbox_work_update" : "luxe_inbox_update", {
                 p_actor: user.id,
                 p_id: leadMatch[1],
                 p_status: input.status,
                 p_notes: input.notes,
                 p_follow_up_at: input.followUpAt,
                 p_expected_updated_at: input.expectedUpdatedAt,
+                ...(workflowEnabled
+                  ? {
+                      p_change_assignee: hasAssignment,
+                      p_assigned_to: hasAssignment ? input.assignedTo : null,
+                    }
+                  : {}),
               }),
+              workflowEnabled,
             ),
           );
         }

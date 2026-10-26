@@ -115,8 +115,14 @@ export function createProductionServer({
       }
       if (pathname.includes("\\") || pathname.split("/").some((part) => part.startsWith(".")))
         return send(404, "Not found");
-      if (pathname === "/admin" || pathname.startsWith("/admin/"))
+      if (
+        pathname === "/admin" ||
+        pathname.startsWith("/admin/") ||
+        pathname === "/reset-password"
+      ) {
         res.setHeader("X-Robots-Tag", "noindex, nofollow");
+        res.setHeader("Referrer-Policy", "no-referrer");
+      }
       if (await inbox(req, res)) return;
       if (await chat.handle(req, res)) return;
       if (pathname === "/api/enquiry-delivery/status" && ["GET", "HEAD"].includes(req.method))
@@ -144,7 +150,7 @@ export function createProductionServer({
         return send(
           200,
           indexable
-            ? `User-agent: *\nAllow: /\nDisallow: /api/\nDisallow: /admin\nSitemap: ${origin}/sitemap.xml\n`
+            ? `User-agent: *\nAllow: /\nDisallow: /api/\nDisallow: /admin\nDisallow: /reset-password\nSitemap: ${origin}/sitemap.xml\n`
             : "User-agent: *\nDisallow: /\n",
         );
       if (pathname === "/sitemap.xml")

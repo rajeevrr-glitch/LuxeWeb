@@ -32,6 +32,20 @@ const entry = {
   followUpAt: null,
 };
 const summary = { total: 1, new: 1, contacted: 0, qualified: 0, closed: 0, followUpsDue: 0 };
+const assignee = {
+  id: "62345678-1234-4123-8123-123456789abc",
+  displayName: "Studio coordinator",
+  active: true,
+};
+const workflowCounts = { today: 1, overdue: 0, unscheduled: 0, unassigned: 0, mine: 0 };
+const workflowMetadata = {
+  enabled: true,
+  canAssign: true,
+  assignees: [{ id: assignee.id, displayName: assignee.displayName, role: "staff" }],
+  counts: workflowCounts,
+  asOf: "2026-10-27T06:00:00Z",
+  timeZone: "Asia/Kolkata",
+};
 const notificationSummary = {
   pending: 1,
   retrying: 1,
@@ -129,6 +143,41 @@ function setup(overrides = {}) {
         return state.denied
           ? Response.json({ error: "inactive" }, { status: 403 })
           : Response.json({ ...staff, role: state.role, privateColumn: "must not escape" });
+      if (path.endsWith("luxe_inbox_work_list"))
+        return Response.json(
+          Object.hasOwn(state, "workList")
+            ? state.workList
+            : {
+                items: state.items ?? [{ ...entry, assignedTo: assignee, privateColumn: "hidden" }],
+                page: payload.p_page,
+                pageSize: 25,
+                total: 1,
+                summary,
+                workflow: { ...workflowMetadata, canAssign: state.role === "owner" },
+                privateColumn: "hidden",
+              },
+        );
+      if (path.endsWith("luxe_inbox_work_update")) {
+        if (state.workUpdateStatus)
+          return Response.json(
+            { diagnostic: "Private assignment conflict", supplied: payload },
+            { status: state.workUpdateStatus },
+          );
+        return Response.json(
+          Object.hasOwn(state, "leadResult")
+            ? state.leadResult
+            : {
+                ...entry,
+                notes: payload.p_notes,
+                assignedTo: payload.p_change_assignee
+                  ? payload.p_assigned_to === null
+                    ? null
+                    : { ...assignee, id: payload.p_assigned_to }
+                  : assignee,
+                privateColumn: "hidden",
+              },
+        );
+      }
       if (path.endsWith("luxe_inbox_list"))
         return Response.json({
           items: state.items ?? [{ ...entry, privateColumn: "hidden" }],
@@ -139,11 +188,16 @@ function setup(overrides = {}) {
           privateColumn: "hidden",
         });
       if (path.endsWith("luxe_inbox_update") || path.endsWith("luxe_inbox_lead"))
-        return Response.json({
-          ...entry,
-          notes: payload.p_notes ?? entry.notes,
-          privateColumn: "hidden",
-        });
+        return Response.json(
+          Object.hasOwn(state, "leadResult")
+            ? state.leadResult
+            : {
+                ...entry,
+                notes: payload.p_notes ?? entry.notes,
+                assignedTo: assignee,
+                privateColumn: "hidden",
+              },
+        );
       if (path.endsWith("luxe_inbox_team"))
         return Response.json({ members: [{ ...staff, active: true }], audit: [] });
       if (path.endsWith("luxe_inbox_access"))
@@ -744,4 +798,387 @@ test("RPC conflicts and capacity errors preserve safe status codes while droppin
     conflict = true;
   }
   assert.equal(base.calls.length, 0);
+});
+
+test("workflow is opt-in and signed-out visitors cannot read assignments or workload", async () => {
+  for (const enabled of [undefined, "false", "TRUE", "true"]) {
+    const { handler, calls } = setup({ env: { LUXE_WORKFLOW_ENABLED: enabled } });
+    assert.equal((await handler.handle(request("leads?work=today"), context)).status, 401);
+    assert.equal(calls.length, 0);
+    const session = await login(handler);
+    const list = await handler.handle(request("leads", { cookie: session.cookie }), context);
+    assert.equal(list.status, 200);
+    const value = await list.json();
+    if (enabled === "true") {
+      assert.equal(value.workflow.enabled, true);
+      assert.deepEqual(value.items[0].assignedTo, assignee);
+      assert.ok(calls.at(-1).path.endsWith("luxe_inbox_work_list"));
+    } else {
+      assert.deepEqual(value, { items: [entry], total: 1, page: 1, pageSize: 25, summary });
+      assert.ok(calls.at(-1).path.endsWith("luxe_inbox_list"));
+      const before = calls.filter((call) => call.path.endsWith("luxe_inbox_list")).length;
+      assert.equal(
+        (await handler.handle(request("leads?work=today", { cookie: session.cookie }), context))
+          .status,
+        400,
+      );
+      assert.equal(calls.filter((call) => call.path.endsWith("luxe_inbox_list")).length, before);
+    }
+  }
+});
+
+test("workload filters use the fixed actor-scoped RPC and preserve filters before pagination", async () => {
+  const { handler, calls } = setup({ env: { LUXE_WORKFLOW_ENABLED: "true" } });
+  const session = await login(handler);
+  for (const work of ["", "today", "overdue", "unscheduled", "unassigned", "mine"]) {
+    const result = await handler.handle(
+      request("leads?search=Noida&status=new&kind=quote&page=2&work=" + work, {
+        cookie: session.cookie,
+      }),
+      context,
+    );
+    assert.equal(result.status, 200);
+    assert.deepEqual(await result.json(), {
+      items: [{ ...entry, assignedTo: assignee }],
+      total: 1,
+      page: 2,
+      pageSize: 25,
+      summary,
+      workflow: workflowMetadata,
+    });
+    assert.deepEqual(calls.at(-1), {
+      path: "/rest/v1/rpc/luxe_inbox_work_list",
+      payload: {
+        p_actor: staff.id,
+        p_search: "Noida",
+        p_status: "new",
+        p_kind: "quote",
+        p_page: 2,
+        p_work: work,
+      },
+    });
+  }
+  const before = calls.filter((call) => call.path.endsWith("luxe_inbox_work_list")).length;
+  for (const suffix of [
+    "?work=everyone",
+    "?work=Today",
+    "?work=today&work=mine",
+    "?work=mine&assignedTo=" + assignee.id,
+    "?work=today&page=401",
+    "?work=today&kind=unknown",
+    "?work=today&status=deleted",
+  ]) {
+    const result = await handler.handle(
+      request("leads" + suffix, { cookie: session.cookie }),
+      context,
+    );
+    assert.equal(result.status, 400, suffix);
+  }
+  assert.equal(calls.filter((call) => call.path.endsWith("luxe_inbox_work_list")).length, before);
+});
+
+test("workflow list and detail whitelist names and role metadata without exposing staff email or diagnostics", async () => {
+  const privateValue = "Private assignment diagnostic";
+  const rawAssignee = { ...assignee, email: "private-staff@example.test", privateValue };
+  const { handler, calls } = setup({
+    env: { LUXE_WORKFLOW_ENABLED: "true" },
+    workList: {
+      items: [{ ...entry, assignedTo: rawAssignee, privateValue }],
+      page: 1,
+      pageSize: 25,
+      total: 1,
+      summary: { ...summary, privateValue },
+      workflow: {
+        ...workflowMetadata,
+        assignees: [{ ...rawAssignee, role: "staff", apiKey: env.SUPABASE_SECRET_KEY }],
+        counts: { ...workflowCounts, privateValue },
+        privateValue,
+        secret: env.LUXE_LEADS_HMAC_SECRET,
+      },
+      privateValue,
+    },
+    leadResult: { ...entry, assignedTo: rawAssignee, privateValue },
+  });
+  const session = await login(handler);
+  for (const path of ["leads", "leads/" + entry.id]) {
+    const response = await handler.handle(request(path, { cookie: session.cookie }), context);
+    assert.equal(response.status, 200);
+    assert.match(response.headers.get("cache-control"), /no-store/);
+    assert.equal(response.headers.get("access-control-allow-origin"), null);
+    const value = await response.json();
+    if (path === "leads") {
+      assert.deepEqual(value.workflow, workflowMetadata);
+      assert.deepEqual(value.items, [{ ...entry, assignedTo: assignee }]);
+    } else {
+      assert.deepEqual(value, { ...entry, assignedTo: assignee });
+      assert.deepEqual(calls.at(-1), {
+        path: "/rest/v1/rpc/luxe_inbox_lead",
+        payload: { p_actor: staff.id, p_id: entry.id },
+      });
+    }
+    const output = JSON.stringify(value);
+    for (const secret of [privateValue, env.SUPABASE_SECRET_KEY, env.LUXE_LEADS_HMAC_SECRET])
+      assert.equal(output.includes(secret), false);
+    assert.doesNotMatch(output, /private-staff|test-access-token|apiKey/);
+  }
+});
+
+test("owner assignment changes are explicit and clearing assignment is distinct from keeping it", async () => {
+  const { handler, calls } = setup({ env: { LUXE_WORKFLOW_ENABLED: "true" } });
+  const session = await login(handler);
+  const patch = {
+    status: "contacted",
+    notes: "Call after the site visit",
+    followUpAt: "2026-10-28T08:30:00Z",
+    expectedUpdatedAt: entry.updatedAt,
+  };
+  for (const change of [{}, { assignedTo: assignee.id }, { assignedTo: null }]) {
+    const result = await handler.handle(
+      request("leads/" + entry.id, {
+        method: "PATCH",
+        cookie: session.cookie,
+        csrf: session.value.csrfToken,
+        value: { ...patch, ...change },
+      }),
+      context,
+    );
+    assert.equal(result.status, 200);
+    assert.deepEqual(calls.at(-1), {
+      path: "/rest/v1/rpc/luxe_inbox_work_update",
+      payload: {
+        p_actor: staff.id,
+        p_id: entry.id,
+        p_status: patch.status,
+        p_notes: patch.notes,
+        p_follow_up_at: patch.followUpAt,
+        p_expected_updated_at: patch.expectedUpdatedAt,
+        p_change_assignee: Object.hasOwn(change, "assignedTo"),
+        p_assigned_to: change.assignedTo ?? null,
+      },
+    });
+    assert.deepEqual(
+      (await result.json()).assignedTo,
+      change.assignedTo === null ? null : assignee,
+    );
+  }
+});
+
+test("staff may update follow-up work but cannot assign, unassign, or escalate permissions", async () => {
+  const { handler, state, calls } = setup({ env: { LUXE_WORKFLOW_ENABLED: "true" } });
+  const session = await login(handler);
+  state.role = "staff";
+  const patch = {
+    status: "contacted",
+    notes: "Spoke with the client",
+    followUpAt: null,
+    expectedUpdatedAt: entry.updatedAt,
+  };
+  const list = await handler.handle(
+    request("leads?work=mine", { cookie: session.cookie }),
+    context,
+  );
+  assert.equal(list.status, 200);
+  assert.equal((await list.json()).workflow.canAssign, false);
+  for (const assignedTo of [assignee.id, null]) {
+    const result = await handler.handle(
+      request("leads/" + entry.id, {
+        method: "PATCH",
+        cookie: session.cookie,
+        csrf: session.value.csrfToken,
+        value: { ...patch, assignedTo },
+      }),
+      context,
+    );
+    assert.equal(result.status, 403);
+  }
+  assert.equal(
+    calls.some((call) => call.path.endsWith("luxe_inbox_work_update")),
+    false,
+  );
+  const accepted = await handler.handle(
+    request("leads/" + entry.id, {
+      method: "PATCH",
+      cookie: session.cookie,
+      csrf: session.value.csrfToken,
+      value: patch,
+    }),
+    context,
+  );
+  assert.equal(accepted.status, 200);
+  assert.equal(calls.at(-1).payload.p_change_assignee, false);
+  assert.equal(calls.at(-1).payload.p_assigned_to, null);
+  const before = calls.filter((call) => call.path.endsWith("luxe_inbox_work_update")).length;
+  for (const extra of [{ role: "owner" }, { p_actor: assignee.id }, { canAssign: true }]) {
+    const result = await handler.handle(
+      request("leads/" + entry.id, {
+        method: "PATCH",
+        cookie: session.cookie,
+        csrf: session.value.csrfToken,
+        value: { ...patch, ...extra },
+      }),
+      context,
+    );
+    assert.equal(result.status, 400);
+  }
+  assert.equal(calls.filter((call) => call.path.endsWith("luxe_inbox_work_update")).length, before);
+});
+
+test("workflow mutations retain CSRF, origin, strict assignment and stale-update protections", async () => {
+  const { handler, state, calls } = setup({ env: { LUXE_WORKFLOW_ENABLED: "true" } });
+  const session = await login(handler);
+  const patch = {
+    status: "new",
+    notes: "Private follow-up note",
+    followUpAt: null,
+    expectedUpdatedAt: entry.updatedAt,
+    assignedTo: assignee.id,
+  };
+  const options = {
+    method: "PATCH",
+    cookie: session.cookie,
+    csrf: session.value.csrfToken,
+    value: patch,
+  };
+  for (const invalid of [
+    { csrf: undefined },
+    { csrf: "invalid" },
+    { origin: "https://attacker.example" },
+    { headers: { "sec-fetch-site": "cross-site" } },
+  ])
+    assert.equal(
+      (await handler.handle(request("leads/" + entry.id, { ...options, ...invalid }), context))
+        .status,
+      403,
+    );
+  for (const invalid of [
+    { assignedTo: "not-a-uuid" },
+    { assignedTo: { id: assignee.id } },
+    { assignedTo: "" },
+    { assignedTo: 1 },
+    { role: "owner" },
+    { status: "deleted" },
+    { notes: "x".repeat(4001) },
+    { followUpAt: "invalid" },
+    { expectedUpdatedAt: "invalid" },
+  ])
+    assert.equal(
+      (
+        await handler.handle(
+          request("leads/" + entry.id, { ...options, value: { ...patch, ...invalid } }),
+          context,
+        )
+      ).status,
+      400,
+    );
+  assert.equal(
+    calls.some((call) => call.path.endsWith("luxe_inbox_work_update")),
+    false,
+  );
+  for (const status of [409, 429]) {
+    state.workUpdateStatus = status;
+    const result = await handler.handle(request("leads/" + entry.id, options), context);
+    assert.equal(result.status, status);
+    assert.doesNotMatch(
+      await result.text(),
+      /Private assignment|Private follow-up|p_actor|assignedTo/,
+    );
+  }
+});
+
+test("malformed workflow RPC responses fail closed instead of returning partial or private metadata", async () => {
+  const valid = {
+    items: [{ ...entry, assignedTo: assignee }],
+    total: 1,
+    page: 1,
+    pageSize: 25,
+    summary,
+    workflow: workflowMetadata,
+  };
+  for (const workList of [
+    null,
+    { ...valid, workflow: null },
+    { ...valid, workflow: { ...workflowMetadata, enabled: false } },
+    { ...valid, workflow: { ...workflowMetadata, canAssign: "owner" } },
+    { ...valid, workflow: { ...workflowMetadata, timeZone: "UTC" } },
+    { ...valid, workflow: { ...workflowMetadata, asOf: "invalid" } },
+    { ...valid, workflow: { ...workflowMetadata, counts: { ...workflowCounts, mine: -1 } } },
+    { ...valid, workflow: { ...workflowMetadata, assignees: [{ ...assignee, role: "admin" }] } },
+    {
+      ...valid,
+      workflow: {
+        ...workflowMetadata,
+        assignees: [{ ...assignee, id: "Private identifier", role: "staff" }],
+      },
+    },
+    { ...valid, items: [{ ...entry, assignedTo: { ...assignee, active: "true" } }] },
+    { ...valid, items: [{ ...entry, assignedTo: { ...assignee, id: "Private identifier" } }] },
+    { ...valid, page: 2 },
+  ]) {
+    const { handler } = setup({ env: { LUXE_WORKFLOW_ENABLED: "true" }, workList });
+    const session = await login(handler);
+    const result = await handler.handle(request("leads", { cookie: session.cookie }), context);
+    assert.equal(result.status, 503);
+    assert.deepEqual(await result.json(), {
+      error: "The private inbox could not complete this request. Please try again.",
+    });
+  }
+  const { handler } = setup({
+    env: { LUXE_WORKFLOW_ENABLED: "true" },
+    fail: "/rest/v1/rpc/luxe_inbox_work_list",
+  });
+  const session = await login(handler);
+  const failed = await handler.handle(request("leads", { cookie: session.cookie }), context);
+  assert.equal(failed.status, 503);
+  assert.doesNotMatch(await failed.text(), /secret|credentials|stack|sb_secret/);
+});
+
+test("invalid detail and update assignments are rejected and legacy updates never invoke workflow RPCs", async () => {
+  for (const assignedTo of [undefined, "Private identifier", { ...assignee, active: "yes" }]) {
+    const { handler } = setup({
+      env: { LUXE_WORKFLOW_ENABLED: "true" },
+      leadResult: { ...entry, ...(assignedTo === undefined ? {} : { assignedTo }) },
+    });
+    const session = await login(handler);
+    for (const options of [
+      { cookie: session.cookie },
+      {
+        cookie: session.cookie,
+        csrf: session.value.csrfToken,
+        method: "PATCH",
+        value: {
+          status: "new",
+          notes: "",
+          followUpAt: null,
+          expectedUpdatedAt: entry.updatedAt,
+        },
+      },
+    ]) {
+      const result = await handler.handle(request("leads/" + entry.id, options), context);
+      assert.equal(result.status, 503);
+      assert.doesNotMatch(await result.text(), /Private identifier|active|assignedTo/);
+    }
+  }
+  const { handler, calls } = setup();
+  const session = await login(handler);
+  const result = await handler.handle(
+    request("leads/" + entry.id, {
+      method: "PATCH",
+      cookie: session.cookie,
+      csrf: session.value.csrfToken,
+      value: {
+        status: "new",
+        notes: "Legacy update",
+        followUpAt: null,
+        expectedUpdatedAt: entry.updatedAt,
+      },
+    }),
+    context,
+  );
+  assert.equal(result.status, 200);
+  assert.ok(calls.at(-1).path.endsWith("luxe_inbox_update"));
+  assert.equal(Object.hasOwn(await result.json(), "assignedTo"), false);
+  assert.equal(
+    calls.some((call) => /luxe_inbox_work_/.test(call.path)),
+    false,
+  );
 });

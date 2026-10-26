@@ -1,5 +1,12 @@
 -- TESTS ONLY: disposable database after migrations 001, 002 and 003.
 -- This is not a production setup query. Every fixture is rolled back.
+do $test_guard$
+begin
+  if pg_catalog.current_setting('luxe.disposable_tests', true) is distinct from 'true' then
+    raise exception 'TESTS ONLY. For setup, run supabase/migrations/202610260003_lead_notifications.sql in a new query.';
+  end if;
+end;
+$test_guard$;
 begin;
 
 do $test$

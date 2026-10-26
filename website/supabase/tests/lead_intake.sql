@@ -2,6 +2,13 @@
 -- For setup use supabase/migrations/202610260001_lead_intake.sql instead.
 -- Run after the migration as the database owner against a disposable test DB.
 -- Every test change is rolled back; no fixture contains a real customer's data.
+do $test_guard$
+begin
+  if pg_catalog.current_setting('luxe.disposable_tests', true) is distinct from 'true' then
+    raise exception 'TESTS ONLY. For setup, run supabase/migrations/202610260001_lead_intake.sql in a new query.';
+  end if;
+end;
+$test_guard$;
 begin;
 
 do $test$

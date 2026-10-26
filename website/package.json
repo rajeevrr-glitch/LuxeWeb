@@ -20,6 +20,7 @@
     "delivery:check": "node scripts/delivery-readiness.mjs",
     "leads:check": "node --use-system-ca --env-file=.env.local scripts/lead-readiness.mjs",
     "inbox:check": "node --use-system-ca --env-file=.env.local scripts/inbox-readiness.mjs",
+    "workflow:check": "node --use-system-ca --env-file=.env.local scripts/workflow-readiness.mjs",
     "email:check": "node --use-system-ca --env-file=.env.local scripts/email-readiness.mjs",
     "ai:check": "node scripts/ai-readiness.mjs",
     "start": "node --use-system-ca scripts/production-server.mjs",

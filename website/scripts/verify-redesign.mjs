@@ -223,6 +223,21 @@ assert.doesNotMatch(
 if (netlify) assert.equal(admin.headers.get("x-robots-tag"), "noindex, nofollow");
 for (const match of adminHtml.matchAll(/(?:src|href)="(\/assets\/[^"?#]+)[^"\s]*"/g))
   assets.add(match[1]);
+const recovery = await handler.fetch(new Request("http://localhost/reset-password"));
+assert.equal(recovery.status, 200, "private password reset shell");
+const recoveryHtml = await recovery.text();
+assert.match(recoveryHtml, /name="robots" content="noindex, nofollow, noarchive"/);
+assert.match(recoveryHtml, /li-recovery/);
+assert.doesNotMatch(
+  recoveryHtml,
+  /aria-label="Main navigation"|luxe-whatsapp-float|lw-launcher|LX-\d{8}-[A-F0-9]{12}/,
+);
+if (netlify) {
+  assert.equal(recovery.headers.get("x-robots-tag"), "noindex, nofollow");
+  assert.equal(recovery.headers.get("referrer-policy"), "no-referrer");
+}
+for (const match of recoveryHtml.matchAll(/(?:src|href)="(\/assets\/[^"?#]+)[^"\s]*"/g))
+  assets.add(match[1]);
 for (const asset of assets) await access(path.join(outputRoot, decodeURIComponent(asset)));
 assert.equal((await handler.fetch(new Request("http://localhost/not-a-real-page"))).status, 404);
 assert.equal((await handler.fetch(new Request("http://localhost/guides/not-a-guide"))).status, 404);
@@ -271,6 +286,7 @@ console.log(
     target: netlify ? "netlify" : "node",
     routes: routes.length,
     privateInboxShell: "passed",
+    privateRecoveryShell: "passed",
     builtAssets: assets.size,
     offerGate: "passed",
     partnerDeepLink: "passed",

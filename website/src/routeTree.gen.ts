@@ -28,6 +28,7 @@ import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as ProjectBriefRouteImport } from './routes/project-brief'
 import { Route as ProjectsRouteImport } from './routes/projects'
 import { Route as ReimagineRouteImport } from './routes/reimagine'
+import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as ServicesRouteImport } from './routes/services'
 import { Route as TestimonialsRouteImport } from './routes/testimonials'
 import { Route as DesignIdeasIndexRouteImport } from './routes/design-ideas.index'
@@ -130,6 +131,11 @@ const ReimagineRoute = ReimagineRouteImport.update({
   path: '/reimagine',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ResetPasswordRoute = ResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ServicesRoute = ServicesRouteImport.update({
   id: '/services',
   path: '/services',
@@ -181,6 +187,7 @@ export interface FileRoutesByFullPath {
   '/project-brief': typeof ProjectBriefRoute
   '/projects': typeof ProjectsRoute
   '/reimagine': typeof ReimagineRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/services': typeof ServicesRoute
   '/testimonials': typeof TestimonialsRoute
   '/design-ideas/$category': typeof DesignIdeasCategoryRoute
@@ -206,6 +213,7 @@ export interface FileRoutesByTo {
   '/project-brief': typeof ProjectBriefRoute
   '/projects': typeof ProjectsRoute
   '/reimagine': typeof ReimagineRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/services': typeof ServicesRoute
   '/testimonials': typeof TestimonialsRoute
   '/design-ideas/$category': typeof DesignIdeasCategoryRoute
@@ -234,6 +242,7 @@ export interface FileRoutesById {
   '/project-brief': typeof ProjectBriefRoute
   '/projects': typeof ProjectsRoute
   '/reimagine': typeof ReimagineRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/services': typeof ServicesRoute
   '/testimonials': typeof TestimonialsRoute
   '/design-ideas/$category': typeof DesignIdeasCategoryRoute
@@ -263,6 +272,7 @@ export interface FileRouteTypes {
     | '/project-brief'
     | '/projects'
     | '/reimagine'
+    | '/reset-password'
     | '/services'
     | '/testimonials'
     | '/design-ideas/$category'
@@ -288,6 +298,7 @@ export interface FileRouteTypes {
     | '/project-brief'
     | '/projects'
     | '/reimagine'
+    | '/reset-password'
     | '/services'
     | '/testimonials'
     | '/design-ideas/$category'
@@ -315,6 +326,7 @@ export interface FileRouteTypes {
     | '/project-brief'
     | '/projects'
     | '/reimagine'
+    | '/reset-password'
     | '/services'
     | '/testimonials'
     | '/design-ideas/$category'
@@ -343,6 +355,7 @@ export interface RootRouteChildren {
   ProjectBriefRoute: typeof ProjectBriefRoute
   ProjectsRoute: typeof ProjectsRoute
   ReimagineRoute: typeof ReimagineRoute
+  ResetPasswordRoute: typeof ResetPasswordRoute
   ServicesRoute: typeof ServicesRoute
   TestimonialsRoute: typeof TestimonialsRoute
 }
@@ -482,6 +495,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ReimagineRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/reset-password': {
+      id: '/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof ResetPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/services': {
       id: '/services'
       path: '/services'
@@ -574,6 +594,7 @@ const rootRouteChildren: RootRouteChildren = {
   ProjectBriefRoute: ProjectBriefRoute,
   ProjectsRoute: ProjectsRoute,
   ReimagineRoute: ReimagineRoute,
+  ResetPasswordRoute: ResetPasswordRoute,
   ServicesRoute: ServicesRoute,
   TestimonialsRoute: TestimonialsRoute,
 }

@@ -1,6 +1,13 @@
 -- TESTS ONLY. This is not a setup query and must not run on production.
 -- Run both migrations first against a disposable Supabase-compatible database.
 -- All synthetic users, leads, access changes and counters below are rolled back.
+do $test_guard$
+begin
+  if pg_catalog.current_setting('luxe.disposable_tests', true) is distinct from 'true' then
+    raise exception 'TESTS ONLY. For setup, run supabase/migrations/202610260002_lead_inbox.sql in a new query.';
+  end if;
+end;
+$test_guard$;
 begin;
 
 do $test$

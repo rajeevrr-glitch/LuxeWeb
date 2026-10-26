@@ -61,7 +61,7 @@ test("only the HTTPS canonical production host may advertise indexing", async ()
   const response = handleHostedRequest(request("/robots.txt"), production);
   assert.match(
     await response.text(),
-    /Allow: \/\nDisallow: \/api\/\nDisallow: \/admin\nSitemap: https:\/\/luxeinfra.in/,
+    /Allow: \/\nDisallow: \/api\/\nDisallow: \/admin\nDisallow: \/reset-password\nSitemap: https:\/\/luxeinfra.in/,
   );
   assert.equal(response.headers.get("x-robots-tag"), null);
 });
@@ -77,7 +77,7 @@ test("sitemap contains public routes, not funnels, unapproved reviews or supplie
   assert.match(xml, /https:\/\/luxeinfra.in\/guides\/compare-interior-quotes/);
   assert.doesNotMatch(
     xml,
-    /evil\.test|preview\.netlify\.app|\/testimonials|\/callback|\/offers|\/admin|\/api\//,
+    /evil\.test|preview\.netlify\.app|\/testimonials|\/callback|\/offers|\/admin|\/reset-password|\/api\//,
   );
   assert.equal(response.headers.get("x-robots-tag"), "noindex, nofollow");
 });
@@ -187,6 +187,23 @@ test("SSR wrapper preserves streams, errors and redirects while securing every r
     production,
   );
   assert.equal(await head.text(), "");
+});
+
+test("private recovery responses remain unindexed and preserve both session-clearing cookies", () => {
+  const headers = new Headers();
+  headers.append("Set-Cookie", "recovery=; Path=/api/admin/recovery; Max-Age=0; HttpOnly; Secure");
+  headers.append("Set-Cookie", "inbox=; Path=/api/admin; Max-Age=0; HttpOnly; Secure");
+  const complete = protectHostedResponse(
+    request("/api/admin/recovery/complete"),
+    new Response('{"complete":true}', { headers }),
+    production,
+  );
+  assert.equal(complete.headers.getSetCookie().length, 2);
+  assert.equal(complete.headers.get("referrer-policy"), "no-referrer");
+  const page = protectHostedResponse(request("/reset-password"), new Response("reset"), production);
+  assert.equal(page.headers.get("referrer-policy"), "no-referrer");
+  assert.equal(page.headers.get("x-robots-tag"), "noindex, nofollow");
+  assert.equal(page.headers.get("cache-control"), "no-store");
 });
 
 test("hosted responses keep streamed rendering and body-free statuses compatible with web runtimes", async () => {

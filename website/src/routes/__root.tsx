@@ -1,5 +1,6 @@
 import { campaignPreview } from "@/lib/campaigns";
 import { business } from "@/lib/business";
+import { recoveryRedirectScript } from "@/lib/recovery-redirect";
 import socialImage from "@/assets/hero-living.jpg";
 import {
   Outlet,
@@ -161,6 +162,7 @@ function RootShell({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
       <head>
+        <script dangerouslySetInnerHTML={{ __html: recoveryRedirectScript }} />
         <HeadContent />
       </head>
       <body>

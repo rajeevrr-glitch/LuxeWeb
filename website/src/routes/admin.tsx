@@ -36,6 +36,7 @@ import type {
   InboxSession,
   InboxSummary,
   InboxUser,
+  InboxWorkflow,
   Lead,
   LeadList,
   LeadStatus,
@@ -57,6 +58,7 @@ export const Route = createFileRoute("/admin")({
 });
 
 type WorkspaceTab = "inbox" | "overview" | "team" | "notifications";
+type WorkView = "" | "today" | "overdue" | "unscheduled" | "unassigned" | "mine";
 type HandleError = (error: unknown) => boolean;
 
 function Brand({ light = false }: { light?: boolean }) {
@@ -89,14 +91,32 @@ function AdminWorkspace() {
   const [tab, setTab] = useState<WorkspaceTab>("inbox");
   const [loggingOut, setLoggingOut] = useState(false);
   const [logoutUnconfirmed, setLogoutUnconfirmed] = useState(false);
+  const [detailBusy, setDetailBusy] = useState(false);
   const requestGeneration = useRef(0);
   const pendingCsrf = useRef("");
   const detailDirty = useRef(false);
+  const detailPending = useRef(false);
   const reportDirty = useCallback((dirty: boolean) => {
     detailDirty.current = dirty;
   }, []);
+  const reportBusy = useCallback((busy: boolean) => {
+    detailPending.current = busy;
+    setDetailBusy(busy);
+  }, []);
+
+  useEffect(() => {
+    function preventNavigation(event: BeforeUnloadEvent) {
+      if (detailDirty.current || detailPending.current) {
+        event.preventDefault();
+        event.returnValue = "";
+      }
+    }
+    window.addEventListener("beforeunload", preventNavigation);
+    return () => window.removeEventListener("beforeunload", preventNavigation);
+  }, []);
 
   function confirmDiscard() {
+    if (detailPending.current) return false;
     if (detailDirty.current && !window.confirm("Discard your unsaved enquiry changes?"))
       return false;
     detailDirty.current = false;
@@ -145,6 +165,7 @@ function AdminWorkspace() {
   }, []);
 
   async function logout() {
+    if (detailPending.current) return;
     const csrfToken = session?.csrfToken || pendingCsrf.current;
     pendingCsrf.current = csrfToken;
     requestGeneration.current += 1;
@@ -254,6 +275,7 @@ function AdminWorkspace() {
           <button
             className={tab === "inbox" ? "is-active" : ""}
             aria-current={tab === "inbox" ? "page" : undefined}
+            disabled={detailBusy}
             onClick={() => changeTab("inbox")}
           >
             <Inbox size={19} /> Lead inbox
@@ -264,6 +286,7 @@ function AdminWorkspace() {
               <button
                 className={tab === "overview" ? "is-active" : ""}
                 aria-current={tab === "overview" ? "page" : undefined}
+                disabled={detailBusy}
                 onClick={() => changeTab("overview")}
               >
                 <LayoutDashboard size={19} /> Overview
@@ -271,6 +294,7 @@ function AdminWorkspace() {
               <button
                 className={tab === "team" ? "is-active" : ""}
                 aria-current={tab === "team" ? "page" : undefined}
+                disabled={detailBusy}
                 onClick={() => changeTab("team")}
               >
                 <Users size={19} /> Team access
@@ -278,6 +302,7 @@ function AdminWorkspace() {
               <button
                 className={tab === "notifications" ? "is-active" : ""}
                 aria-current={tab === "notifications" ? "page" : undefined}
+                disabled={detailBusy}
                 onClick={() => changeTab("notifications")}
               >
                 <Mail size={19} /> Email alerts
@@ -311,6 +336,7 @@ function AdminWorkspace() {
               className="li-icon-button"
               aria-label="Sign out"
               title="Sign out"
+              disabled={detailBusy}
               onClick={() => {
                 if (confirmDiscard()) void logout();
               }}
@@ -325,6 +351,7 @@ function AdminWorkspace() {
               csrfToken={session.csrfToken!}
               handleError={handleError}
               onDirtyChange={reportDirty}
+              onBusyChange={reportBusy}
             />
           ) : tab === "overview" && session.user!.role === "owner" ? (
             <OwnerOverview handleError={handleError} onOpenInbox={() => changeTab("inbox")} />
@@ -422,7 +449,10 @@ function LoginForm({ onLogin }: { onLogin: (session: InboxSession) => void }) {
         )}
       </button>
       <p className="li-form-help">
-        Need access or a password reset? Contact your LuxeInfra workspace owner.
+        <a className="li-reset-link" href="/reset-password">
+          Forgot your owner password?
+        </a>
+        <span>Team members can contact the workspace owner for access.</span>
       </p>
     </form>
   );
@@ -432,23 +462,30 @@ function LeadInbox({
   csrfToken,
   handleError,
   onDirtyChange,
+  onBusyChange,
 }: {
   csrfToken: string;
   handleError: HandleError;
   onDirtyChange: (dirty: boolean) => void;
+  onBusyChange: (busy: boolean) => void;
 }) {
   const [result, setResult] = useState<LeadList | null>(null);
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [status, setStatus] = useState("");
   const [kind, setKind] = useState("");
+  const [work, setWork] = useState<WorkView>("");
   const [page, setPage] = useState(1);
   const [busy, setBusy] = useState(true);
   const [error, setError] = useState("");
   const [refreshedAt, setRefreshedAt] = useState("");
   const [selected, setSelected] = useState<Lead | null>(null);
   const [revision, setRevision] = useState(0);
+  const [resultQuery, setResultQuery] = useState("");
+  const [saveReceipt, setSaveReceipt] = useState("");
+  const [detailBusy, setDetailBusy] = useState(false);
   const dirtyEditing = useRef(false);
+  const pendingEditing = useRef(false);
   const reportDirty = useCallback(
     (dirty: boolean) => {
       dirtyEditing.current = dirty;
@@ -456,14 +493,43 @@ function LeadInbox({
     },
     [onDirtyChange],
   );
-  useEffect(() => () => onDirtyChange(false), [onDirtyChange]);
+  const reportBusy = useCallback(
+    (busy: boolean) => {
+      pendingEditing.current = busy;
+      setDetailBusy(busy);
+      onBusyChange(busy);
+    },
+    [onBusyChange],
+  );
+  useEffect(
+    () => () => {
+      onDirtyChange(false);
+      onBusyChange(false);
+    },
+    [onDirtyChange, onBusyChange],
+  );
 
   function selectLead(next: Lead | null) {
+    if (pendingEditing.current) return;
     if (next?.id === selected?.id) return;
     if (dirtyEditing.current && !window.confirm("Discard your unsaved enquiry changes?")) return;
     reportDirty(false);
+    setSaveReceipt("");
     setSelected(next);
+    if (!next && selected)
+      window.requestAnimationFrame(() =>
+        document.getElementById(`lead-open-${selected.id}`)?.focus(),
+      );
   }
+
+  useEffect(() => {
+    if (!selected) return;
+    function closeOnEscape(event: KeyboardEvent) {
+      if (event.key === "Escape") selectLead(null);
+    }
+    window.addEventListener("keydown", closeOnEscape);
+    return () => window.removeEventListener("keydown", closeOnEscape);
+  });
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
@@ -473,19 +539,51 @@ function LeadInbox({
     return () => window.clearTimeout(timer);
   }, [search]);
 
+  const query = new URLSearchParams({ page: String(page) });
+  if (debouncedSearch) query.set("search", debouncedSearch);
+  if (status) query.set("status", status);
+  if (kind) query.set("kind", kind);
+  if (work) query.set("work", work);
+  const queryKey = query.toString();
+  const searchPending = search.trim() !== debouncedSearch;
+  const listIsCurrent = resultQuery === queryKey && !searchPending;
+  const currentResult = listIsCurrent ? result : null;
+  const viewLoading = busy || searchPending || (!listIsCurrent && !error);
+  const hasFilters = Boolean(search.trim() || status || kind || work);
+  const workflow = result?.workflow;
+  const workViews: { value: WorkView; label: string; count: number }[] = workflow
+    ? [
+        { value: "", label: "All", count: result!.summary.total },
+        { value: "today", label: "Today", count: workflow.counts.today },
+        { value: "overdue", label: "Overdue", count: workflow.counts.overdue },
+        { value: "unscheduled", label: "No follow-up", count: workflow.counts.unscheduled },
+        { value: "unassigned", label: "Unassigned", count: workflow.counts.unassigned },
+        { value: "mine", label: "Mine", count: workflow.counts.mine },
+      ]
+    : [];
+
   useEffect(() => {
     const controller = new AbortController();
     setBusy(true);
     setError("");
-    const query = new URLSearchParams({ page: String(page) });
-    if (debouncedSearch) query.set("search", debouncedSearch);
-    if (status) query.set("status", status);
-    if (kind) query.set("kind", kind);
-    inboxRequest<LeadList>(`/leads?${query}`, { signal: controller.signal })
+    inboxRequest<LeadList>(`/leads?${queryKey}`, { signal: controller.signal })
       .then((data) => {
         if (controller.signal.aborted) return;
+        const lastPage = Math.max(1, Math.ceil(data.total / data.pageSize));
+        if (data.page > lastPage) {
+          setPage(lastPage);
+          return;
+        }
         setResult(data);
+        setResultQuery(queryKey);
         setRefreshedAt(new Date().toISOString());
+        setSelected((previous) => {
+          if (!previous || dirtyEditing.current || pendingEditing.current) return previous;
+          const refreshed = data.items.find((item) => item.id === previous.id);
+          if (!refreshed || Date.parse(refreshed.updatedAt) < Date.parse(previous.updatedAt))
+            return previous;
+          return refreshed;
+        });
       })
       .catch((cause) => {
         if (!controller.signal.aborted && !handleError(cause))
@@ -500,10 +598,11 @@ function LeadInbox({
         if (!controller.signal.aborted) setBusy(false);
       });
     return () => controller.abort();
-  }, [debouncedSearch, status, kind, page, revision, handleError]);
+  }, [queryKey, revision, handleError]);
 
   function saved(item: Lead) {
     setSelected(item);
+    setSaveReceipt("Enquiry details are saved and up to date.");
     setRevision((value) => value + 1);
   }
 
@@ -520,7 +619,7 @@ function LeadInbox({
         <button
           className="li-button li-button-light"
           onClick={() => setRevision((value) => value + 1)}
-          disabled={busy}
+          disabled={busy || detailBusy}
         >
           <RefreshCw size={16} className={busy ? "li-spin" : ""} /> Refresh
         </button>
@@ -538,7 +637,43 @@ function LeadInbox({
             : "All times displayed in IST"}
         </span>
       </div>
-      <div className={`li-inbox-grid${selected ? " li-has-selection" : ""}`}>
+      {saveReceipt && (
+        <p className="li-save-success li-sheet-receipt" role="status">
+          <Check size={16} aria-hidden="true" /> {saveReceipt}
+        </p>
+      )}
+      {workflow && (
+        <section className="li-workflow-views" aria-label="Enquiry work views">
+          <div className="li-workflow-view-heading">
+            <span>
+              <CalendarClock size={15} aria-hidden="true" /> Your next conversations
+            </span>
+            <span>
+              Today in IST · {inboxDate(workflow.asOf, false)}
+              {viewLoading ? " · Updating…" : error ? " · Last loaded counts" : ""}
+            </span>
+          </div>
+          <div className="li-workflow-chips">
+            {workViews.map((view) => (
+              <button
+                type="button"
+                key={view.value}
+                className={`li-workflow-chip${work === view.value ? " is-active" : ""}${view.value === "overdue" && view.count > 0 ? " li-workflow-chip-overdue" : ""}`}
+                aria-pressed={work === view.value}
+                disabled={detailBusy}
+                onClick={() => {
+                  setWork(view.value);
+                  setPage(1);
+                }}
+              >
+                <span>{view.label}</span>
+                <strong>{view.count.toLocaleString("en-IN")}</strong>
+              </button>
+            ))}
+          </div>
+        </section>
+      )}
+      <div className={`li-inbox-grid li-sheet-grid${selected ? " li-has-selection" : ""}`}>
         <section className="li-inbox-list-panel" aria-label="Enquiries">
           <div className="li-filter-bar">
             <div className="li-search-field">
@@ -553,6 +688,7 @@ function LeadInbox({
                 onChange={(event) => setSearch(event.target.value)}
                 placeholder="Search name, phone or reference"
                 maxLength={100}
+                disabled={detailBusy}
               />
             </div>
             <div className="li-filter-selects">
@@ -562,6 +698,7 @@ function LeadInbox({
               <select
                 id="lead-status-filter"
                 value={status}
+                disabled={detailBusy}
                 onChange={(event) => {
                   setStatus(event.target.value);
                   setPage(1);
@@ -580,6 +717,7 @@ function LeadInbox({
               <select
                 id="lead-kind-filter"
                 value={kind}
+                disabled={detailBusy}
                 onChange={(event) => {
                   setKind(event.target.value);
                   setPage(1);
@@ -596,45 +734,52 @@ function LeadInbox({
           </div>
           {error && (
             <div className="li-panel-notice">
-              <Notice danger>{error}</Notice>
+              <Notice danger>
+                {error}{" "}
+                {currentResult && "The enquiries below are from the last successful refresh."}
+              </Notice>
             </div>
           )}
           <div className="li-list-caption">
             <span>
-              {result
-                ? `${result.total} ${result.total === 1 ? "enquiry" : "enquiries"}`
+              {currentResult
+                ? `${currentResult.total} ${currentResult.total === 1 ? "enquiry" : "enquiries"}`
                 : "Enquiries"}
-              {status || kind || debouncedSearch ? " matching your filters" : " received"}
+              {hasFilters ? " matching your filters" : " received"}
             </span>
-            <span>RECENT FIRST</span>
+            <span>{viewLoading ? "UPDATING VIEW" : "RECENT FIRST"}</span>
           </div>
-          {busy && !result ? (
+          {viewLoading && !currentResult ? (
             <div className="li-empty" role="status">
               <LoaderCircle className="li-spin" size={26} />
-              <h2>Opening the inbox</h2>
-              <p>Loading your latest enquiries securely.</p>
+              <h2>{result ? "Updating your view" : "Opening the inbox"}</h2>
+              <p>Loading enquiries that match your current selection.</p>
             </div>
-          ) : !result?.items.length ? (
+          ) : !currentResult && error ? (
+            <div className="li-empty">
+              <CircleAlert size={30} aria-hidden="true" />
+              <h2>This view couldn’t load</h2>
+              <p>Refresh to try this selection again. Your saved enquiries are unchanged.</p>
+            </div>
+          ) : !currentResult?.items.length ? (
             <div className="li-empty">
               <Inbox size={34} />
-              <h2>
-                {debouncedSearch || status || kind
-                  ? "No matching enquiries"
-                  : "Room for new beginnings"}
-              </h2>
+              <h2>{hasFilters ? "No matching enquiries" : "Room for new beginnings"}</h2>
               <p>
-                {debouncedSearch || status || kind
+                {hasFilters
                   ? "Try another search or clear your filters."
                   : "New website enquiries will appear here once they’re saved."}
               </p>
-              {(debouncedSearch || status || kind) && (
+              {hasFilters && (
                 <button
                   className="li-button li-button-light"
+                  disabled={detailBusy}
                   onClick={() => {
                     setSearch("");
                     setDebouncedSearch("");
                     setStatus("");
                     setKind("");
+                    setWork("");
                     setPage(1);
                   }}
                 >
@@ -643,48 +788,106 @@ function LeadInbox({
               )}
             </div>
           ) : (
-            <div className={`li-lead-list${busy ? " li-is-loading" : ""}`} aria-busy={busy}>
-              {result.items.map((lead) => (
-                <button
-                  key={lead.id}
-                  className={`li-lead-row${selected?.id === lead.id ? " is-selected" : ""}`}
-                  onClick={() => selectLead(lead)}
-                  aria-pressed={selected?.id === lead.id}
-                >
-                  <span className="li-lead-row-top">
-                    <strong>{lead.name}</strong>
-                    <StatusBadge status={lead.status} />
-                  </span>
-                  <span className="li-lead-row-location">
-                    {lead.city} <span>·</span> {leadKindLabels[lead.kind] || "Enquiry"}
-                  </span>
-                  <span className="li-lead-row-message">{lead.message}</span>
-                  <span className="li-lead-row-bottom">
-                    <span>{lead.reference}</span>
-                    <span>{inboxDate(lead.createdAt, false)}</span>
-                  </span>
-                  {lead.followUpAt && (
-                    <span
-                      className={`li-row-followup${new Date(lead.followUpAt).getTime() <= Date.now() && lead.status !== "closed" ? " is-due" : ""}`}
-                    >
-                      <CalendarClock size={13} /> Follow-up {inboxDate(lead.followUpAt)}
-                    </span>
-                  )}
-                </button>
-              ))}
+            <div
+              className={`li-sheet-scroll${viewLoading ? " li-is-loading" : ""}`}
+              aria-busy={viewLoading}
+              role="region"
+              aria-label="Lead spreadsheet, scroll horizontally for all columns"
+              tabIndex={0}
+            >
+              <table className="li-lead-sheet">
+                <caption className="li-sr-only">
+                  Saved enquiries. Open a customer to review details and save changes.
+                </caption>
+                <thead>
+                  <tr>
+                    <th scope="col" className="li-sheet-index">
+                      #
+                    </th>
+                    <th scope="col">Customer</th>
+                    <th scope="col">Location</th>
+                    <th scope="col">Enquiry type</th>
+                    <th scope="col">Status</th>
+                    {workflow && <th scope="col">Responsible</th>}
+                    <th scope="col">Follow-up · IST</th>
+                    <th scope="col">Received · IST</th>
+                    <th scope="col">Reference</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {currentResult.items.map((lead, index) => (
+                    <tr key={lead.id} className={selected?.id === lead.id ? "is-selected" : ""}>
+                      <td className="li-sheet-index">
+                        {(currentResult.page - 1) * currentResult.pageSize + index + 1}
+                      </td>
+                      <th scope="row" className="li-sheet-customer">
+                        <button
+                          id={`lead-open-${lead.id}`}
+                          type="button"
+                          onClick={() => selectLead(lead)}
+                          disabled={viewLoading || detailBusy}
+                          aria-pressed={selected?.id === lead.id}
+                          aria-label={`Open enquiry from ${lead.name}`}
+                        >
+                          <strong>{lead.name}</strong>
+                          <span>{lead.phone}</span>
+                        </button>
+                      </th>
+                      <td>{lead.city}</td>
+                      <td>{leadKindLabels[lead.kind] || "Enquiry"}</td>
+                      <td>
+                        <StatusBadge status={lead.status} />
+                      </td>
+                      {workflow && (
+                        <td
+                          className={
+                            lead.assignedTo && !lead.assignedTo.active ? "li-sheet-warning" : ""
+                          }
+                        >
+                          {lead.assignedTo?.displayName || "Unassigned"}
+                          {lead.assignedTo && !lead.assignedTo.active && (
+                            <small>Needs reassignment</small>
+                          )}
+                        </td>
+                      )}
+                      <td
+                        className={
+                          lead.followUpAt &&
+                          new Date(lead.followUpAt).getTime() <= Date.now() &&
+                          lead.status !== "closed"
+                            ? "li-sheet-warning"
+                            : ""
+                        }
+                      >
+                        {lead.followUpAt ? (
+                          inboxDate(lead.followUpAt)
+                        ) : (
+                          <span className="li-sheet-muted">Not scheduled</span>
+                        )}
+                      </td>
+                      <td>{inboxDate(lead.createdAt)}</td>
+                      <td className="li-sheet-reference">{lead.reference}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           )}
           <div className="li-pagination">
             <span>
-              {result && result.total > 0
-                ? `${(result.page - 1) * result.pageSize + 1}–${Math.min(result.page * result.pageSize, result.total)} of ${result.total}`
-                : "0 enquiries"}
+              {currentResult && currentResult.total > 0
+                ? `${(currentResult.page - 1) * currentResult.pageSize + 1}–${Math.min(currentResult.page * currentResult.pageSize, currentResult.total)} of ${currentResult.total}`
+                : viewLoading
+                  ? "Loading enquiries…"
+                  : currentResult
+                    ? "0 enquiries"
+                    : "View unavailable"}
             </span>
             <div>
               <button
                 className="li-icon-button"
                 aria-label="Previous page"
-                disabled={busy || page <= 1}
+                disabled={viewLoading || detailBusy || !currentResult || page <= 1}
                 onClick={() => setPage((value) => value - 1)}
               >
                 <ChevronLeft size={18} />
@@ -693,7 +896,12 @@ function LeadInbox({
               <button
                 className="li-icon-button"
                 aria-label="Next page"
-                disabled={busy || !result || page * result.pageSize >= result.total}
+                disabled={
+                  viewLoading ||
+                  detailBusy ||
+                  !currentResult ||
+                  page * currentResult.pageSize >= currentResult.total
+                }
                 onClick={() => setPage((value) => value + 1)}
               >
                 <ChevronRight size={18} />
@@ -704,13 +912,15 @@ function LeadInbox({
         <section className="li-detail-panel" aria-label="Selected enquiry">
           {selected ? (
             <LeadDetail
-              key={selected.id}
+              key={`${selected.id}:${selected.updatedAt}`}
               lead={selected}
+              workflow={workflow}
               csrfToken={csrfToken}
               handleError={handleError}
               onSaved={saved}
               onClose={() => selectLead(null)}
               onDirtyChange={reportDirty}
+              onBusyChange={reportBusy}
             />
           ) : (
             <div className="li-detail-placeholder">
@@ -748,36 +958,44 @@ function StatusBadge({ status }: { status: LeadStatus }) {
 
 function LeadDetail({
   lead,
+  workflow,
   csrfToken,
   handleError,
   onSaved,
   onClose,
   onDirtyChange,
+  onBusyChange,
 }: {
   lead: Lead;
+  workflow?: InboxWorkflow;
   csrfToken: string;
   handleError: HandleError;
   onSaved: (lead: Lead) => void;
   onClose: () => void;
   onDirtyChange: (dirty: boolean) => void;
+  onBusyChange: (busy: boolean) => void;
 }) {
   const [baseline, setBaseline] = useState(lead);
   const [status, setStatus] = useState<LeadStatus>(lead.status);
   const [notes, setNotes] = useState(lead.notes || "");
   const [followUp, setFollowUp] = useState(localDateTime(lead.followUpAt));
+  const [assignedTo, setAssignedTo] = useState(lead.assignedTo?.id || "");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [conflict, setConflict] = useState(false);
   const [reloadRequested, setReloadRequested] = useState(false);
   const alive = useRef(true);
+  const operationPending = useRef(false);
   const heading = useRef<HTMLHeadingElement>(null);
   useEffect(() => {
     alive.current = true;
     return () => {
       alive.current = false;
+      operationPending.current = false;
+      onBusyChange(false);
     };
-  }, []);
+  }, [onBusyChange]);
   useEffect(() => {
     heading.current?.focus({ preventScroll: true });
     if (window.matchMedia("(max-width: 700px)").matches)
@@ -786,29 +1004,52 @@ function LeadDetail({
   const dirty =
     status !== baseline.status ||
     notes !== (baseline.notes || "") ||
-    followUp !== localDateTime(baseline.followUpAt);
+    followUp !== localDateTime(baseline.followUpAt) ||
+    Boolean(workflow?.canAssign && assignedTo !== (baseline.assignedTo?.id || ""));
+  const assignmentUnavailable = Boolean(
+    workflow?.canAssign &&
+    assignedTo &&
+    !workflow.assignees.some((member) => member.id === assignedTo),
+  );
   useEffect(() => {
     onDirtyChange(dirty);
   }, [dirty, onDirtyChange]);
   useEffect(() => {
-    function preventNavigation(event: BeforeUnloadEvent) {
-      if (dirty) {
-        event.preventDefault();
-      }
+    // A member's active state can change without changing the lead timestamp.
+    // Only a clean, idle detail may adopt that refreshed server metadata.
+    if (!dirty && !busy && baseline !== lead && baseline.updatedAt === lead.updatedAt)
+      setBaseline(lead);
+  }, [lead, baseline, dirty, busy]);
+
+  function beginOperation() {
+    if (operationPending.current) return false;
+    operationPending.current = true;
+    onBusyChange(true);
+    setBusy(true);
+    return true;
+  }
+
+  function finishOperation() {
+    operationPending.current = false;
+    if (alive.current) {
+      onBusyChange(false);
+      setBusy(false);
     }
-    window.addEventListener("beforeunload", preventNavigation);
-    return () => window.removeEventListener("beforeunload", preventNavigation);
-  }, [dirty]);
+  }
 
   async function save(event: React.FormEvent) {
     event.preventDefault();
-    setBusy(true);
+    if (!beginOperation()) return;
     setError("");
     setSuccess("");
     try {
       const nextFollowUp = followUp ? new Date(followUp) : null;
       if (nextFollowUp && Number.isNaN(nextFollowUp.getTime())) {
         setError("Choose a valid follow-up date and time.");
+        return;
+      }
+      if (assignmentUnavailable) {
+        setError("Choose an active team member or Unassigned before saving.");
         return;
       }
       const item = await inboxRequest<Lead>(`/leads/${encodeURIComponent(lead.id)}`, {
@@ -819,6 +1060,7 @@ function LeadDetail({
           notes,
           followUpAt: nextFollowUp?.toISOString() || null,
           expectedUpdatedAt: baseline.updatedAt,
+          ...(workflow?.canAssign ? { assignedTo: assignedTo || null } : {}),
         },
       });
       if (!alive.current) return;
@@ -826,8 +1068,10 @@ function LeadDetail({
       setStatus(item.status);
       setNotes(item.notes || "");
       setFollowUp(localDateTime(item.followUpAt));
+      setAssignedTo(item.assignedTo?.id || "");
       setConflict(false);
       setSuccess("Enquiry updated. Your next steps are saved.");
+      onDirtyChange(false);
       onSaved(item);
     } catch (cause) {
       if (!alive.current || handleError(cause)) return;
@@ -844,12 +1088,12 @@ function LeadDetail({
           ),
         );
     } finally {
-      if (alive.current) setBusy(false);
+      finishOperation();
     }
   }
 
   async function reload() {
-    setBusy(true);
+    if (!beginOperation()) return;
     setError("");
     setSuccess("");
     try {
@@ -859,26 +1103,33 @@ function LeadDetail({
       setStatus(item.status);
       setNotes(item.notes || "");
       setFollowUp(localDateTime(item.followUpAt));
+      setAssignedTo(item.assignedTo?.id || "");
       setConflict(false);
       setReloadRequested(false);
+      onDirtyChange(false);
       onSaved(item);
       setSuccess("Latest version loaded.");
     } catch (cause) {
       if (alive.current && !handleError(cause))
         setError("We couldn’t load the latest version. Please try again.");
     } finally {
-      if (alive.current) setBusy(false);
+      finishOperation();
     }
   }
 
   return (
     <div className="li-lead-detail">
       <div className="li-detail-topline">
-        <button className="li-mobile-back li-text-button" onClick={onClose}>
+        <button className="li-mobile-back li-text-button" onClick={onClose} disabled={busy}>
           <ArrowLeft size={16} /> All enquiries
         </button>
         <span>{baseline.reference}</span>
-        <button className="li-icon-button" aria-label="Close enquiry details" onClick={onClose}>
+        <button
+          className="li-icon-button"
+          aria-label="Close enquiry details"
+          onClick={onClose}
+          disabled={busy}
+        >
           <X size={18} />
         </button>
       </div>
@@ -928,6 +1179,62 @@ function LeadDetail({
           <h3>The next step</h3>
           {dirty && <span className="li-unsaved">Unsaved changes</span>}
         </div>
+        {workflow && (
+          <div className="li-workflow-assignment">
+            {workflow.canAssign ? (
+              <>
+                <label htmlFor="detail-assignee">Responsible team member</label>
+                <select
+                  id="detail-assignee"
+                  value={assignedTo}
+                  disabled={busy}
+                  aria-describedby="detail-assignee-help"
+                  aria-invalid={assignmentUnavailable || undefined}
+                  onChange={(event) => {
+                    onDirtyChange(true);
+                    setAssignedTo(event.target.value);
+                    setSuccess("");
+                  }}
+                >
+                  <option value="">Unassigned</option>
+                  {assignmentUnavailable && (
+                    <option value={assignedTo} disabled>
+                      {baseline.assignedTo?.displayName || "Previous team member"} · Needs
+                      reassignment
+                    </option>
+                  )}
+                  {workflow.assignees.map((member) => (
+                    <option key={member.id} value={member.id}>
+                      {member.displayName}
+                      {member.role === "owner" ? " · Owner" : ""}
+                    </option>
+                  ))}
+                </select>
+                <p
+                  id="detail-assignee-help"
+                  className={assignmentUnavailable ? "li-workflow-assignment-warning" : ""}
+                >
+                  {assignmentUnavailable
+                    ? "This member is no longer available. Choose an active member or leave the enquiry unassigned."
+                    : "Responsibility only. Assigning a lead sends no email and does not grant account access."}
+                </p>
+              </>
+            ) : (
+              <div className="li-workflow-assignment-readonly">
+                <Users size={19} aria-hidden="true" />
+                <div>
+                  <span>Responsible team member</span>
+                  <strong>{baseline.assignedTo?.displayName || "Unassigned"}</strong>
+                  {baseline.assignedTo && !baseline.assignedTo.active && (
+                    <p className="li-workflow-assignment-warning">
+                      Needs reassignment by the owner
+                    </p>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
         <div className="li-detail-form-grid">
           <div>
             <label htmlFor="detail-status">Enquiry status</label>
@@ -936,6 +1243,7 @@ function LeadDetail({
               value={status}
               disabled={busy}
               onChange={(event) => {
+                onDirtyChange(true);
                 setStatus(event.target.value as LeadStatus);
                 setSuccess("");
               }}
@@ -957,12 +1265,18 @@ function LeadDetail({
               value={followUp}
               disabled={busy}
               onChange={(event) => {
+                onDirtyChange(true);
                 setFollowUp(event.target.value);
                 setSuccess("");
               }}
             />
           </div>
         </div>
+        {workflow && (
+          <p className="li-workflow-followup-note">
+            Follow-up times organise your work views. They do not send an automatic reminder.
+          </p>
+        )}
         <label htmlFor="detail-notes">
           Team notes <span>Private to your team</span>
         </label>
@@ -974,6 +1288,7 @@ function LeadDetail({
           rows={5}
           placeholder="What did you discuss? What should happen next?"
           onChange={(event) => {
+            onDirtyChange(true);
             setNotes(event.target.value);
             setSuccess("");
           }}

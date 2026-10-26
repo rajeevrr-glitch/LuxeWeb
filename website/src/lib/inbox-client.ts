@@ -16,6 +16,29 @@ export interface InboxSession {
   csrfToken?: string;
 }
 
+export interface InboxAssignee {
+  id: string;
+  displayName: string;
+  active: boolean;
+}
+
+export interface InboxWorkflowCounts {
+  today: number;
+  overdue: number;
+  unscheduled: number;
+  unassigned: number;
+  mine: number;
+}
+
+export interface InboxWorkflow {
+  enabled: true;
+  canAssign: boolean;
+  assignees: { id: string; displayName: string; role: InboxRole }[];
+  counts: InboxWorkflowCounts;
+  asOf: string;
+  timeZone: "Asia/Kolkata";
+}
+
 export interface Lead {
   id: string;
   reference: string;
@@ -29,6 +52,7 @@ export interface Lead {
   status: LeadStatus;
   notes: string;
   followUpAt: string | null;
+  assignedTo?: InboxAssignee | null;
 }
 
 export interface InboxSummary {
@@ -46,6 +70,7 @@ export interface LeadList {
   pageSize: number;
   total: number;
   summary: InboxSummary;
+  workflow?: InboxWorkflow;
 }
 
 export interface TeamMember extends InboxUser {

@@ -597,6 +597,281 @@
   gap: 20px;
   align-items: start;
 }
+.li-inbox-grid.li-sheet-grid {
+  display: block;
+}
+.li-sheet-grid:not(.li-has-selection) > .li-detail-panel {
+  display: none;
+}
+.li-sheet-grid.li-has-selection > .li-detail-panel {
+  position: fixed;
+  z-index: 30;
+  top: 22px;
+  right: 22px;
+  bottom: 22px;
+  width: min(490px, calc(100vw - 44px));
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  box-shadow: 0 12px 75px #132f5340;
+}
+.li-sheet-grid .li-filter-bar {
+  display: grid;
+  grid-template-columns: minmax(200px, 1fr) minmax(280px, 0.85fr);
+  align-items: center;
+  gap: 14px;
+}
+.li-sheet-grid .li-filter-selects {
+  margin-top: 0;
+}
+.li-sheet-scroll {
+  max-height: min(65vh, 720px);
+  overflow: auto;
+  overscroll-behavior-x: contain;
+  scrollbar-color: #a6b6c7 #f0f3f6;
+}
+.li-lead-sheet {
+  width: 100%;
+  min-width: 1120px;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-family: "Manrope", system-ui, sans-serif;
+  font-size: 11px;
+  text-align: left;
+  font-variant-numeric: tabular-nums;
+}
+.li-lead-sheet th,
+.li-lead-sheet td {
+  max-width: 220px;
+  border-right: 1px solid #e7ecf1;
+  border-bottom: 1px solid #e7ecf1;
+  padding: 14px 16px;
+  vertical-align: middle;
+  overflow-wrap: anywhere;
+  line-height: 1.7;
+}
+.li-lead-sheet thead th {
+  position: sticky;
+  z-index: 2;
+  top: 0;
+  border-bottom-color: #cdd8e3;
+  color: #3d5771;
+  background: #edf2f7;
+  font-size: 10px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+.li-lead-sheet tbody tr {
+  color: #56697b;
+  background: #fff;
+}
+.li-lead-sheet tbody tr:nth-child(even) {
+  background: #f8fafc;
+}
+.li-lead-sheet tbody tr:hover {
+  background: #f0f5fb;
+}
+.li-lead-sheet tbody tr.is-selected {
+  background: #e8f0fb;
+  box-shadow: inset 3px 0 #234f83;
+}
+.li-lead-sheet .li-sheet-index {
+  width: 45px;
+  padding-right: 10px;
+  padding-left: 10px;
+  color: #7b8ea1;
+  text-align: center;
+}
+.li-sheet-customer {
+  min-width: 200px;
+}
+.li-sheet-customer button {
+  display: block;
+  width: 100%;
+  min-height: 42px;
+  border: 0;
+  padding: 0;
+  color: var(--li-navy);
+  background: transparent;
+  text-align: left;
+}
+.li-sheet-customer strong {
+  display: block;
+  font-size: 12px;
+  font-weight: 800;
+}
+.li-sheet-customer span {
+  display: block;
+  margin-top: 4px;
+  color: #687d90;
+  font-size: 10px;
+  font-weight: 500;
+}
+.li-sheet-customer button:hover strong {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.li-lead-sheet .li-sheet-reference {
+  min-width: 165px;
+  color: #758797;
+  font-family: ui-monospace, monospace;
+  font-size: 10px;
+}
+.li-lead-sheet small {
+  display: block;
+  margin-top: 4px;
+  font-size: 10px;
+}
+.li-lead-sheet .li-sheet-warning {
+  color: #98602c;
+}
+.li-sheet-muted {
+  color: #8a98a6;
+}
+.li-sheet-receipt {
+  margin-bottom: 16px;
+}
+.li-workflow-views {
+  margin: 0 0 20px;
+}
+.li-workflow-view-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 9px;
+  margin-bottom: 12px;
+  color: #718194;
+  font-size: 10px;
+}
+.li-workflow-view-heading > span:first-child {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: #3b5774;
+  font-size: 12px;
+  font-weight: 600;
+}
+.li-workflow-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.li-workflow-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  min-height: 44px;
+  border: 1px solid #dce4ec;
+  border-radius: 7px;
+  padding: 9px 13px;
+  color: #587087;
+  background: #fff;
+  font-size: 11px;
+  transition:
+    background 0.15s,
+    border-color 0.15s;
+}
+.li-workflow-chip strong {
+  min-width: 24px;
+  border-radius: 4px;
+  padding: 2px 5px;
+  background: #edf2f6;
+  text-align: center;
+  font-size: 10px;
+  font-variant-numeric: tabular-nums;
+}
+.li-workflow-chip:hover {
+  border-color: #93abc2;
+  background: #f4f7fa;
+}
+.li-workflow-chip-overdue {
+  color: #995d2f;
+}
+.li-workflow-chip.is-active {
+  border-color: var(--li-navy);
+  color: #fff;
+  background: var(--li-navy);
+}
+.li-workflow-chip.is-active strong {
+  background: #ffffff20;
+}
+.li-workflow-assignment {
+  margin: 18px 0;
+  border: 1px solid #e1e7ed;
+  border-radius: 6px;
+  padding: 14px;
+  background: #f8fafc;
+}
+.li-workflow-assignment label {
+  display: block;
+  margin: 0 0 8px;
+}
+.li-workflow-assignment p,
+.li-workflow-followup-note {
+  margin-top: 8px;
+  color: #798a9a;
+  font-size: 10px;
+  line-height: 1.8;
+}
+.li-workflow-assignment .li-workflow-assignment-warning {
+  color: #98602c;
+}
+.li-workflow-assignment-readonly {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  color: #5e758d;
+}
+.li-workflow-assignment-readonly span,
+.li-workflow-assignment-readonly strong {
+  display: block;
+  font-size: 11px;
+}
+.li-workflow-assignment-readonly strong {
+  margin-top: 4px;
+  color: var(--li-navy);
+}
+.li-workflow-followup-note {
+  margin: -2px 0 16px;
+}
+.li-reset-link {
+  display: block;
+  margin-bottom: 9px;
+  color: var(--li-navy);
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.li-recovery .li-back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  margin-bottom: 30px;
+  color: #5a7087;
+  font-size: 12px;
+}
+.li-recovery .li-login-card > .li-button {
+  margin-top: 20px;
+}
+@media (max-width: 700px) {
+  .li-sheet-grid.li-has-selection > .li-detail-panel {
+    position: static;
+    width: auto;
+    overflow: visible;
+    box-shadow: none;
+  }
+  .li-sheet-grid .li-filter-bar {
+    grid-template-columns: 1fr;
+  }
+  .li-sheet-scroll {
+    max-height: 65dvh;
+  }
+  .li-workflow-chips {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
 .li-inbox-list-panel,
 .li-detail-panel {
   min-width: 0;
