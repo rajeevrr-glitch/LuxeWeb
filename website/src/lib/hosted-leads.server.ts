@@ -1,5 +1,8 @@
 import { createHmac, randomBytes, timingSafeEqual } from "node:crypto";
 import { isIP } from "node:net";
+import { hostedLeadConfiguration } from "./hosted-config.server.ts";
+import { emailAlertConfiguration } from "./lead-email-worker.server.ts";
+export { hostedLeadConfiguration } from "./hosted-config.server.ts";
 
 type Environment = Record<string, string | undefined>;
 type Options = {
@@ -16,28 +19,6 @@ const unavailable = "We could not confirm this request. Try again or contact us 
 const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const reference = /^LX-\d{8}-[A-F0-9]{12}$/;
 const fields = ["id", "kind", "name", "phone", "city", "message", "consent", "website"];
-
-function origin(value: string | undefined): string | null {
-  try {
-    const parsed = new URL(value ?? "");
-    return parsed.protocol === "https:" && parsed.origin === value ? parsed.origin : null;
-  } catch {
-    return null;
-  }
-}
-
-export function hostedLeadConfiguration(env: Environment = process.env) {
-  const url = env.SUPABASE_URL ?? "";
-  const key = env.SUPABASE_SECRET_KEY ?? "";
-  const secret = env.LUXE_LEADS_HMAC_SECRET ?? "";
-  const site = origin(env.SITE_URL) ?? origin(env.URL);
-  const valid =
-    /^https:\/\/[a-z0-9]{20}\.supabase\.co$/.test(url) &&
-    /^sb_secret_[A-Za-z0-9_-]{16,256}$/.test(key) &&
-    /^[a-f0-9]{64}$/i.test(secret) &&
-    site !== null;
-  return { valid, enabled: env.LUXE_LEADS_ENABLED === "true", url, key, secret, site };
-}
 
 function hasControls(value: string, multiline = false): boolean {
   return [...value].some((character) => {
@@ -136,6 +117,7 @@ function runtimeIp(runtime: unknown): string | null {
 
 export function createHostedLeadIntake(options: Options = {}) {
   const config = hostedLeadConfiguration(options.env);
+  const emailAlerts = emailAlertConfiguration(options.env);
   const requestFetch = options.fetch ?? fetch;
   const now = options.now ?? Date.now;
   const digest = (value: string) => createHmac("sha256", config.secret).update(value).digest("hex");
@@ -188,7 +170,10 @@ export function createHostedLeadIntake(options: Options = {}) {
         const payload = {
           enabled: Boolean(address),
           channel: "database",
-          notifications: { email: false, whatsapp: false },
+          notifications: {
+            email: emailAlerts.valid && emailAlerts.enabled && Boolean(address),
+            whatsapp: false,
+          },
         };
         if (!address || request.method === "HEAD") return json(request, 200, payload);
         const payloadToken = `${now()}.${randomBytes(16).toString("hex")}`;

@@ -22,8 +22,10 @@ function Page() {
             project details and consent through LuxeInfra’s server handler hosted by Netlify. Your
             full text request is saved in a private Supabase database for the team to review. A
             reference confirms that your request was saved; it does not confirm a booking, quotation
-            or that a team member has read it. This submission does not send an automatic email or
-            WhatsApp alert. Photos and plans are not uploaded with it.
+            or that a team member has read it. When internal email alerts are enabled, Resend sends
+            your contact details and a short project summary to LuxeInfra’s business inboxes so the
+            team can follow up. A saved reference does not confirm email delivery. Automatic
+            WhatsApp alerts are not connected. Photos and plans are not uploaded with the request.
           </p>
           <p>
             When the form offers Continue in WhatsApp, it follows the manual process below. If

@@ -11,7 +11,7 @@
     "build:review": "vite build --mode review",
     "build:dev": "vite build --mode development",
     "preview": "vite preview",
-    "lint": "eslint src scripts tests vite.config.ts eslint.config.js --max-warnings 0",
+    "lint": "eslint src scripts tests netlify vite.config.ts eslint.config.js --max-warnings 0",
     "format": "prettier --write .",
     "dev:site": "vite dev",
     "test": "node --test tests/*.test.mjs",
@@ -20,9 +20,10 @@
     "delivery:check": "node scripts/delivery-readiness.mjs",
     "leads:check": "node --use-system-ca --env-file=.env.local scripts/lead-readiness.mjs",
     "inbox:check": "node --use-system-ca --env-file=.env.local scripts/inbox-readiness.mjs",
+    "email:check": "node --use-system-ca --env-file=.env.local scripts/email-readiness.mjs",
     "ai:check": "node scripts/ai-readiness.mjs",
     "start": "node --use-system-ca scripts/production-server.mjs",
-    "format:check": "prettier --check src scripts tests vite.config.ts eslint.config.js tsconfig.json package.json"
+    "format:check": "prettier --check src scripts tests netlify vite.config.ts eslint.config.js tsconfig.json package.json"
   },
   "dependencies": {
     "@huggingface/inference": "4.13.32",

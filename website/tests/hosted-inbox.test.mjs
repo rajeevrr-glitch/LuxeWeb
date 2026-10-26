@@ -32,6 +32,25 @@ const entry = {
   followUpAt: null,
 };
 const summary = { total: 1, new: 1, contacted: 0, qualified: 0, closed: 0, followUpsDue: 0 };
+const notificationSummary = {
+  pending: 1,
+  retrying: 1,
+  accepted: 0,
+  failed: 0,
+  needsReview: 0,
+  expired: 0,
+};
+const notification = {
+  id: "32345678-1234-4123-8123-123456789abc",
+  reference: entry.reference,
+  state: "leased",
+  attempts: 1,
+  createdAt: entry.createdAt,
+  updatedAt: entry.updatedAt,
+  nextAttemptAt: null,
+  lastErrorCode: null,
+  providerId: null,
+};
 
 function request(
   path,
@@ -60,6 +79,7 @@ function setup(overrides = {}) {
     fail: "",
     invalidPassword: false,
     oversized: false,
+    notifications: { summary: notificationSummary, items: [notification] },
     time: Date.parse("2026-10-26T06:00:00Z"),
     ...overrides,
   };
@@ -128,6 +148,7 @@ function setup(overrides = {}) {
         return Response.json({ members: [{ ...staff, active: true }], audit: [] });
       if (path.endsWith("luxe_inbox_access"))
         return Response.json({ ...staff, role: "staff", active: payload.p_active });
+      if (path.endsWith("luxe_inbox_notifications")) return Response.json(state.notifications);
       assert.fail("Unexpected provider request " + path);
     },
   });
@@ -436,6 +457,166 @@ test("only owners may manage team access and arbitrary request fields are reject
     ).status,
     200,
   );
+});
+
+test("email activity requires owner access and only supports reads", async () => {
+  const { handler, state, calls } = setup();
+  assert.equal((await handler.handle(request("notifications"), context)).status, 401);
+  assert.equal(calls.length, 0, "signed-out requests must not contact the provider");
+  const session = await login(handler);
+  state.role = "staff";
+  assert.equal(
+    (await handler.handle(request("notifications", { cookie: session.cookie }), context)).status,
+    403,
+  );
+  state.role = "owner";
+  const mutation = await handler.handle(
+    request("notifications", {
+      method: "POST",
+      cookie: session.cookie,
+      csrf: session.value.csrfToken,
+      value: {},
+    }),
+    context,
+  );
+  assert.equal(mutation.status, 405);
+  assert.equal(mutation.headers.get("allow"), "GET");
+  assert.equal(
+    calls.some((call) => call.path.endsWith("luxe_inbox_notifications")),
+    false,
+    "staff and mutation requests must not read the notification queue",
+  );
+});
+
+test("owner email activity preserves processing states while whitelisting metadata and configuration", async () => {
+  const resendKey = "re_" + "mock-private-key".repeat(3);
+  const retry = {
+    ...notification,
+    id: "42345678-1234-4123-8123-123456789abc",
+    state: "retry",
+    attempts: 2,
+    nextAttemptAt: "2026-10-26T06:05:00Z",
+    lastErrorCode: "provider_rate_limit",
+    providerId: "52345678-1234-4123-8123-123456789abc",
+  };
+  const { handler, calls } = setup({
+    env: {
+      LUXE_LEADS_ENABLED: "true",
+      LUXE_EMAIL_ALERTS_ENABLED: "true",
+      LUXE_EMAIL_FROM: "LuxeInfra <leads@alerts.luxeinfra.in>",
+      RESEND_API_KEY: resendKey,
+    },
+    notifications: {
+      summary: { ...notificationSummary, privateKey: env.SUPABASE_SECRET_KEY },
+      items: [
+        {
+          ...notification,
+          name: "Customer identity never exposed",
+          phone: entry.phone,
+          message: "Customer message never exposed",
+          payload: { apiKey: resendKey },
+        },
+        { ...retry, providerResponse: "Private provider diagnostic" },
+      ],
+      apiKey: resendKey,
+      notificationBody: "Private email content",
+    },
+  });
+  const session = await login(handler);
+  const response = await handler.handle(
+    request("notifications", { cookie: session.cookie }),
+    context,
+  );
+  assert.equal(response.status, 200);
+  assert.match(response.headers.get("cache-control"), /no-store/);
+  const value = await response.json();
+  assert.deepEqual(value, {
+    configuration: {
+      enabled: true,
+      ready: true,
+      provider: "resend",
+      sender: "LuxeInfra <leads@alerts.luxeinfra.in>",
+      recipients: ["sales@luxeinfra.in", "infoluxeinfra@gmail.com"],
+    },
+    summary: notificationSummary,
+    items: [notification, retry],
+  });
+  assert.deepEqual(calls.at(-1), {
+    path: "/rest/v1/rpc/luxe_inbox_notifications",
+    payload: { p_actor: staff.id },
+  });
+  const output = JSON.stringify(value);
+  for (const secret of [env.SUPABASE_SECRET_KEY, env.LUXE_LEADS_HMAC_SECRET, resendKey])
+    assert.equal(output.includes(secret), false);
+  assert.doesNotMatch(
+    output,
+    /Customer identity|Customer message|Private provider|Private email|notificationBody|test-access-token/,
+  );
+  assert.equal(output.includes(entry.phone), false);
+});
+
+test("disabled or incomplete email configuration remains separate from persisted queue activity", async () => {
+  for (const emailEnvironment of [
+    { LUXE_EMAIL_ALERTS_ENABLED: "false" },
+    {
+      LUXE_EMAIL_ALERTS_ENABLED: "true",
+      LUXE_EMAIL_FROM: "Private invalid sender\r\nBcc: not-public@example.test",
+      RESEND_API_KEY: "not-a-valid-private-key",
+    },
+  ]) {
+    const { handler } = setup({ env: { LUXE_LEADS_ENABLED: "true", ...emailEnvironment } });
+    const session = await login(handler);
+    const result = await handler.handle(
+      request("notifications", { cookie: session.cookie }),
+      context,
+    );
+    assert.equal(result.status, 200);
+    const value = await result.json();
+    assert.equal(
+      value.configuration.enabled,
+      emailEnvironment.LUXE_EMAIL_ALERTS_ENABLED === "true",
+    );
+    assert.equal(value.configuration.ready, false);
+    assert.equal(value.configuration.sender, null);
+    assert.deepEqual(value.summary, notificationSummary);
+    assert.deepEqual(value.items, [notification]);
+    assert.doesNotMatch(
+      JSON.stringify(value),
+      /Private invalid|Bcc|not-public|not-a-valid-private-key/,
+    );
+  }
+});
+
+test("malformed email queue responses and provider failures fail closed without diagnostic leakage", async () => {
+  const valid = { summary: notificationSummary, items: [notification] };
+  for (const notifications of [
+    null,
+    { ...valid, summary: { ...notificationSummary, pending: -1 } },
+    { ...valid, items: Array.from({ length: 51 }, () => notification) },
+    { ...valid, items: [{ ...notification, state: "delivered-and-read" }] },
+    { ...valid, items: [{ ...notification, attempts: 6 }] },
+    { ...valid, items: [{ ...notification, reference: "private database detail" }] },
+    { ...valid, items: [{ ...notification, providerId: "secret provider credential" }] },
+  ]) {
+    const { handler } = setup({ notifications });
+    const session = await login(handler);
+    const result = await handler.handle(
+      request("notifications", { cookie: session.cookie }),
+      context,
+    );
+    assert.equal(result.status, 503);
+    assert.deepEqual(await result.json(), {
+      error: "The private inbox could not complete this request. Please try again.",
+    });
+  }
+  const { handler } = setup({ fail: "/rest/v1/rpc/luxe_inbox_notifications" });
+  const session = await login(handler);
+  const failed = await handler.handle(
+    request("notifications", { cookie: session.cookie }),
+    context,
+  );
+  assert.equal(failed.status, 503);
+  assert.doesNotMatch(await failed.text(), /secret|provider|credentials|stack|sb_secret/);
 });
 
 test("local development requires explicit opt-in and loopback origin plus trusted loopback IP", async () => {

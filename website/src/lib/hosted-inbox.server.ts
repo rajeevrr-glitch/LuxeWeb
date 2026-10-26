@@ -6,7 +6,8 @@ import {
   timingSafeEqual,
 } from "node:crypto";
 import { isIP } from "node:net";
-import { hostedLeadConfiguration } from "./hosted-leads.server.ts";
+import { hostedLeadConfiguration } from "./hosted-config.server.ts";
+import { emailAlertConfiguration } from "./lead-email-worker.server.ts";
 
 type Environment = Record<string, string | undefined>;
 type Options = { env?: Environment; fetch?: typeof fetch; now?: () => number };
@@ -529,6 +530,90 @@ export function createHostedInbox(options: Options = {}) {
               }),
             ),
           );
+        }
+        if (url.pathname === "/api/admin/notifications") {
+          if (user.role !== "owner") throw new InboxError(403);
+          if (request.method !== "GET")
+            return json(405, { error: "Use GET to view email alerts." }, { Allow: "GET" });
+          const result = await rpc("luxe_inbox_notifications", { p_actor: user.id });
+          if (
+            !record(result) ||
+            !record(result.summary) ||
+            !Array.isArray(result.items) ||
+            result.items.length > 50
+          )
+            throw new InboxError(503);
+          const summary: Record<string, number> = {};
+          for (const key of [
+            "pending",
+            "retrying",
+            "accepted",
+            "failed",
+            "needsReview",
+            "expired",
+          ]) {
+            if (!count(result.summary[key])) throw new InboxError(503);
+            summary[key] = result.summary[key] as number;
+          }
+          const items = result.items.map((entry: unknown) => {
+            if (
+              !record(entry) ||
+              !string(entry.id, 36) ||
+              !uuid.test(entry.id) ||
+              !string(entry.reference, 64) ||
+              !/^LX-\d{8}-[A-F0-9]{12}$/.test(entry.reference) ||
+              ![
+                "pending",
+                "leased",
+                "retry",
+                "accepted",
+                "failed",
+                "needs_review",
+                "expired",
+              ].includes(String(entry.state)) ||
+              !count(entry.attempts) ||
+              entry.attempts > 5 ||
+              !date(entry.createdAt) ||
+              !date(entry.updatedAt) ||
+              !(entry.nextAttemptAt === null || date(entry.nextAttemptAt)) ||
+              !(
+                entry.lastErrorCode === null ||
+                (string(entry.lastErrorCode, 64) && /^[a-z_]+$/.test(entry.lastErrorCode))
+              ) ||
+              !(
+                entry.providerId === null ||
+                (string(entry.providerId, 36) && uuid.test(entry.providerId))
+              )
+            )
+              throw new InboxError(503);
+            return {
+              id: entry.id,
+              reference: entry.reference,
+              state: entry.state,
+              attempts: entry.attempts,
+              createdAt: entry.createdAt,
+              updatedAt: entry.updatedAt,
+              nextAttemptAt: entry.nextAttemptAt,
+              lastErrorCode: entry.lastErrorCode,
+              providerId: entry.providerId,
+            };
+          });
+          const alerts = emailAlertConfiguration(environment);
+          return json(200, {
+            configuration: {
+              enabled: alerts.enabled && config.enabled,
+              ready: alerts.valid && config.enabled,
+              provider: "resend",
+              sender: /^LuxeInfra <[a-z0-9][a-z0-9._+-]{0,62}@alerts\.luxeinfra\.in>$/.test(
+                alerts.from,
+              )
+                ? alerts.from
+                : null,
+              recipients: ["sales@luxeinfra.in", "infoluxeinfra@gmail.com"],
+            },
+            summary,
+            items,
+          });
         }
         if (url.pathname === "/api/admin/team") {
           if (user.role !== "owner") throw new InboxError(403);

@@ -102,6 +102,104 @@ test("capability response creates a protected cookie without contacting Supabase
   assert.equal(reused.headers.get("set-cookie").split(";")[0], cookie);
 });
 
+test("public email capability requires complete enabled settings and trusted production context without provider calls", async (t) => {
+  const configured = {
+    ...env,
+    RESEND_API_KEY: "re_" + "mock_private_key".repeat(3),
+    LUXE_EMAIL_FROM: "LuxeInfra <leads@alerts.luxeinfra.in>",
+    LUXE_EMAIL_ALERTS_ENABLED: "true",
+  };
+  const cases = [
+    { name: "complete enabled configuration", overrides: {}, expected: true },
+    { name: "missing Resend key", overrides: { RESEND_API_KEY: undefined }, expected: false },
+    {
+      name: "alerts explicitly disabled",
+      overrides: { LUXE_EMAIL_ALERTS_ENABLED: "false" },
+      expected: false,
+    },
+    {
+      name: "alerts not enabled",
+      overrides: { LUXE_EMAIL_ALERTS_ENABLED: undefined },
+      expected: false,
+    },
+    {
+      name: "unapproved sending domain",
+      overrides: { LUXE_EMAIL_FROM: "LuxeInfra <leads@other.example>" },
+      expected: false,
+    },
+    {
+      name: "daily limit outside the supported range",
+      overrides: { LUXE_EMAIL_DAILY_LIMIT: "101" },
+      expected: false,
+    },
+    {
+      name: "missing trusted runtime IP",
+      overrides: {},
+      runtime: {},
+      intakeEnabled: false,
+      expected: false,
+    },
+    {
+      name: "invalid trusted runtime IP",
+      overrides: {},
+      runtime: { ip: "not-an-ip" },
+      intakeEnabled: false,
+      expected: false,
+    },
+  ];
+  for (const item of cases) {
+    await t.test(item.name, async () => {
+      let providerCalls = 0;
+      const handler = createHostedLeadIntake({
+        env: { ...configured, ...item.overrides },
+        fetch: () => {
+          providerCalls++;
+          assert.fail("Public capability reads must not call Supabase or Resend");
+        },
+      });
+      const response = await handler.handle(
+        new Request(site + "/api/enquiry-delivery/status", {
+          headers: { "x-forwarded-for": "203.0.113.8" },
+        }),
+        { ...context, runtime: item.runtime ?? context.runtime },
+      );
+      assert.equal(response.status, 200);
+      const payload = await response.json();
+      assert.deepEqual(payload, {
+        enabled: item.intakeEnabled ?? true,
+        channel: "database",
+        notifications: { email: item.expected, whatsapp: false },
+      });
+      assert.equal(response.headers.get("cache-control"), "no-store");
+      assert.equal(providerCalls, 0);
+      const serialized = JSON.stringify(payload);
+      for (const privateValue of [
+        configured.RESEND_API_KEY,
+        configured.SUPABASE_SECRET_KEY,
+        configured.LUXE_LEADS_HMAC_SECRET,
+        configured.SUPABASE_URL,
+        configured.LUXE_EMAIL_FROM,
+      ])
+        assert.equal(serialized.includes(privateValue), false);
+      assert.doesNotMatch(serialized, /apiKey|sender|recipients|configuration|RESEND_API_KEY/);
+    });
+  }
+  await t.test("preview and development contexts never advertise live sending", async () => {
+    const handler = createHostedLeadIntake({
+      env: configured,
+      fetch: () => assert.fail("Non-production status must not call a provider"),
+    });
+    for (const environment of ["preview", "local", "development"])
+      assert.equal(
+        await handler.handle(new Request(site + "/api/enquiry-delivery/status"), {
+          ...context,
+          environment,
+        }),
+        null,
+      );
+  });
+});
+
 test("only the trusted Netlify context supplies an IP; forged forwarding headers do not enable intake", async () => {
   const handler = createHostedLeadIntake({
     env,

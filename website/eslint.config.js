@@ -18,7 +18,7 @@ export default tseslint.config(
     ],
   },
   {
-    files: ["scripts/**/*.{js,mjs}", "tests/**/*.mjs", "eslint.config.js"],
+    files: ["scripts/**/*.{js,mjs}", "netlify/**/*.mjs", "tests/**/*.mjs", "eslint.config.js"],
     extends: [js.configs.recommended],
     languageOptions: { ecmaVersion: "latest", globals: globals.node },
     // Destructuring intentionally removes private fields before exporting customer data.

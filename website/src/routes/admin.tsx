@@ -13,6 +13,7 @@ import {
   LoaderCircle,
   LockKeyhole,
   LogOut,
+  Mail,
   MessageCircle,
   Phone,
   RefreshCw,
@@ -21,6 +22,7 @@ import {
   Users,
   X,
 } from "lucide-react";
+import { EmailNotifications } from "@/components/admin/EmailNotifications";
 import {
   InboxApiError,
   inboxDate,
@@ -54,7 +56,7 @@ export const Route = createFileRoute("/admin")({
   component: AdminWorkspace,
 });
 
-type WorkspaceTab = "inbox" | "overview" | "team";
+type WorkspaceTab = "inbox" | "overview" | "team" | "notifications";
 type HandleError = (error: unknown) => boolean;
 
 function Brand({ light = false }: { light?: boolean }) {
@@ -273,6 +275,13 @@ function AdminWorkspace() {
               >
                 <Users size={19} /> Team access
               </button>
+              <button
+                className={tab === "notifications" ? "is-active" : ""}
+                aria-current={tab === "notifications" ? "page" : undefined}
+                onClick={() => changeTab("notifications")}
+              >
+                <Mail size={19} /> Email alerts
+              </button>
             </>
           )}
         </nav>
@@ -319,7 +328,9 @@ function AdminWorkspace() {
             />
           ) : tab === "overview" && session.user!.role === "owner" ? (
             <OwnerOverview handleError={handleError} onOpenInbox={() => changeTab("inbox")} />
-          ) : session.user!.role === "owner" ? (
+          ) : tab === "notifications" && session.user!.role === "owner" ? (
+            <EmailNotifications handleError={handleError} />
+          ) : tab === "team" && session.user!.role === "owner" ? (
             <TeamPanel
               user={session.user!}
               csrfToken={session.csrfToken!}

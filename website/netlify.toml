@@ -7,6 +7,10 @@
   VITE_CONTENT_PREVIEW = "false"
   VITE_CAMPAIGN_PREVIEW = "false"
 
+[functions]
+  directory = "netlify/functions"
+  node_bundler = "esbuild"
+
 [[headers]]
   for = "/*"
   [headers.values]
