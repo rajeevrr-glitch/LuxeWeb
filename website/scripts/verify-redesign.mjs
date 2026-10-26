@@ -210,6 +210,19 @@ for (const route of routes) {
   for (const match of html.matchAll(/(?:src|href)="(\/assets\/[^"?#]+)[^"\s]*"/g))
     assets.add(match[1]);
 }
+const admin = await handler.fetch(new Request("http://localhost/admin"));
+assert.equal(admin.status, 200, "private workspace shell");
+const adminHtml = await admin.text();
+assert.match(adminHtml, /name="robots" content="noindex, nofollow, noarchive"/);
+assert.match(adminHtml, /li-login-shell/);
+assert.doesNotMatch(
+  adminHtml,
+  /aria-label="Main navigation"|luxe-whatsapp-float|lw-launcher|LX-\d{8}-[A-F0-9]{12}/,
+  "private workspace has no public popup/navigation or server-rendered enquiry data",
+);
+if (netlify) assert.equal(admin.headers.get("x-robots-tag"), "noindex, nofollow");
+for (const match of adminHtml.matchAll(/(?:src|href)="(\/assets\/[^"?#]+)[^"\s]*"/g))
+  assets.add(match[1]);
 for (const asset of assets) await access(path.join(outputRoot, decodeURIComponent(asset)));
 assert.equal((await handler.fetch(new Request("http://localhost/not-a-real-page"))).status, 404);
 assert.equal((await handler.fetch(new Request("http://localhost/guides/not-a-guide"))).status, 404);
@@ -234,6 +247,11 @@ if (netlify) {
   }
   const blocked = await handler.fetch(new Request("https://preview.netlify.app/.env.local"));
   assert.equal(blocked.status, 404);
+  const inboxSession = await handler.fetch(
+    new Request("https://preview.netlify.app/api/admin/session"),
+  );
+  assert.deepEqual(await inboxSession.json(), { enabled: false, authenticated: false });
+  assert.match(inboxSession.headers.get("cache-control"), /no-store/);
   const robots = await handler.fetch(new Request("https://preview.netlify.app/robots.txt"));
   assert.equal(await robots.text(), "User-agent: *\nDisallow: /\n");
   assert.equal(robots.headers.get("x-robots-tag"), "noindex, nofollow");
@@ -252,6 +270,7 @@ console.log(
     mode: review ? "review" : "public",
     target: netlify ? "netlify" : "node",
     routes: routes.length,
+    privateInboxShell: "passed",
     builtAssets: assets.size,
     offerGate: "passed",
     partnerDeepLink: "passed",

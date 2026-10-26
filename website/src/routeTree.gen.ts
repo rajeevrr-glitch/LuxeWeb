@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AboutRouteImport } from './routes/about'
+import { Route as AdminRouteImport } from './routes/admin'
 import { Route as CallbackRouteImport } from './routes/callback'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as DesignIdeasRouteRouteImport } from './routes/design-ideas.route'
@@ -42,6 +43,11 @@ const IndexRoute = IndexRouteImport.update({
 const AboutRoute = AboutRouteImport.update({
   id: '/about',
   path: '/about',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminRoute = AdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CallbackRoute = CallbackRouteImport.update({
@@ -160,6 +166,7 @@ export interface FileRoutesByFullPath {
   '/design-ideas': typeof DesignIdeasRouteRouteWithChildren
   '/guides': typeof GuidesRouteRouteWithChildren
   '/about': typeof AboutRoute
+  '/admin': typeof AdminRoute
   '/callback': typeof CallbackRoute
   '/contact': typeof ContactRoute
   '/estimate': typeof EstimateRoute
@@ -184,6 +191,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/admin': typeof AdminRoute
   '/callback': typeof CallbackRoute
   '/contact': typeof ContactRoute
   '/estimate': typeof EstimateRoute
@@ -211,6 +219,7 @@ export interface FileRoutesById {
   '/design-ideas': typeof DesignIdeasRouteRouteWithChildren
   '/guides': typeof GuidesRouteRouteWithChildren
   '/about': typeof AboutRoute
+  '/admin': typeof AdminRoute
   '/callback': typeof CallbackRoute
   '/contact': typeof ContactRoute
   '/estimate': typeof EstimateRoute
@@ -239,6 +248,7 @@ export interface FileRouteTypes {
     | '/design-ideas'
     | '/guides'
     | '/about'
+    | '/admin'
     | '/callback'
     | '/contact'
     | '/estimate'
@@ -263,6 +273,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/about'
+    | '/admin'
     | '/callback'
     | '/contact'
     | '/estimate'
@@ -289,6 +300,7 @@ export interface FileRouteTypes {
     | '/design-ideas'
     | '/guides'
     | '/about'
+    | '/admin'
     | '/callback'
     | '/contact'
     | '/estimate'
@@ -316,6 +328,7 @@ export interface RootRouteChildren {
   DesignIdeasRouteRoute: typeof DesignIdeasRouteRouteWithChildren
   GuidesRouteRoute: typeof GuidesRouteRouteWithChildren
   AboutRoute: typeof AboutRoute
+  AdminRoute: typeof AdminRoute
   CallbackRoute: typeof CallbackRoute
   ContactRoute: typeof ContactRoute
   EstimateRoute: typeof EstimateRoute
@@ -348,6 +361,13 @@ declare module '@tanstack/react-router' {
       path: '/about'
       fullPath: '/about'
       preLoaderRoute: typeof AboutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/callback': {
@@ -539,6 +559,7 @@ const rootRouteChildren: RootRouteChildren = {
   DesignIdeasRouteRoute: DesignIdeasRouteRouteWithChildren,
   GuidesRouteRoute: GuidesRouteRouteWithChildren,
   AboutRoute: AboutRoute,
+  AdminRoute: AdminRoute,
   CallbackRoute: CallbackRoute,
   ContactRoute: ContactRoute,
   EstimateRoute: EstimateRoute,

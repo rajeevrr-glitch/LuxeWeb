@@ -130,6 +130,8 @@ export function protectHostedResponse(
   if (
     !indexable(request, options) ||
     response.status >= 400 ||
+    pathname === "/admin" ||
+    pathname.startsWith("/admin/") ||
     pathname === "/healthz" ||
     pathname === "/api" ||
     pathname.startsWith("/api/")
@@ -213,7 +215,7 @@ export function handleHostedRequest(
     return respond(
       200,
       indexable(request, options)
-        ? `User-agent: *\nAllow: /\nDisallow: /api/\nSitemap: ${ownedOrigin}/sitemap.xml\n`
+        ? `User-agent: *\nAllow: /\nDisallow: /api/\nDisallow: /admin\nSitemap: ${ownedOrigin}/sitemap.xml\n`
         : "User-agent: *\nDisallow: /\n",
     );
   if (pathname === "/sitemap.xml")

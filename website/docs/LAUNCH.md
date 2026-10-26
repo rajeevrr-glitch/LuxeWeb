@@ -152,7 +152,37 @@ order by created_at desc
 limit 100;
 ```
 
-No public listing endpoint exists. Keep a team review process in place before enabling public capture. The database enforces atomic duplicate handling, 12 enquiries per IP per rolling 10 minutes, five per phone per rolling hour, 500 total per UTC day and 10,000 retained leads. These are launch safeguards, not a spam-proof identity check. Quota keys are HMACs; raw IP addresses are not stored. All customer requests remain until managed under the agreed retention/deletion policy; expired rate events are cleaned after 24 hours. The migration does not silently delete leads. Add monitoring, an agreed retention/deletion routine and staff access before scaling.
+No public listing endpoint exists. The authenticated inbox described below is a separate, opt-in service. The database enforces atomic duplicate handling, 12 enquiries per IP per rolling 10 minutes, five per phone per rolling hour, 500 total per UTC day and 10,000 retained leads. These are launch safeguards, not a spam-proof identity check. Quota keys are HMACs; raw IP addresses are not stored. All customer requests remain until managed under the agreed retention/deletion policy; expired rate events are cleaned after 24 hours. The migration does not silently delete leads. Add monitoring and an agreed retention/deletion routine before scaling.
+
+## Private lead inbox and owner controls
+
+The dedicated `/admin` workspace is separate from the public site's navigation, popup, chat and promotional content. Its initial view is the lead inbox. It reads the existing private Supabase lead records, without copying them into public files or browser storage.
+
+### Owner account and database setup
+
+1. In the existing Supabase project, open Authentication → Users → Add user → Create new user. Use the confirmed owner email `sales@luxeinfra.in`, choose a strong private password and enable Auto Confirm User. Keep the password out of chat, source, deployment variables and work logs. No invitation email is sent by the website.
+2. Open `supabase/migrations/202610260002_lead_inbox.sql`. Copy the **entire migration** into a new Supabase SQL Editor query and run it as the database owner. The first lead-intake migration must already be installed. The second migration adds notes, follow-up dates, private memberships, login counters, minimal audit records and restricted inbox functions. It does not delete leads or change their existing reference numbers.
+3. The migration binds the confirmed Auth user ID for `sales@luxeinfra.in` to the one owner seat. If it ran before the account existed, rerun the complete migration after account creation. It does not replace an existing owner or grant access merely because a browser submits that email. Later owner email/account changes require a deliberate database-owner recovery procedure.
+4. Run `npm run inbox:check -- --connect` locally. This performs a read-only readiness RPC and prints booleans plus HTTP status, never credentials or lead data. Require `databaseReady:true` and `ownerConfigured:true` before enabling the workspace. A 404 indicates that the second migration is missing or the schema cache has not refreshed. It does not mean the first lead-intake setup must be rerun.
+
+### Netlify activation
+
+Keep the existing server-only `SUPABASE_URL`, `SUPABASE_SECRET_KEY`, `LUXE_LEADS_HMAC_SECRET` and exact HTTPS `SITE_URL`. Add `LUXE_INBOX_ENABLED=true` as a server environment variable and deploy the current source. Never use a `VITE_` prefix for inbox settings or credentials. Leave `LUXE_INBOX_LOCAL` unset/false on Netlify. Production requires the trusted Netlify context IP and exact configured website origin; preview deployments stay disconnected.
+
+Visit the production website's `/admin` address directly and sign in using the owner account. No owner password is supplied to the build or stored in an environment file. The public site continues to collect enquiries independently when the inbox is disabled.
+
+Local review stays at `http://127.0.0.1:3000/admin`. Its setup screen works without account credentials. To connect the actual private inbox during local development, explicitly set both `LUXE_INBOX_ENABLED=true` and `LUXE_INBOX_LOCAL=true` in ignored `.env.local`, keep the production HTTPS `SITE_URL` and run `npm run dev`. Local access accepts only loopback request origins and socket addresses, uses a separate encrypted HttpOnly cookie, and does not work over a LAN address. Normal `npm start` public review need not load private settings. Local access is optional and disabled by default.
+
+### Inbox and master owner controls
+
+- Inbox: newest-first enquiries, search, status/type filters, 25-record pages, full requirements, click-to-call, an explicitly clicked WhatsApp link, internal notes and follow-up dates. Dates display in IST; follow-up editing uses the device's local timezone as labelled. Status choices remain New, Contacted, Qualified and Closed. Scheduled dates show due flags; automatic reminder messages are not connected.
+- Concurrent edits: the server compares the exact saved update timestamp. A conflicting save retains the user's edits and offers an explicit reload; it does not silently overwrite another team member's work. Unsaved edits require confirmation before leaving the detail view.
+- Owner overview: total/new/contacted/qualified/closed enquiry counts and due follow-ups. These are lead counts, not visitor analytics or revenue projections.
+- Team access: the owner can approve/reactivate or disable existing confirmed staff accounts by email. Create each staff Auth account privately in Supabase first. Staff may work on all leads, but cannot manage memberships or view the owner's team/audit screen. The owner seat cannot be disabled or replaced through the interface. The workspace supports up to 100 total memberships, including inactive accounts; expansion requires a deliberate migration.
+- Activity history: recent lead updates and staff-access changes, with actor, time and reference. Full customer messages, notes, passwords, tokens and raw IP addresses are not copied into audit records. No leads are deleted or exported through this initial inbox.
+- Authentication: Supabase verifies each user, then a server-only RPC verifies active private membership on every protected request. Session cookies contain only an encrypted access token and CSRF state; no refresh token is retained. Cookies are HttpOnly, Secure in production and SameSite=Strict. Sessions last at most 30 minutes and then require a fresh login. Mutations require exact Origin and CSRF, bounded JSON and trusted IP context. Login attempts are limited to 10/IP/15 minutes and 500 overall/hour with durable, hashed-IP counters. These controls do not claim MFA, email/WhatsApp alerts, visitor tracking or a full website CMS.
+
+The disposable SQL tests in `supabase/tests/lead_inbox.sql` are **tests only**, not setup, and must not be run against production. They isolate fixtures in a rollback transaction. Do not expose the private schema or grant direct lead-table access to anonymous/authenticated clients to make the UI work.
 
 The SQL tests in supabase/tests/lead_intake.sql are for a disposable database only, with rollback. They cover restricted access, idempotency/conflicts, rate/capacity limits and timestamps. The implementation was also checked locally against an in-memory Postgres-compatible database; that does not replace the actual Supabase readiness and deployed form checks.
 

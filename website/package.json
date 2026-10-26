@@ -19,6 +19,7 @@
     "desk": "node scripts/desk-server.mjs",
     "delivery:check": "node scripts/delivery-readiness.mjs",
     "leads:check": "node --use-system-ca --env-file=.env.local scripts/lead-readiness.mjs",
+    "inbox:check": "node --use-system-ca --env-file=.env.local scripts/inbox-readiness.mjs",
     "ai:check": "node scripts/ai-readiness.mjs",
     "start": "node --use-system-ca scripts/production-server.mjs",
     "format:check": "prettier --check src scripts tests vite.config.ts eslint.config.js tsconfig.json package.json"

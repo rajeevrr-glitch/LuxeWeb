@@ -40,7 +40,15 @@ For the existing rajeevrr-glitch/LuxeWeb repository, the source is inside `websi
 
 Supabase lead saving is prepared for the owner's Luxe Infra / Luxe Web project. Set up the committed SQL migration, privately configure the server Secret key and signing secret, and run `npm run leads:check -- --connect` before activation. Its output contains only readiness booleans and an HTTP status. Keep `LUXE_LEADS_ENABLED=false` until the migration, exact public website origin and deployment are verified. Follow [Supabase setup](docs/LAUNCH.md#supabase-lead-saving-luxe-infra--luxe-web).
 
-An accepted online request means it was saved privately with a reference. Automatic WhatsApp/email alerts, the staff inbox and hosted AI remain separate connections. Photos and floor plans are not automatically uploaded by the enquiry form.
+An accepted online request means it was saved privately with a reference. Automatic WhatsApp/email alerts and hosted AI remain separate connections. Photos and floor plans are not automatically uploaded by the enquiry form.
+
+## Private lead inbox and owner controls
+
+The private workspace is at `/admin`. It has its own login and does not use the public website's menus, promotions or popup. Approved staff can search/filter enquiries, read their requirements, update status, add notes and schedule follow-up dates. Follow-up dates are displayed in the inbox; they do not send an automatic reminder. The owner additionally sees an overview, staff-access controls and recent activity.
+
+The initial owner is `sales@luxeinfra.in`. Create that confirmed account privately in Supabase Authentication and run the second migration `supabase/migrations/202610260002_lead_inbox.sql` after the existing lead-intake migration. Run `npm run inbox:check -- --connect`; databaseReady and ownerConfigured must both be true. Add the server-only `LUXE_INBOX_ENABLED=true` setting in Netlify and deploy the current code. See [inbox setup](docs/LAUNCH.md#private-lead-inbox-and-owner-controls).
+
+No public signup grants inbox access. Owner/staff permissions are checked at the server and database on every request. Sessions expire after at most 30 minutes; sign in again when prompted. Passwords and provider tokens are not stored in browser storage. Do not share the owner's login with staff: create each staff account in Supabase, then approve its email from Team access. Removing inbox access does not delete the underlying Supabase Auth account. Automatic notifications, visitor analytics, CSV export and a content-management system are not included in this workspace.
 
 The portfolio includes eleven unique photos and two project films. Films are assigned to Harsh Pal and Dharmendra Singh as instructed; other photographs stay unassigned and review wording needs confirmation. The floating WhatsApp button stays above the mobile actions and steps aside while the welcome popup or Luxe chat is open. It opens the confirmed studio number; visitors still send their own messages. Rates, detailed warranty coverage and remaining business terms are still needed; the owner-input notes remain local and are excluded from Git. Automatic WhatsApp delivery and public image AI are not activated merely by adding a local Gemini key.
 

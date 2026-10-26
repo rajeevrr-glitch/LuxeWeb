@@ -61,7 +61,7 @@ test("only the HTTPS canonical production host may advertise indexing", async ()
   const response = handleHostedRequest(request("/robots.txt"), production);
   assert.match(
     await response.text(),
-    /Allow: \/\nDisallow: \/api\/\nSitemap: https:\/\/luxeinfra.in/,
+    /Allow: \/\nDisallow: \/api\/\nDisallow: \/admin\nSitemap: https:\/\/luxeinfra.in/,
   );
   assert.equal(response.headers.get("x-robots-tag"), null);
 });
@@ -77,7 +77,7 @@ test("sitemap contains public routes, not funnels, unapproved reviews or supplie
   assert.match(xml, /https:\/\/luxeinfra.in\/guides\/compare-interior-quotes/);
   assert.doesNotMatch(
     xml,
-    /evil\.test|preview\.netlify\.app|\/testimonials|\/callback|\/offers|\/api\//,
+    /evil\.test|preview\.netlify\.app|\/testimonials|\/callback|\/offers|\/admin|\/api\//,
   );
   assert.equal(response.headers.get("x-robots-tag"), "noindex, nofollow");
 });

@@ -3,6 +3,7 @@ import { tanstackStart } from "@tanstack/react-start/plugin/vite";
 import react from "@vitejs/plugin-react";
 import tailwind from "@tailwindcss/vite";
 import { createLuxeChat } from "./scripts/luxe-chat.mjs";
+import { createLocalInbox } from "./scripts/inbox-local.mjs";
 import netlify from "@netlify/vite-plugin-tanstack-start";
 
 const netlifyBuild = process.env.LUXE_DEPLOY_TARGET === "netlify" || process.env.NETLIFY === "true";
@@ -23,9 +24,18 @@ export default defineConfig(({ mode }) => ({
     {
       name: "luxe-local-api-status",
       configureServer(server) {
+        const localEnvironment = { ...loadEnv(mode, process.cwd(), ""), ...process.env };
+        const inbox = createLocalInbox({ env: localEnvironment });
         const chat = createLuxeChat({
-          env: { ...loadEnv(mode, process.cwd(), ""), ...process.env },
+          env: localEnvironment,
           origins: ["http://127.0.0.1:3000", "http://localhost:3000"],
+        });
+        server.middlewares.use((req, res, next) => {
+          void inbox(req, res)
+            .then((handled) => {
+              if (!handled) next();
+            })
+            .catch(next);
         });
         server.middlewares.use((req, res, next) => {
           if (!req.url?.split("?")[0].startsWith("/api/luxe-chat")) return next();
