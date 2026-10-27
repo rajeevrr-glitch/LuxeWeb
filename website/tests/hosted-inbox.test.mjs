@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { createHostedInbox } from "../src/lib/hosted-inbox.server.ts";
+import { trafficPages, trafficSources, trafficDevices } from "../src/lib/traffic.ts";
 
 const site = "https://luxeinfra.in";
 const env = {
@@ -203,6 +204,8 @@ function setup(overrides = {}) {
       if (path.endsWith("luxe_inbox_access"))
         return Response.json({ ...staff, role: "staff", active: payload.p_active });
       if (path.endsWith("luxe_inbox_notifications")) return Response.json(state.notifications);
+      if (path.endsWith("luxe_inbox_traffic"))
+        return Response.json(state.traffic ?? trafficFixture(payload.p_days));
       assert.fail("Unexpected provider request " + path);
     },
   });
@@ -260,6 +263,128 @@ test("inbox fails closed for invalid configuration, deployment contexts and forg
   }
   assert.equal(await handler.handle(new Request(site + "/api/enquiry-delivery"), context), null);
   assert.equal(calls.length, 0);
+});
+
+function trafficFixture(days = 7) {
+  const through = "2026-10-27";
+  const daily = Array.from({ length: days }, (_, index) => ({
+    date: new Date(Date.parse(through + "T00:00:00Z") - (days - index - 1) * 86400000)
+      .toISOString()
+      .slice(0, 10),
+    pageViews: index === days - 1 ? 2 : 0,
+    visitorDays: index === days - 1 ? 1 : 0,
+    leads: index === days - 1 ? 1 : 0,
+  }));
+  return {
+    enabled: true,
+    days,
+    timeZone: "Asia/Kolkata",
+    asOf: "2026-10-27T06:00:00Z",
+    from: daily[0].date,
+    through,
+    summary: { pageViews: 2, visitorDays: 1, recentVisitors: 1, leads: 1 },
+    daily,
+    pages: trafficPages.map((page, index) => ({ page, pageViews: index === 0 ? 2 : 0 })),
+    sources: trafficSources.map((source, index) => ({ source, pageViews: index === 0 ? 2 : 0 })),
+    devices: trafficDevices.map((device, index) => ({ device, pageViews: index === 0 ? 2 : 0 })),
+  };
+}
+
+test("traffic aggregates remain private, owner-only and disabled unless configured", async () => {
+  const enabled = setup({ env: { LUXE_TRAFFIC_ENABLED: "true" } });
+  assert.equal((await enabled.handler.handle(request("traffic"), context)).status, 401);
+  const staffOnly = setup({ role: "staff", env: { LUXE_TRAFFIC_ENABLED: "true" } });
+  const signed = await login(staffOnly.handler);
+  assert.equal(
+    (await staffOnly.handler.handle(request("traffic", { cookie: signed.cookie }), context)).status,
+    403,
+  );
+  assert.equal(
+    staffOnly.calls.some((c) => c.path.endsWith("luxe_inbox_traffic")),
+    false,
+  );
+  const off = setup();
+  const owner = await login(off.handler);
+  const result = await off.handler.handle(request("traffic", { cookie: owner.cookie }), context);
+  assert.deepEqual(await result.json(), { enabled: false });
+  assert.equal(
+    off.calls.some((c) => c.path.endsWith("luxe_inbox_traffic")),
+    false,
+  );
+});
+
+test("owner traffic periods call only the aggregate RPC and strip unknown private fields", async () => {
+  const server = setup({ env: { LUXE_TRAFFIC_ENABLED: "true" } }),
+    owner = await login(server.handler);
+  for (const days of [7, 30, 90]) {
+    const fixture = trafficFixture(days);
+    server.state.traffic = {
+      ...fixture,
+      visitorHash: "private daily identifier",
+      customerEmail: "private@example.test",
+    };
+    const response = await server.handler.handle(
+      request("traffic?days=" + days, { cookie: owner.cookie }),
+      context,
+    );
+    assert.equal(response.status, 200);
+    assert.deepEqual(await response.json(), fixture);
+    const call = server.calls.at(-1);
+    assert.ok(call.path.endsWith("luxe_inbox_traffic"));
+    assert.deepEqual(call.payload, { p_actor: staff.id, p_days: days });
+  }
+});
+
+test("traffic report periods and methods cannot turn the owner view into an arbitrary query", async () => {
+  const server = setup({ env: { LUXE_TRAFFIC_ENABLED: "true" } }),
+    owner = await login(server.handler);
+  for (const suffix of ["?days=1", "?days=07", "?days=7&days=30", "?days=7&actor=private"])
+    assert.equal(
+      (await server.handler.handle(request("traffic" + suffix, { cookie: owner.cookie }), context))
+        .status,
+      400,
+    );
+  const mutation = await server.handler.handle(
+    request("traffic", {
+      cookie: owner.cookie,
+      csrf: owner.value.csrfToken,
+      method: "POST",
+      value: {},
+    }),
+    context,
+  );
+  assert.equal(mutation.status, 405);
+  assert.equal(
+    server.calls.some((c) => c.path.endsWith("luxe_inbox_traffic")),
+    false,
+  );
+});
+
+test("malformed report, provider errors and invalid collection settings fail closed", async () => {
+  const server = setup({
+      env: { LUXE_TRAFFIC_ENABLED: "true" },
+      traffic: { ...trafficFixture(), pages: [{ page: "/admin?token=private", pageViews: 2 }] },
+    }),
+    owner = await login(server.handler);
+  let response = await server.handler.handle(request("traffic", { cookie: owner.cookie }), context);
+  assert.equal(response.status, 503);
+  assert.doesNotMatch(await response.text(), /token=private|visitorHash|private@example/);
+  server.state.fail = "/rest/v1/rpc/luxe_inbox_traffic";
+  response = await server.handler.handle(request("traffic", { cookie: owner.cookie }), context);
+  assert.equal(response.status, 503);
+  assert.doesNotMatch(await response.text(), /secret|credentials|stack/);
+  const broken = setup({
+      env: { LUXE_TRAFFIC_ENABLED: "true", LUXE_TRAFFIC_DAILY_LIMIT: "invalid" },
+    }),
+    signed = await login(broken.handler);
+  assert.equal(
+    (await broken.handler.handle(request("traffic", { cookie: signed.cookie }), context)).status,
+    503,
+  );
+  assert.equal(
+    broken.calls.some((c) => c.path.endsWith("luxe_inbox_traffic")),
+    false,
+  );
 });
 
 test("full Unicode enquiry pages remain readable while provider payloads and filters stay bounded", async () => {

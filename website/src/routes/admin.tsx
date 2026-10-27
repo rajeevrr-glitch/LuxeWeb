@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
   Activity,
+  BarChart3,
   ArrowLeft,
   CalendarClock,
   Check,
@@ -23,6 +24,7 @@ import {
   X,
 } from "lucide-react";
 import { EmailNotifications } from "@/components/admin/EmailNotifications";
+import { SiteTraffic } from "@/components/admin/SiteTraffic";
 import {
   InboxApiError,
   inboxDate,
@@ -44,6 +46,7 @@ import type {
   TeamMember,
 } from "@/lib/inbox-client";
 import inboxCss from "@/styles/admin.css?url";
+import trafficCss from "@/styles/traffic-admin.css?url";
 
 export const Route = createFileRoute("/admin")({
   head: () => ({
@@ -52,12 +55,15 @@ export const Route = createFileRoute("/admin")({
       { name: "robots", content: "noindex, nofollow, noarchive" },
       { name: "referrer", content: "no-referrer" },
     ],
-    links: [{ rel: "stylesheet", href: inboxCss }],
+    links: [
+      { rel: "stylesheet", href: inboxCss },
+      { rel: "stylesheet", href: trafficCss },
+    ],
   }),
   component: AdminWorkspace,
 });
 
-type WorkspaceTab = "inbox" | "overview" | "team" | "notifications";
+type WorkspaceTab = "inbox" | "overview" | "team" | "notifications" | "traffic";
 type WorkView = "" | "today" | "overdue" | "unscheduled" | "unassigned" | "mine";
 type HandleError = (error: unknown) => boolean;
 
@@ -300,6 +306,14 @@ function AdminWorkspace() {
                 <Users size={19} /> Team access
               </button>
               <button
+                className={tab === "traffic" ? "is-active" : ""}
+                aria-current={tab === "traffic" ? "page" : undefined}
+                disabled={detailBusy}
+                onClick={() => changeTab("traffic")}
+              >
+                <BarChart3 size={19} /> Site traffic
+              </button>
+              <button
                 className={tab === "notifications" ? "is-active" : ""}
                 aria-current={tab === "notifications" ? "page" : undefined}
                 disabled={detailBusy}
@@ -355,6 +369,8 @@ function AdminWorkspace() {
             />
           ) : tab === "overview" && session.user!.role === "owner" ? (
             <OwnerOverview handleError={handleError} onOpenInbox={() => changeTab("inbox")} />
+          ) : tab === "traffic" && session.user!.role === "owner" ? (
+            <SiteTraffic handleError={handleError} />
           ) : tab === "notifications" && session.user!.role === "owner" ? (
             <EmailNotifications handleError={handleError} />
           ) : tab === "team" && session.user!.role === "owner" ? (
@@ -845,6 +861,17 @@ function LeadInbox({
                           }
                         >
                           {lead.assignedTo?.displayName || "Unassigned"}
+                          {workflow.canAssign && (
+                            <button
+                              type="button"
+                              className="li-sheet-assign"
+                              disabled={viewLoading || detailBusy}
+                              aria-label={`Assign enquiry from ${lead.name}`}
+                              onClick={() => selectLead(lead)}
+                            >
+                              {lead.assignedTo ? "Change" : "Assign"}
+                            </button>
+                          )}
                           {lead.assignedTo && !lead.assignedTo.active && (
                             <small>Needs reassignment</small>
                           )}

@@ -5,6 +5,7 @@ import { renderErrorPage } from "./lib/error-page";
 import { handleHostedRequest, protectHostedResponse } from "./lib/hosted-runtime";
 import { createHostedLeadIntake } from "./lib/hosted-leads.server";
 import { createHostedInbox } from "./lib/hosted-inbox.server";
+import { createHostedTraffic } from "./lib/hosted-traffic.server";
 
 type ServerEntry = {
   fetch: (request: Request, env: unknown, ctx: unknown) => Promise<Response> | Response;
@@ -13,6 +14,7 @@ type ServerEntry = {
 let serverEntryPromise: Promise<ServerEntry> | undefined;
 const hostedLeads = createHostedLeadIntake();
 const hostedInbox = createHostedInbox();
+const hostedTraffic = createHostedTraffic();
 
 async function getServerEntry(): Promise<ServerEntry> {
   if (!serverEntryPromise) {
@@ -79,6 +81,8 @@ export default {
       if (hosted) {
         const inbox = await hostedInbox.handle(request, { ...options, runtime: env });
         if (inbox) return protectHostedResponse(request, inbox, options);
+        const traffic = await hostedTraffic.handle(request, { ...options, runtime: env });
+        if (traffic) return protectHostedResponse(request, traffic, options);
         const intake = await hostedLeads.handle(request, { ...options, runtime: env });
         if (intake) return protectHostedResponse(request, intake, options);
         const response = handleHostedRequest(request, options);

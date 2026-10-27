@@ -253,6 +253,7 @@ if (netlify) {
   for (const pathname of [
     "/api/luxe-chat/status",
     "/api/enquiry-delivery/status",
+    "/api/traffic/status",
     "/api/visualiser/status",
   ]) {
     const response = await handler.fetch(new Request("https://preview.netlify.app" + pathname));

@@ -9,6 +9,8 @@ import { isIP } from "node:net";
 import { hostedLeadConfiguration } from "./hosted-config.server.ts";
 import { emailAlertConfiguration } from "./lead-email-worker.server.ts";
 import { createHostedRecovery } from "./hosted-recovery.server.ts";
+import { trafficReport } from "./traffic-report.server.ts";
+import { trafficDailyLimit } from "./hosted-traffic.server.ts";
 
 type Environment = Record<string, string | undefined>;
 type Options = { env?: Environment; fetch?: typeof fetch; now?: () => number };
@@ -501,6 +503,25 @@ export function createHostedInbox(options: Options = {}) {
           if (request.method !== "POST")
             return json(405, { error: "Use POST to sign out." }, { Allow: "POST" });
           return json(200, { authenticated: false }, clear);
+        }
+        if (url.pathname === "/api/admin/traffic") {
+          if (user.role !== "owner") throw new InboxError(403);
+          if (request.method !== "GET")
+            return json(405, { error: "Use GET to view traffic." }, { Allow: "GET" });
+          if (
+            [...url.searchParams.keys()].some((key) => key !== "days") ||
+            url.searchParams.getAll("days").length > 1
+          )
+            throw new InboxError(400);
+          const days = url.searchParams.get("days") ?? "7";
+          if (!["7", "30", "90"].includes(days)) throw new InboxError(400);
+          if (environment.LUXE_TRAFFIC_ENABLED !== "true") return json(200, { enabled: false });
+          if (trafficDailyLimit(environment) === null) throw new InboxError(503);
+          const result = await rpc("luxe_inbox_traffic", {
+            p_actor: user.id,
+            p_days: Number(days),
+          });
+          return json(200, trafficReport(result, Number(days) as 7 | 30 | 90));
         }
         if (url.pathname === "/api/admin/leads") {
           if (request.method !== "GET")

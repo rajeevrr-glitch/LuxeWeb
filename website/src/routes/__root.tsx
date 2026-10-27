@@ -1,12 +1,14 @@
 import { campaignPreview } from "@/lib/campaigns";
 import { business } from "@/lib/business";
 import { recoveryRedirectScript } from "@/lib/recovery-redirect";
+import { SiteTrafficTracker } from "@/components/SiteTrafficTracker";
 import socialImage from "@/assets/hero-living.jpg";
 import {
   Outlet,
   Link,
   createRootRoute,
   useRouter,
+  useRouterState,
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
@@ -153,10 +155,20 @@ export const Route = createRootRoute({
     ],
   }),
   shellComponent: RootShell,
-  component: Outlet,
+  component: RootContents,
   notFoundComponent: NotFoundComponent,
   errorComponent: ErrorComponent,
 });
+
+function RootContents() {
+  const pathname = useRouterState({ select: (state) => state.location.pathname });
+  return (
+    <>
+      <SiteTrafficTracker pathname={pathname} />
+      <Outlet />
+    </>
+  );
+}
 
 function RootShell({ children }: { children: React.ReactNode }) {
   return (

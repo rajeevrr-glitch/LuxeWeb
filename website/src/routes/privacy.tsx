@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { PageShell } from "@/components/PageShell";
 import { business } from "@/lib/business";
+import { TrafficPreference } from "@/components/TrafficPreference";
 export const Route = createFileRoute("/privacy")({
   head: () => ({ meta: [{ title: "Your project. Your information. — LuxeInfra" }] }),
   component: Page,
@@ -143,8 +144,33 @@ function Page() {
           <p>
             Your browser requests website files and fonts from the hosting and font services. Those
             services receive connection information such as your IP address. This website does not
-            add advertising trackers or visitor analytics.
+            add advertising trackers.
           </p>
+          <h2 id="site-statistics">Basic website statistics</h2>
+          <p>
+            When enabled, LuxeInfra counts public page views using its Netlify server and private
+            Supabase database. The owner can see page totals, broad source categories such as Google
+            or Instagram, device categories and daily visitor estimates. Page queries, URL
+            fragments, form answers, names, phone numbers and chat messages are not included in
+            these statistics. The private admin and password-reset pages are excluded.
+          </p>
+          <p>
+            Visitor estimates use a daily changing keyed value derived on the server from the
+            connection IP address and a bounded browser User-Agent. The statistics tables do not
+            store the raw IP address or User-Agent, and the daily value is not linked to customer
+            contact records. No analytics cookie or persistent visitor identifier is placed in your
+            browser. Saved-enquiry totals are shown separately; they do not identify which visitor
+            made an enquiry or confirm a sale. Counts are estimates and exclude recognised bots.
+          </p>
+          <p>
+            Do Not Track and Global Privacy Control preferences are respected. You can also exclude
+            future visits from this browser below; only that preference is saved in browser storage.
+            This does not undo existing aggregated counts. Daily counting and duplicate-protection
+            entries older than seven IST calendar days, and aggregates older than ninety days, are
+            removed when the next valid page-view request is processed. If collection stops, cleanup
+            waits until another request is processed or the team removes the records.
+          </p>
+          <TrafficPreference />
           <h2>Questions or deletion requests</h2>
           <p>
             Contact <a href={"mailto:" + business.email}>{business.email}</a> about your project

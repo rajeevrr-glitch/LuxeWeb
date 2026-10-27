@@ -727,6 +727,19 @@
 .li-sheet-muted {
   color: #8a98a6;
 }
+.li-sheet-assign {
+  display: block;
+  min-height: 28px;
+  margin-top: 4px;
+  border: 0;
+  padding: 0;
+  color: var(--li-navy);
+  background: transparent;
+  font: inherit;
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
 .li-sheet-receipt {
   margin-bottom: 16px;
 }

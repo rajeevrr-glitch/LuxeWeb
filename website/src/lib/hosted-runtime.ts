@@ -132,7 +132,9 @@ export function protectHostedResponse(
     pathname === "/admin" ||
     pathname.startsWith("/admin/") ||
     pathname === "/api/admin" ||
-    pathname.startsWith("/api/admin/")
+    pathname.startsWith("/api/admin/") ||
+    pathname === "/api/traffic" ||
+    pathname === "/api/traffic/status"
   )
     headers.set("Referrer-Policy", "no-referrer");
   if (
@@ -190,6 +192,7 @@ export function handleHostedRequest(
         mode: "website-guide",
       },
       "/api/enquiry-delivery/status": { enabled: false, channel: "whatsapp" },
+      "/api/traffic/status": { enabled: false },
       "/api/visualiser/status": {
         enabled: false,
         provider: "gemini",
@@ -206,6 +209,7 @@ export function handleHostedRequest(
     const actions = new Set([
       "/api/luxe-chat",
       "/api/enquiry-delivery",
+      "/api/traffic",
       "/api/visualiser/leads",
       "/api/visualiser/jobs",
     ]);
