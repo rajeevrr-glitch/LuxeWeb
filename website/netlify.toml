@@ -30,3 +30,9 @@
   to = "https://luxeinfra.in/:splat"
   status = 301
   force = true
+
+[[redirects]]
+  from = "https://fantastic-liger-68a1da.netlify.app/*"
+  to = "https://luxeinfra.in/:splat"
+  status = 301
+  force = true

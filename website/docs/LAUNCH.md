@@ -8,9 +8,9 @@ The root `.env.local` file is private. Gemini setup is in AI-SETUP.md. Automatic
 
 ## Current hosted status — 27 October 2026
 
-The published site is https://fantastic-liger-68a1da.netlify.app. Supabase intake and the private `/admin` inbox are active. Migration 003 and Resend provide queued new-lead email alerts; receipt has been confirmed at both `sales@luxeinfra.in` and `infoluxeinfra@gmail.com`. A saved enquiry and its notification are separate outcomes, so an alert failure does not remove the enquiry.
+The published site is https://luxeinfra.in. Netlify serves the website with a certificate for luxeinfra.in and www.luxeinfra.in; www redirects to the apex domain. GoDaddy retains DNS and registration. Supabase intake and the private `/admin` inbox are active. Migration 003 and Resend provide queued new-lead email alerts; receipt has been confirmed at both `sales@luxeinfra.in` and `infoluxeinfra@gmail.com`. A saved enquiry and its notification are separate outcomes, so an alert failure does not remove the enquiry.
 
-The spreadsheet inbox, workflow assignment and owner recovery routes are deployed. Workflow migration 004 is installed and `LUXE_WORKFLOW_ENABLED=true` is active in Netlify Production only; local and preview contexts stay off. The owner confirmed the exact `/reset-password` Auth redirect URL is saved. A real owner password reset and authenticated live-inbox check still need the owner's private interaction. Traffic migration 005 is also installed and its read-only hosted readiness check returns HTTP 200; `LUXE_TRAFFIC_ENABLED=true` is saved for Production only. Deploy this source to use its traffic dashboard and collection. Automatic WhatsApp, hosted Gemini conversation, hosted room contact capture and image generation remain disconnected. The setup sections below are maintenance references, not instructions to recreate connected services.
+The spreadsheet inbox, workflow assignment and owner recovery routes are deployed. Workflow migration 004 is installed and `LUXE_WORKFLOW_ENABLED=true` is active in Netlify Production only; local and preview contexts stay off. The owner confirmed the exact `/reset-password` Auth redirect URL is saved. A real owner password reset and authenticated live-inbox check still need the owner's private interaction. Traffic migration 005 is also installed and its read-only hosted readiness check returns HTTP 200; `LUXE_TRAFFIC_ENABLED=true` is saved for Production only. Its traffic dashboard and collection are live. Automatic WhatsApp, hosted Gemini conversation, hosted room contact capture and image generation remain disconnected. The setup sections below are maintenance references, not instructions to recreate connected services.
 
 ## Quality checks
 
@@ -37,7 +37,7 @@ For a public-mode local check, stop development, then run `npm start` after a no
 - Confirm privacy/retention, ingress/spend limits, backups/restore, monitoring and rollback. Follow AUTOMATIC-DELIVERY-SETUP.md before enabling WhatsApp account delivery.
 - Verify physical desktop/mobile browsers, keyboard/assistive technology, links/downloads, actual email/WhatsApp receipt, HTTPS and domain/SEO behavior.
 - Verify MP4 playback, seeking/range requests and mobile controls on the chosen host. Room contact capture needs a private hosted service; local records are not automatically delivered and do not expire with the image session. Arrange retention/deletion and storage monitoring before activation.
-- Only after explicit launch authorization, connect the new host to luxeinfra.in. GoDaddy currently manages the domain; domain registration is separate from website hosting.
+- The owner authorised the custom-domain connection on 27 October 2026. Netlify now serves luxeinfra.in; GoDaddy retains domain registration and DNS. Preserve mailbox and Resend records when maintaining DNS.
 
 There is one working source directory and one workdone.md. Future changes update them in place. Versioned preview folders, ZIPs and handover reports are created only when requested.
 
@@ -52,7 +52,7 @@ The owner selected Netlify and the site is now published at the URL above. The r
 5. Build command: npm run build:netlify. Publish directory: dist/client. Node version: 24. These are already set in netlify.toml; the official adapter creates the server function automatically. Do not use a static Vite preset with a fallback to index.html, and do not set the functions folder to scripts/.
 6. No API key or account token is needed in the repository to deploy the current public site. Keep secrets unprefixed in Netlify environment settings only when their corresponding hosted service is ready. Never copy .env.local or use VITE\_ for a secret. Do not enable VITE_CONTENT_PREVIEW or VITE_CAMPAIGN_PREVIEW.
 7. Deploy first to the generated netlify.app URL. Review home, /projects, /testimonials, /callback, /estimate, /reimagine, both project films, navigation and manual WhatsApp/email links. Preview/default Netlify URLs stay noindex. Confirm the production deployment succeeds before editing domain DNS.
-8. Add luxeinfra.in and www.luxeinfra.in in Netlify's domain settings when ready. Copy the exact DNS instructions shown for this project to GoDaddy, preserving email MX/TXT records. Do not use old Lovable DNS values or change nameservers unnecessarily. The committed www redirect points to the apex domain. Only HTTPS production requests on https://luxeinfra.in advertise indexing; verify /robots.txt and /sitemap.xml after domain connection.
+8. The existing Netlify project is connected to luxeinfra.in and www.luxeinfra.in. GoDaddy's website records are A @ → 75.2.60.5 and CNAME www → fantastic-liger-68a1da.netlify.app, both TTL 600 seconds; mailbox/Resend records and nameservers stay at GoDaddy. When maintaining or moving hosting, use the exact project DNS instructions and preserve email records. The committed www and former default Netlify hostname redirects point to https://luxeinfra.in while retaining the path/query. Only the HTTPS production apex advertises indexing; verify robots.txt, sitemap.xml and public enquiry/admin capabilities after changes.
 
 Local deployment checks:
 
@@ -124,7 +124,7 @@ Official architecture references checked on 26 October 2026:
 
 The owner created Supabase organisation Luxe Infra / project Luxe Web. Obtain its Project URL from the dashboard or the private SUPABASE_URL setting rather than committing a project-specific value to this guide. Hosted intake is active for quote, callback, welcome, detailed-brief and partnership requests. It saves the existing text/contact payload, not uploaded photos/files. Its success means a private database commit with a reference, not a quotation or appointment. The connected staff inbox and email queue are separate services; Gemini chat, room contact capture/generation and automatic WhatsApp remain pending.
 
-The owner supplied the current production website URL https://fantastic-liger-68a1da.netlify.app. Use that exact value for SITE_URL during this initial connection; change it deliberately when the custom domain becomes the canonical submission origin. It is already recorded in the private local setup for readiness checks.
+The canonical production website origin is https://luxeinfra.in. Use that exact value for Production SITE_URL, with no trailing slash or path. The ignored local setup uses the same origin for readiness checks. The former Netlify reset redirect remains in Supabase during the transition; it is not the canonical submission origin.
 
 ### One-time database setup
 
@@ -138,13 +138,13 @@ The owner supplied the current production website URL https://fantastic-liger-68
 
 Push the current website source, including its new supabase/ folder and hosted-leads.server.ts, using Git's ignore rules. Keep website as the Base directory for the existing LuxeWeb repository. In Netlify's environment settings, enter these private runtime values; do not put them in netlify.toml, GitHub or VITE\_ variables:
 
-| Variable               | Value                                                                                                                                        |
-| ---------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
-| SUPABASE_URL           | The HTTPS Project URL copied from the Supabase dashboard or private local setup                                                              |
-| SUPABASE_SECRET_KEY    | The private server Secret key                                                                                                                |
-| LUXE_LEADS_HMAC_SECRET | The generated 64-character hex secret in local .env.local; use the same value across function instances                                      |
-| SITE_URL               | Exact current production HTTPS website origin, with no trailing slash/path; use the owner's Netlify URL until the custom domain is connected |
-| LUXE_LEADS_ENABLED     | Keep false during setup; set true only after migration/readiness and the current site origin are confirmed                                   |
+| Variable               | Value                                                                                                      |
+| ---------------------- | ---------------------------------------------------------------------------------------------------------- |
+| SUPABASE_URL           | The HTTPS Project URL copied from the Supabase dashboard or private local setup                            |
+| SUPABASE_SECRET_KEY    | The private server Secret key                                                                              |
+| LUXE_LEADS_HMAC_SECRET | The generated 64-character hex secret in local .env.local; use the same value across function instances    |
+| SITE_URL               | Exact production HTTPS website origin: https://luxeinfra.in, with no trailing slash/path                   |
+| LUXE_LEADS_ENABLED     | Keep false during setup; set true only after migration/readiness and the current site origin are confirmed |
 
 Redeploy after runtime settings are saved. Public database intake requires the baked production context, exact configured site origin and Netlify's trusted context.ip. Preview deployments and an unconfigured Node/local runner retain the manual fallback. The status endpoint gives an HttpOnly, Secure, SameSite=Strict signed session cookie; submissions require that cookie, same-origin JSON, bounded contact fields and explicit consent. Forwarded-IP headers supplied by a caller are not trusted. If the deployed context lacks an IP, the capability fails closed rather than bypassing rate controls.
 
@@ -205,7 +205,7 @@ Keep `LUXE_WORKFLOW_ENABLED=false` if activation is not ready; the existing lead
 
 The `/reset-password` owner recovery flow is deployed and has passed offline security tests and a browser check with an expired synthetic link. A **real completed owner reset and sign-in still require the owner**. It also handles older recovery links whose token fragment lands on the homepage, routing them to the private reset page without putting tokens in ordinary enquiry forms. The owner confirmed the exact Auth redirect URL below is saved.
 
-1. In Supabase Authentication → URL Configuration, add this exact allowed Redirect URL: `https://fantastic-liger-68a1da.netlify.app/reset-password`. Keep `SITE_URL` aligned with that same published HTTPS origin. When moving to luxeinfra.in, deliberately update the exact redirect allowlist and server origin together. Do not use a broad wildcard just to make a recovery link work.
+1. In Supabase Authentication → URL Configuration, keep the exact allowed Redirect URL `https://luxeinfra.in/reset-password` and Auth Site URL `https://luxeinfra.in`. Netlify Production `SITE_URL` must match. The former exact Netlify reset URL is retained during transition. Do not use a broad wildcard just to make a recovery link work.
 2. Deploy the current recovery route and server handlers before requesting a new link. Auth recovery email delivery is separate from the connected Resend new-lead alert queue; successful business alerts do not prove password-reset email delivery.
 3. The owner opens the live `/reset-password` page, requests a link for `sales@luxeinfra.in` and uses the newest email. Open it on the same intended live website; check Spam/Junk if necessary. An incomplete or expired link requires a fresh request. No public signup or staff approval is granted by recovery.
 4. The owner privately enters and confirms a unique password of at least 12 characters on the reset page, then signs in again at `/admin`. Never paste the password, full reset URL or token into chat, source, environment variables or logs. Existing leads, notes and memberships remain intact.
