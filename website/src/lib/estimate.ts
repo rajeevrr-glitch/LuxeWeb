@@ -145,7 +145,6 @@ export function calculateEstimate(
       reason: renovationCalculatorNote,
       min: total,
       max: total,
-      rate: selected.rate,
       packageName: selected.name,
       lines: [
         {
@@ -290,9 +289,7 @@ export function describeEstimate(draft: EstimateDraft) {
     draft.city.trim() + ", " + draft.region,
     draft.condition,
     work,
-    renovation
-      ? `Renovation package: ${renovation.name} · ₹${renovation.rate.toLocaleString("en-IN")}/sq ft`
-      : "Finish preference: " + draft.finish,
+    renovation ? `Renovation package: ${renovation.name}` : "Finish preference: " + draft.finish,
     renovation && budget?.status === "priced" && budget.priceKind === "starting"
       ? `Area of renovation work: ${draft.workArea} sq ft\nIndicative budget: ₹${budget.min.toLocaleString("en-IN")}+\n${renovationCalculatorNote}`
       : "",

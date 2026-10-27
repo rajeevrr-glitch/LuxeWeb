@@ -18,7 +18,7 @@ The homepage keeps the main room photograph and simple quote/design links. The p
 
 ## Full home renovation estimates
 
-The owner-approved full home renovation packages are **Essential — ₹1,100/sq ft** (Affordable and practical), **Signature — ₹1,400/sq ft** (Best balance of quality and price), and **Luxe — ₹1,700/sq ft** (Premium finish and experience). After size, the visitor chooses a package. The calculator multiplies the explicitly entered work floor area by that rate and displays the starting amount with **+**. Home carpet area/size band describes the property separately; BHK and size bands do not substitute for the work area.
+The owner-approved full home renovation packages are **Essential** (Affordable and practical), **Signature** (Best balance of quality and price), and **Luxe** (Premium finish and experience). After size, the visitor chooses a package. Customer-facing screens, chat and request summaries show the package and calculated total starting budget with **+**, without displaying unit rates or multiplication formulas. Approved calculation values remain unchanged. Home carpet area/size band describes the property separately; BHK and size bands do not substitute for the explicitly entered work area.
 
 The calculator is in its early stages; the final price will be quoted after a site visit. These rates do not price modular interiors, selected-room work or commercial spaces. Detailed material specifications, inclusions/exclusions, tax treatment and offer-calculation rules still require owner input; do not infer them or automatically apply the Diwali discount.
 

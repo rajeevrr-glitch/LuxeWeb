@@ -538,10 +538,6 @@ function Estimate() {
                             <Check className="lf-package-check" size={16} />
                           </span>
                           <strong>{tier.name}</strong>
-                          <span className="lf-package-price">
-                            {money.format(tier.rate)}
-                            <small>/sq ft</small>
-                          </span>
                           <span className="lf-package-description">{tier.description}</span>
                           <span className="lf-package-select">
                             {draft.renovationTier === tier.id ? "Selected" : "Choose " + tier.name}
@@ -557,8 +553,8 @@ function Estimate() {
                       </span>
                       <label htmlFor="renovation-work-area">Floor area of renovation work</label>
                       <p id="renovation-area-help">
-                        Enter the actual area to be renovated. We multiply this by your package
-                        rate; the home-size band is not used as a measurement.
+                        Add the floor area you want renovated. Your package and this area help us
+                        prepare a starting budget.
                       </p>
                     </div>
                     <div className="lf-work-area-input">
@@ -709,11 +705,10 @@ function Estimate() {
                       : money.format(result.min!) + " – " + money.format(result.max!)}
                   </strong>
                   {result.priceKind === "starting" && (
-                    <div className="lf-budget-formula">
+                    <div className="lf-budget-details">
                       <span>{result.packageName}</span>
                       <span>
-                        {Number(draft.workArea).toLocaleString("en-IN")} sq ft ×{" "}
-                        {money.format(result.rate)}/sq ft
+                        {Number(draft.workArea).toLocaleString("en-IN")} sq ft of renovation work
                       </span>
                     </div>
                   )}

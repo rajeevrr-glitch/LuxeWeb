@@ -1,11 +1,5 @@
 // Visitor-facing website guidance, translated alongside the English source.
 // Prices, claims and approvals remain in the canonical site data, not these replies.
-import { renovationPackages } from "./estimate.ts";
-
-const renovationRates = renovationPackages
-  .map(({ name, rate }) => `${name} ₹${rate.toLocaleString("en-IN")}/sq ft`)
-  .join(", ");
-
 export const luxeChatCopy = {
   secrets: [
     "Please keep API keys, passwords and OTPs out of this chat. For project help, share only the type of space and what you want to change.",
@@ -53,9 +47,9 @@ export const luxeChatCopy = {
     "Is scope ka quote measured work, materials aur site conditions dekhkar studio dega. Full home renovation ka alag starting-price calculator hai; uske rates modular interiors, selected-room work ya commercial spaces par apply nahi hote.",
   ],
   priceReady: [
-    `For full home renovation: ${renovationRates}. The calculator multiplies the floor area where work is required by your chosen rate and shows the starting amount with “+”. It is in its early stages; the final price will be quoted after a site visit. Modular, selected-room and commercial work need separate quotes.`,
-    `Full home renovation के लिए: ${renovationRates}। Calculator काम वाले floor area को चुने हुए rate से गुणा करके starting amount के साथ “+” दिखाता है। यह शुरुआती चरण में है; final price site visit के बाद quote होगा। Modular, selected-room और commercial work के quotes अलग होंगे।`,
-    `Full home renovation ke liye: ${renovationRates}. Calculator kaam wale floor area ko selected rate se multiply karke starting amount ke saath “+” dikhata hai. Yeh early stage mein hai; final price site visit ke baad quote hoga. Modular, selected-room aur commercial work ke quotes alag honge.`,
+    "For full home renovation, choose Essential, Signature or Luxe after entering the floor area where work is required. The calculator shows your total starting budget with “+”. It is in its early stages; the final price will be quoted after a site visit. Modular, selected-room and commercial work need separate quotes.",
+    "Full home renovation के लिए काम वाला floor area भरकर Essential, Signature या Luxe चुनिए। Calculator आपका कुल starting budget “+” के साथ दिखाता है। यह शुरुआती चरण में है; final price site visit के बाद quote होगा। Modular, selected-room और commercial work के quotes अलग होंगे।",
+    "Full home renovation ke liye kaam wala floor area bharkar Essential, Signature ya Luxe choose karein. Calculator aapka total starting budget “+” ke saath dikhata hai. Yeh early stage mein hai; final price site visit ke baad quote hoga. Modular, selected-room aur commercial work ke quotes alag honge.",
   ],
   commercialPrice: [
     "Commercial spaces need a site-specific quote; there is no approved commercial instant rate list here. Share the business type and approximate area in the short enquiry. Layout, specifications and site needs determine the scope and price.",

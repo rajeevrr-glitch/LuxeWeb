@@ -680,25 +680,11 @@
   opacity: 1;
 }
 .lf-package-card > strong,
-.lf-package-price,
 .lf-package-description {
   padding-inline: 5px;
 }
 .lf-package-card > strong {
   font-size: 17px;
-}
-.lf-package-price {
-  margin-top: 6px;
-  font-size: 23px;
-  font-weight: 600;
-  letter-spacing: -0.04em;
-}
-.lf-package-price small {
-  margin-left: 3px;
-  font-size: 10px;
-  font-weight: 400;
-  letter-spacing: 0;
-  color: #62717d;
 }
 .lf-package-description {
   margin: 8px 0 19px;
@@ -770,14 +756,14 @@
   line-height: 1.7;
   color: #596b78;
 }
-.lf-budget-formula {
+.lf-budget-details {
   display: flex;
   flex-wrap: wrap;
   gap: 8px 14px;
   font-size: 12px;
   color: #365e50;
 }
-.lf-budget-formula > span:first-child {
+.lf-budget-details > span:first-child {
   font-weight: 600;
 }
 .lf-ready {
@@ -1059,7 +1045,7 @@
   }
   .lf-package-card {
     display: grid;
-    grid-template-columns: 55px minmax(0, 1fr) auto;
+    grid-template-columns: 55px minmax(0, 1fr);
     gap: 5px 10px;
     padding: 13px;
   }
@@ -1076,24 +1062,13 @@
     grid-column: 2;
     font-size: 16px;
   }
-  .lf-package-price {
-    grid-column: 3;
-    grid-row: 1;
-    align-self: center;
-    font-size: 19px;
-    margin: 0;
-  }
-  .lf-package-price small {
-    display: block;
-    text-align: right;
-  }
   .lf-package-description {
-    grid-column: 2 / 4;
+    grid-column: 2;
     margin: 0;
     font-size: 11px;
   }
   .lf-package-select {
-    grid-column: 2 / 4;
+    grid-column: 2;
     margin: 3px 0 0;
     border: none;
     border-radius: 4px;

@@ -135,17 +135,17 @@ const renovation = {
   renovationTier: "essential",
 };
 test("owner renovation rates multiply only actual work floor area and produce a starting amount", () => {
-  for (const [tier, rate, total] of [
-    ["essential", 1100, 880000],
-    ["signature", 1400, 1120000],
-    ["luxe", 1700, 1360000],
+  for (const [tier, total] of [
+    ["essential", 880000],
+    ["signature", 1120000],
+    ["luxe", 1360000],
   ]) {
     const result = calculateEstimate({ ...renovation, renovationTier: tier });
     assert.equal(result.status, "priced");
     assert.equal(result.priceKind, "starting");
     assert.equal(result.min, total);
     assert.equal(result.max, total);
-    assert.equal(result.rate, rate);
+    assert.equal("rate" in result, false);
     assert.equal(result.lines.length, 1);
     assert.equal(result.lines[0].quantity, 800);
     assert.match(result.reason, /early stage.*final price.*site visit/i);
@@ -179,7 +179,8 @@ test("renovation-only rates cannot price new homes, modular work, selected rooms
     assert.equal(calculateEstimate({ ...renovation, ...changed }).status, "review");
   assert.equal(calculateEstimate(renovation, { ...book, approved: false }, now).status, "review");
   const message = describeEstimate(renovation);
-  assert.match(message, /Essential · ₹1,100\/sq ft/);
+  assert.match(message, /Renovation package: Essential/);
+  assert.doesNotMatch(message, /₹1,[147]00|\/sq ft|×/);
   assert.match(message, /Area of renovation work: 800 sq ft/);
   assert.match(message, /Indicative budget: ₹8,80,000\+/);
   assert.match(message, /final price.*site visit/i);

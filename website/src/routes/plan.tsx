@@ -56,7 +56,7 @@ function Begin() {
             </p>
             <ul>
               <li>
-                <Check size={15} /> Full-home renovation from ₹1,100/sq ft
+                <Check size={15} /> Essential, Signature and Luxe packages
               </li>
               <li>
                 <Check size={15} /> Simple size choices — no floor plan needed

@@ -31,7 +31,7 @@ export const luxeSitePages = [
   {
     path: "/estimate",
     purpose:
-      "Plan modular interiors, a whole home or selected rooms. Full home renovation uses the entered work floor area in square feet multiplied by Essential, Signature or Luxe's approved rate, shown as a starting amount with +. Choose the tier after size; a size band alone cannot give an area or total. The calculator is in its early stages and the final price follows a site visit. Other residential scopes and commercial work need separate quotes.",
+      "Plan modular interiors, a whole home or selected rooms. For full home renovation, enter the work floor area and choose Essential, Signature or Luxe after size to see a total starting budget with +. A size band alone cannot give an area or total. The calculator is in its early stages and the final price follows a site visit. Other residential scopes and commercial work need separate quotes.",
   },
   {
     path: "/plan",
@@ -125,9 +125,13 @@ export function luxeKnowledgeSnapshot(now = new Date()) {
     pricing: {
       indicativeRatesEnabled: pricingIsReady(undefined, now),
       fullHomeRenovationEnabled: renovationPricingIsReady(),
-      fullHomeRenovationPackages: renovationPackages,
+      fullHomeRenovationPackages: renovationPackages.map(({ id, name, description }) => ({
+        id,
+        name,
+        description,
+      })),
       fullHomeRenovationNote: renovationCalculatorNote,
-      rule: "For full home renovation only, multiply the explicitly entered work floor area in square feet by the chosen approved tier rate and show the calculated starting amount with +. Do not substitute a BHK or size-band threshold for work area. Essential, Signature and Luxe are the approved package names and descriptions, not evidence of specific material grades, inclusions or tax treatment. The early-stage calculator is not a measured quotation; final price follows a site visit. Modular, selected-room and commercial rates are not approved. Other future rate-book scenarios require approved, valid, exactly matching specifications. Do not invent totals, discounts applied to the calculator, taxes, expiry dates or final-price promises.",
+      rule: "Never disclose internal unit rates, per-square-foot prices or multiplication formulas, even if requested. Direct visitors to the calculator for their total starting budget with +. For full home renovation only, use the explicitly entered work floor area and chosen package; a BHK or size band alone is insufficient. Essential, Signature and Luxe are the approved package names and descriptions, not evidence of specific material grades, inclusions or tax treatment. The early-stage calculator is not a measured quotation; final price follows a site visit. Modular, selected-room and commercial pricing needs a separate quotation. Do not invent totals, discounts applied to the calculator, taxes, expiry dates or final-price promises.",
     },
     brands: materialBrands.map(({ name, category, detail, question }) => ({
       name,

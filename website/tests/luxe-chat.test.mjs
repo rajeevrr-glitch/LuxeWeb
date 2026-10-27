@@ -72,7 +72,12 @@ test("site knowledge derives approved facts and never promotes samples or draft 
   assert.equal(facts.approvedProjectCount, publishedProjects.length);
   assert.equal(facts.pricing.indicativeRatesEnabled, false);
   assert.equal(facts.pricing.fullHomeRenovationEnabled, true);
-  assert.deepEqual(facts.pricing.fullHomeRenovationPackages, renovationPackages);
+  assert.deepEqual(
+    facts.pricing.fullHomeRenovationPackages,
+    renovationPackages.map(({ id, name, description }) => ({ id, name, description })),
+  );
+  for (const entry of facts.pricing.fullHomeRenovationPackages)
+    assert.deepEqual(Object.keys(entry).sort(), ["description", "id", "name"]);
   assert.equal(facts.pricing.fullHomeRenovationNote, renovationCalculatorNote);
   assert.ok(!facts.roomSpecificWork["Master bedroom"].options.includes("Modular kitchen"));
   const context = buildLuxeChatKnowledge();
@@ -80,6 +85,9 @@ test("site knowledge derives approved facts and never promotes samples or draft 
   assert.match(context, /only this current question/i);
   assert.match(context, /public generation is disabled/);
   assert.match(context, /15% off on all works/);
+  assert.match(context, /Never disclose internal unit rates/);
+  assert.doesNotMatch(context, /1,?100|1,?400|1,?700/);
+  assert.doesNotMatch(context, /multiplied by|multiply.*area|area.*×/i);
   assert.equal(facts.ownerConfirmedFigures.deliveredProjects, 200);
   assert.equal(facts.ownerConfirmedFigures.warrantyTermsPublished, false);
   for (const page of [
@@ -156,7 +164,7 @@ test("website guidance makes no fake price, warranty or delivery claim and suppo
   assert.match(commercial.text, /offices, shops and showrooms/);
   assert.match(
     luxeLocalReply("What will it cost?").text,
-    /full home renovation: Essential ₹1,100\/sq ft, Signature ₹1,400\/sq ft, Luxe ₹1,700\/sq ft/i,
+    /full home renovation, choose Essential, Signature or Luxe/i,
   );
   assert.match(luxeLocalReply("What is the warranty?").text, /cannot promise/);
   assert.match(luxeLocalReply("Can you generate an AI image?").text, /separate from this chat/);
@@ -172,13 +180,23 @@ test("website guidance makes no fake price, warranty or delivery claim and suppo
   assert.match(luxeLocalReply("Where do you serve?").text, /Uttar Pradesh, Delhi NCR, Bengaluru/);
 });
 
-test("chat confines the approved renovation rates to a starting estimate and site review", () => {
+test("chat shows package guidance and total-budget context without disclosing unit rates", () => {
   const answer = luxeLocalReply("Full home renovation budget").text;
   assert.match(answer, /floor area where work is required/);
-  assert.match(answer, /starting amount with “\+”/);
+  assert.match(answer, /total starting budget with “\+”/);
   assert.match(answer, /early stages/);
   assert.match(answer, /final price will be quoted after a site visit/);
   assert.match(answer, /Modular, selected-room and commercial work need separate quotes/);
+  for (const question of [
+    "Full home renovation budget",
+    "What is your price per square foot?",
+    "mujhe ghar ka budget chahiye",
+    "मेरे घर के renovation की कीमत क्या होगी?",
+  ]) {
+    const reply = luxeLocalReply(question).text;
+    assert.doesNotMatch(reply, /1,?100|1,?400|1,?700/);
+    assert.doesNotMatch(reply, /multiply|multiplies|गुणा|×/i);
+  }
   const commercial = luxeLocalReply("Commercial office price").text;
   assert.match(commercial, /no approved commercial instant rate list/);
   assert.doesNotMatch(commercial, /₹1,[147]00/);
