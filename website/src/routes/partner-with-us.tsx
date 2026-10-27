@@ -15,7 +15,7 @@ import {
   AutomaticEnquiryReceipt,
 } from "@/components/EnquiryDeliveryFeedback";
 import { useEnquiryDelivery } from "@/hooks/use-enquiry-delivery";
-import { business } from "@/lib/business";
+import { business, serviceAreaSummary } from "@/lib/business";
 import { openWhatsAppRequest, whatsappRequestUrl } from "@/lib/whatsapp";
 import {
   partnerRoles,
@@ -196,7 +196,7 @@ function Partners() {
               [
                 "03",
                 "A relevant local connection",
-                "Tell us where you work. LuxeInfra currently serves Uttar Pradesh, Delhi NCR and Bengaluru.",
+                `Tell us where you work. LuxeInfra currently serves ${serviceAreaSummary}.`,
               ],
             ].map(([number, title, text]) => (
               <div key={number}>

@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { PageShell } from "@/components/PageShell";
 import { PlanLink } from "@/components/StudioLayout";
+import { serviceAreaSummary } from "@/lib/business";
 import homeImage from "@/assets/full-home.jpg";
 export const Route = createFileRoute("/about")({
   head: () => ({ meta: [{ title: "Interiors begin with you. — LuxeInfra" }] }),
@@ -31,7 +32,7 @@ function Page() {
               From a focused room update to a complete home, your brief helps us bring the layout,
               materials, storage, and finishing details into one conversation.
             </p>
-            <p>Serving Uttar Pradesh, Delhi NCR, and Bengaluru.</p>
+            <p>Serving {serviceAreaSummary}.</p>
             <PlanLink />
           </div>
         </div>

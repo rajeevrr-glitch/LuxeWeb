@@ -6,6 +6,8 @@ Desktop/LuxeWeb/website opens this active project folder. It is a folder link, s
 
 The published website is [luxeinfra.in](https://luxeinfra.in). GoDaddy keeps domain registration and DNS; Netlify hosts the website with HTTPS; www and the former default Netlify hostname redirect to the apex domain. Supabase enquiry saving, the private lead inbox and queued Resend new-lead alerts are active; receipt has been confirmed at both business email inboxes. The spreadsheet inbox, assignment views and owner password recovery route are deployed. Migration 005 for aggregate site traffic is installed and its hosted readiness check passes; the traffic flag is saved for Production only. The owner-only Site traffic tab is live. Automatic WhatsApp and hosted Gemini features remain disconnected.
 
+Service coverage names **Ghaziabad and Noida** explicitly within Delhi NCR, alongside Uttar Pradesh and Bengaluru. Public coverage text and region labels come from `src/lib/business.ts`; submitted region values stay unchanged so quotes and estimates continue to work.
+
 ## Gemini image key
 
 Add it only to the private `.env.local` file beside package.json, after `GEMINI_API_KEY=`. Do not post it in chat or add it to `.env.example`. Follow [AI setup](docs/AI-SETUP.md) to check configuration and enable a limited local trial. `npm run ai:check` prints no key and makes no provider request.

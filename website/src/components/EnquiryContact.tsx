@@ -1,7 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { useEffect, useRef } from "react";
 import { Mail, MessageCircle, Phone } from "lucide-react";
-import { business } from "@/lib/business";
+import { business, serviceRegionLabel } from "@/lib/business";
 import { callTimes, type LeadContact } from "@/lib/sales-funnel";
 import { whatsappRequestUrl } from "@/lib/whatsapp";
 
@@ -60,7 +60,9 @@ export function ContactFields({
           Service region
           <select value={value.region} onChange={(e) => onChange("region", e.target.value)}>
             {[...business.areas, "Other"].map((region) => (
-              <option key={region}>{region}</option>
+              <option key={region} value={region}>
+                {serviceRegionLabel(region)}
+              </option>
             ))}
           </select>
         </label>

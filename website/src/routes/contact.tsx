@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { PageShell } from "@/components/PageShell";
 import { QuoteButtonContent } from "@/components/QuoteButtonContent";
-import { business } from "@/lib/business";
+import { business, serviceAreaLabels } from "@/lib/business";
 export const Route = createFileRoute("/contact")({
   head: () => ({ meta: [{ title: "Let’s talk about your space. — LuxeInfra" }] }),
   component: Page,
@@ -43,7 +43,7 @@ function Page() {
               <a href={`mailto:${business.alternateEmail}`}>{business.alternateEmail}</a>
             </p>
             <h3>Where we work</h3>
-            <p>{business.areas.join(" · ")}</p>
+            <p>{serviceAreaLabels.join(" · ")}</p>
             <p>Share your city or locality so we can discuss site arrangements.</p>
           </div>
         </div>

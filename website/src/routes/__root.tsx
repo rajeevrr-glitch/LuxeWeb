@@ -1,5 +1,5 @@
 import { campaignPreview } from "@/lib/campaigns";
-import { business } from "@/lib/business";
+import { business, serviceAreaSummary } from "@/lib/business";
 import { recoveryRedirectScript } from "@/lib/recovery-redirect";
 import { SiteTrafficTracker } from "@/components/SiteTrafficTracker";
 import socialImage from "@/assets/hero-living.jpg";
@@ -105,15 +105,13 @@ export const Route = createRootRoute({
       { title: "LuxeInfra — Considered Interiors" },
       {
         name: "description",
-        content:
-          "Thoughtful interiors in Uttar Pradesh, Delhi NCR, and Bengaluru. Plan your rooms, share inspiration, and request a tailored estimate.",
+        content: `Home and commercial interiors in ${serviceAreaSummary}. Explore designs and get a tailored quote with LuxeInfra.`,
       },
       { name: "author", content: "LuxeInfra" },
       { property: "og:title", content: "LuxeInfra — Considered Interiors" },
       {
         property: "og:description",
-        content:
-          "Thoughtful interiors in Uttar Pradesh, Delhi NCR, and Bengaluru. Plan your rooms, share inspiration, and request a tailored estimate.",
+        content: `Home and commercial interiors in ${serviceAreaSummary}. Explore designs and get a tailored quote with LuxeInfra.`,
       },
       { property: "og:type", content: "website" },
       {
@@ -126,8 +124,7 @@ export const Route = createRootRoute({
       { name: "twitter:title", content: "LuxeInfra — Considered Interiors" },
       {
         name: "twitter:description",
-        content:
-          "Thoughtful interiors in Uttar Pradesh, Delhi NCR, and Bengaluru. Plan your rooms, share inspiration, and request a tailored estimate.",
+        content: `Home and commercial interiors in ${serviceAreaSummary}. Explore designs and get a tailored quote with LuxeInfra.`,
       },
     ],
     links: [

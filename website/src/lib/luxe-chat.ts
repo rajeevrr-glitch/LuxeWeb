@@ -1,4 +1,4 @@
-import { business } from "./business.ts";
+import { business, serviceAreaSummary } from "./business.ts";
 import { materialBrands } from "./material-brands.ts";
 import { publishedProjects, publishedReviews } from "./owner-content.ts";
 import { pricingIsReady, renovationPricingIsReady } from "./journey.ts";
@@ -191,10 +191,10 @@ export function luxeLocalReply(question: string): LuxeChatReply {
       "location",
       [projectQuote],
       language === "hi"
-        ? `हम ${business.areas.join(", ")} में सेवाएँ देते हैं। `
+        ? `हम ${serviceAreaSummary} में सेवाएँ देते हैं। `
         : language === "hinglish"
-          ? `Hum ${business.areas.join(", ")} serve karte hain. `
-          : `We serve ${business.areas.join(", ")}. `,
+          ? `Hum ${serviceAreaSummary} serve karte hain. `
+          : `We serve ${serviceAreaSummary}. `,
     );
   if (
     /contact|human|\bcall\b|phone|email|whatsapp|sales|speak|talk|address|opening hours|संपर्क|कॉल|फोन|ईमेल|पता|बात|कब खुल/.test(

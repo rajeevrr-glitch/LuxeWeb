@@ -9,7 +9,14 @@ export const business = {
   phoneHref: "tel:+919026271638",
   whatsapp: "https://wa.me/919026271638",
   areas: ["Uttar Pradesh", "Delhi NCR", "Bengaluru"],
+  ncrCities: ["Ghaziabad", "Noida"],
 };
+// Keep submitted region values stable; city names are part of the public label.
+export function serviceRegionLabel(region: string) {
+  return region === "Delhi NCR" ? `${region} (${business.ncrCities.join(" & ")})` : region;
+}
+export const serviceAreaLabels = business.areas.map(serviceRegionLabel);
+export const serviceAreaSummary = serviceAreaLabels.join(", ");
 export const rooms = [
   "Kitchen",
   "Living & dining",
@@ -57,7 +64,7 @@ export const faqs = [
   ],
   [
     "Where do you work?",
-    "LuxeInfra serves Uttar Pradesh, Delhi NCR, and Bengaluru. Share your city or locality so we can confirm arrangements for your site.",
+    `LuxeInfra serves ${serviceAreaSummary}. Share your city or locality so we can confirm arrangements for your site.`,
   ],
   [
     "What affects the final quotation?",

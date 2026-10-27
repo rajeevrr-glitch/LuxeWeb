@@ -9,7 +9,7 @@ import {
 } from "@/components/EnquiryDeliveryFeedback";
 import { useEnquiryDelivery } from "@/hooks/use-enquiry-delivery";
 import { takeRoomBrief } from "@/lib/visualiser-brief";
-import { business, rooms } from "@/lib/business";
+import { business, rooms, serviceAreaSummary, serviceRegionLabel } from "@/lib/business";
 import { readInspiration, saveInspiration, type Inspiration } from "@/lib/inspiration";
 import { getRoomWorkOptions, roomWork, sanitiseRoomWork } from "@/lib/room-work";
 import { openWhatsAppRequest, whatsappRequestUrl } from "@/lib/whatsapp";
@@ -556,7 +556,9 @@ function Planner() {
                       onChange={(e) => set("region", e.target.value)}
                     >
                       {[...business.areas, "Other / please confirm"].map((x) => (
-                        <option key={x}>{x}</option>
+                        <option key={x} value={x}>
+                          {serviceRegionLabel(x)}
+                        </option>
                       ))}
                     </select>
                   </label>
@@ -641,8 +643,8 @@ function Planner() {
                   </div>
                   {draft.region === "Other / please confirm" && (
                     <p className="notice field-wide">
-                      Our current service areas are Uttar Pradesh, Delhi NCR, and Bengaluru.
-                      Availability elsewhere will need confirmation.
+                      Our current service areas are {serviceAreaSummary}. Availability elsewhere
+                      will need confirmation.
                     </p>
                   )}
                 </div>

@@ -18,7 +18,7 @@ import { PlanningGuidePreview } from "./PlanningGuidePreview";
 import { SaveInspiration } from "./SaveInspiration";
 import { FestiveFeature } from "./Campaigns";
 import { planningJourney } from "@/lib/journey";
-import { business, faqs } from "@/lib/business";
+import { business, faqs, serviceAreaLabels } from "@/lib/business";
 import { spaces, designsFor } from "@/lib/spaces";
 import { roomThumbnail } from "@/lib/room-thumbnails";
 import hero from "@/assets/hero-living.jpg";
@@ -118,7 +118,7 @@ export function StudioHome() {
               Find ideas for your space, decide what needs doing and speak with our team about your
               project.
             </p>
-            <p className="lc-service-coverage">Uttar Pradesh · Delhi NCR · Bengaluru</p>
+            <p className="lc-service-coverage">{serviceAreaLabels.join(" · ")}</p>
             <div className="lc-hero-actions">
               <Link
                 to="/callback"

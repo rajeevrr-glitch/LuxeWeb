@@ -1,14 +1,14 @@
 import { StudioHome } from "@/components/StudioHome";
 import { createFileRoute } from "@tanstack/react-router";
 import { RouteErrorFallback, RouteNotFound } from "@/components/RouteError";
+import { serviceAreaSummary } from "@/lib/business";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
       { title: "LuxeInfra — Interiors, considered. Personally yours." },
       {
         name: "description",
-        content:
-          "Explore kitchens, wardrobes and whole-home interiors with LuxeInfra. Discover your style and plan your scope in Uttar Pradesh, Delhi NCR and Bengaluru.",
+        content: `Kitchens, wardrobes and whole-home interiors in ${serviceAreaSummary}. Explore designs and plan your space with LuxeInfra.`,
       },
       { property: "og:title", content: "LuxeInfra — Interiors, considered." },
       {

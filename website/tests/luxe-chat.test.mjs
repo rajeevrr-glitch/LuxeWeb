@@ -177,7 +177,10 @@ test("website guidance makes no fake price, warranty or delivery claim and suppo
     assert.equal(looksSensitiveChatInput(secret), true);
     assert.equal(luxeLocalReply(secret).actions.length, 0);
   }
-  assert.match(luxeLocalReply("Where do you serve?").text, /Uttar Pradesh, Delhi NCR, Bengaluru/);
+  assert.match(
+    luxeLocalReply("Where do you serve?").text,
+    /Uttar Pradesh, Delhi NCR \(Ghaziabad & Noida\), Bengaluru/,
+  );
 });
 
 test("chat shows package guidance and total-budget context without disclosing unit rates", () => {

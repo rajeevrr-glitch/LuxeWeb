@@ -6,7 +6,7 @@ import { useState, useRef, useEffect } from "react";
 import { ChevronDown, Menu, X, MessageCircle, Handshake } from "lucide-react";
 import { PromotionBar } from "./Campaigns";
 import { getFestiveState } from "@/lib/campaigns";
-import { business } from "@/lib/business";
+import { business, serviceAreaLabels, serviceAreaSummary } from "@/lib/business";
 import { spaces } from "@/lib/spaces";
 import { planningJourney } from "@/lib/journey";
 import { welcomeIsEligible } from "@/lib/welcome";
@@ -248,7 +248,7 @@ export function StudioFooter({ forPartners = false }: { forPartners?: boolean })
           <p>
             Home and commercial interiors, considered.
             <br />
-            Uttar Pradesh, Delhi NCR and Bengaluru.
+            {serviceAreaSummary}.
           </p>
           <a href={business.whatsapp} target="_blank" rel="noreferrer">
             <MessageCircle size={17} /> Chat on WhatsApp
@@ -278,7 +278,7 @@ export function StudioFooter({ forPartners = false }: { forPartners?: boolean })
           <a href={business.secondaryPhoneHref}>{business.secondaryPhone}</a>
           <a href={`mailto:${business.email}`}>{business.email}</a>
           <a href={`mailto:${business.alternateEmail}`}>{business.alternateEmail}</a>
-          <p>Uttar Pradesh · Delhi NCR · Bengaluru</p>
+          <p>{serviceAreaLabels.join(" · ")}</p>
         </div>
       </div>
       <div className="wrap footer-bottom">
