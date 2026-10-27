@@ -29,7 +29,8 @@ test("pricing invitation requires approval, valid dates, rate entries and tax in
   ])
     assert.equal(pricingIsReady({ ...book, ...change }, now), false);
   assert.equal(pricingIsReady(), false);
-  assert.equal(planningJourney().label, "Plan my interiors");
+  assert.equal(planningJourney().label, "Estimate my budget");
+  assert.match(planningJourney().note, /full-home renovation.*site visit/i);
 });
 
 test("known quote context avoids repeating the chooser while invalid scope cannot skip it", () => {

@@ -1,6 +1,12 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { calculateEstimate, emptyEstimate, describeEstimate } from "../src/lib/estimate.ts";
+import {
+  calculateEstimate,
+  emptyEstimate,
+  describeEstimate,
+  renovationPackages,
+  readEstimate,
+} from "../src/lib/estimate.ts";
 // Synthetic fixtures for arithmetic tests only. These never reach public pricing.
 const now = new Date("2026-10-21T12:00:00Z");
 const draft = {
@@ -116,4 +122,97 @@ test("summary preserves relevant choices without irrelevant kitchen questions", 
     calculateEstimate({ ...draft, scope: "Selected rooms" }, book, now).status,
     "review",
   );
+});
+
+const renovation = {
+  ...emptyEstimate,
+  scope: "Whole home",
+  condition: "Renovation",
+  city: "Noida",
+  configuration: "2 BHK",
+  areaBand: "above",
+  workArea: "800",
+  renovationTier: "essential",
+};
+test("owner renovation rates multiply only actual work floor area and produce a starting amount", () => {
+  for (const [tier, rate, total] of [
+    ["essential", 1100, 880000],
+    ["signature", 1400, 1120000],
+    ["luxe", 1700, 1360000],
+  ]) {
+    const result = calculateEstimate({ ...renovation, renovationTier: tier });
+    assert.equal(result.status, "priced");
+    assert.equal(result.priceKind, "starting");
+    assert.equal(result.min, total);
+    assert.equal(result.max, total);
+    assert.equal(result.rate, rate);
+    assert.equal(result.lines.length, 1);
+    assert.equal(result.lines[0].quantity, 800);
+    assert.match(result.reason, /early stage.*final price.*site visit/i);
+    assert.match(result.taxNote, /final quotation/);
+  }
+  assert.equal(
+    calculateEstimate({ ...renovation, workArea: "780.5", renovationTier: "signature" }).min,
+    1092700,
+  );
+});
+test("size bands, carpet area and cabinet frontage cannot substitute for renovation work area", () => {
+  for (const workArea of ["", " ", "0", "0.5", "-1", "100001", "Infinity", "NaN", "letters"]) {
+    const result = calculateEstimate({ ...renovation, area: "900", kitchenArea: "25", workArea });
+    assert.equal(result.status, "review");
+    assert.equal(result.min, null);
+  }
+  assert.equal(calculateEstimate({ ...renovation, renovationTier: "bespoke" }).status, "review");
+  assert.equal(
+    calculateEstimate({ ...renovation, workArea: "100000", renovationTier: "luxe" }).min,
+    170000000,
+  );
+});
+test("renovation-only rates cannot price new homes, modular work, selected rooms or unknown locations", () => {
+  for (const changed of [
+    { condition: "New home" },
+    { scope: "Modular interiors" },
+    { scope: "Selected rooms" },
+    { region: "Other" },
+    { city: " " },
+  ])
+    assert.equal(calculateEstimate({ ...renovation, ...changed }).status, "review");
+  assert.equal(calculateEstimate(renovation, { ...book, approved: false }, now).status, "review");
+  const message = describeEstimate(renovation);
+  assert.match(message, /Essential · ₹1,100\/sq ft/);
+  assert.match(message, /Area of renovation work: 800 sq ft/);
+  assert.match(message, /Indicative budget: ₹8,80,000\+/);
+  assert.match(message, /final price.*site visit/i);
+  assert.doesNotMatch(message, /Finish preference/);
+  assert.doesNotMatch(message, /15%|discount/i);
+  for (const changed of [{ region: "Other" }, { workArea: "0.5" }, { workArea: "" }]) {
+    assert.doesNotMatch(describeEstimate({ ...renovation, ...changed }), /Indicative budget:/);
+  }
+});
+test("saved renovation choices restore safely without restoring personal information", () => {
+  const original = Object.getOwnPropertyDescriptor(globalThis, "sessionStorage");
+  let stored = { ...renovation, name: "Do not restore", phone: "9000000000" };
+  Object.defineProperty(globalThis, "sessionStorage", {
+    configurable: true,
+    value: { getItem: () => JSON.stringify(stored) },
+  });
+  try {
+    for (const tier of renovationPackages) {
+      stored = { ...stored, renovationTier: tier.id };
+      const restored = readEstimate();
+      assert.equal(restored.renovationTier, tier.id);
+      assert.equal(restored.workArea, "800");
+      assert.equal("name" in restored, false);
+      assert.equal("phone" in restored, false);
+    }
+    stored = { ...stored, renovationTier: "unknown" };
+    assert.equal(readEstimate().renovationTier, "");
+    const { workArea: _workArea, renovationTier: _tier, ...legacy } = stored;
+    stored = legacy;
+    assert.equal(readEstimate().workArea, "");
+    assert.equal(readEstimate().renovationTier, "");
+  } finally {
+    if (original) Object.defineProperty(globalThis, "sessionStorage", original);
+    else Reflect.deleteProperty(globalThis, "sessionStorage");
+  }
 });

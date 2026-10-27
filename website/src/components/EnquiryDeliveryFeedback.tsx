@@ -93,7 +93,8 @@ export function PlannedQuoteDelivery({
         Preparing your contact options…
       </p>
     );
-  if (!delivery.enabled) return <EnquiryHandoff message={message} onEdit={onEdit} />;
+  if (!delivery.enabled)
+    return <EnquiryHandoff message={message} onEdit={onEdit} focusOnMount={false} />;
   return (
     <div className="lf-handoff">
       <h3>Would you like a quote for this plan?</h3>

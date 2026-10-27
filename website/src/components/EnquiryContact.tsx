@@ -121,16 +121,18 @@ export function EnquiryHandoff({
   onEdit,
   title,
   opened = false,
+  focusOnMount = true,
 }: {
   message: string;
   onEdit: () => void;
   title?: string;
   opened?: boolean;
+  focusOnMount?: boolean;
 }) {
   const heading = useRef<HTMLHeadingElement>(null);
   useEffect(() => {
-    heading.current?.focus();
-  }, []);
+    if (focusOnMount) heading.current?.focus();
+  }, [focusOnMount]);
   return (
     <div className="lf-handoff" aria-live="polite">
       <span className="lf-ready">

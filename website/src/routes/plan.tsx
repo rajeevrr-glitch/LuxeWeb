@@ -50,12 +50,13 @@ function Begin() {
             <span className="eyebrow">I’M EXPLORING POSSIBILITIES</span>
             <h2>{planningJourney().label}.</h2>
             <p>
-              Start with your BHK and approximate size. Review your scope without contact details.
-              Pricing is provided after a studio review.
+              Start with your BHK and size, then choose Essential, Signature or Luxe. Your
+              renovation work area gives you a starting budget; the final quote follows a site
+              visit.
             </p>
             <ul>
               <li>
-                <Check size={15} /> Modular and whole-home options
+                <Check size={15} /> Full-home renovation from ₹1,100/sq ft
               </li>
               <li>
                 <Check size={15} /> Simple size choices — no floor plan needed

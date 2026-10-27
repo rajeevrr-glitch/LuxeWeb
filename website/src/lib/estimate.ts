@@ -17,6 +17,21 @@ export function homeSizeLabel(draft: Pick<EstimateDraft, "configuration" | "area
   return (draft.areaBand === "up-to" ? "Up to " : "Above ") + threshold + " sq ft carpet area";
 }
 export type EstimateScope = (typeof estimateScopes)[number];
+export const renovationPackages = [
+  { id: "essential", name: "Essential", rate: 1100, description: "Affordable and practical" },
+  {
+    id: "signature",
+    name: "Signature",
+    rate: 1400,
+    description: "Best balance of quality and price",
+  },
+  { id: "luxe", name: "Luxe", rate: 1700, description: "Premium finish and experience" },
+] as const;
+export const renovationCalculatorNote =
+  "This calculator is in its early stage. The final price will be quoted after a site visit.";
+export function renovationPricingIsReady() {
+  return renovationPackages.length > 0;
+}
 export type EstimateDraft = {
   scope: EstimateScope;
   region: string;
@@ -31,6 +46,8 @@ export type EstimateDraft = {
   wardrobes: boolean;
   kitchenArea: string;
   wardrobeArea: string;
+  workArea: string;
+  renovationTier: "" | (typeof renovationPackages)[number]["id"];
 };
 export const emptyEstimate: EstimateDraft = {
   scope: "Modular interiors",
@@ -46,6 +63,8 @@ export const emptyEstimate: EstimateDraft = {
   wardrobes: false,
   kitchenArea: "",
   wardrobeArea: "",
+  workArea: "",
+  renovationTier: "",
 };
 export type Rate = {
   id: "kitchen" | "wardrobes" | "whole-home";
@@ -107,6 +126,42 @@ export function calculateEstimate(
   });
   if (!draft.city.trim() || !["Uttar Pradesh", "Delhi NCR", "Bengaluru"].includes(draft.region))
     return review("Confirm service availability for your city.");
+  // Only the owner's full-home renovation floor-area rates are approved here.
+  // Discovery bands and cabinet frontage must never substitute for work floor area.
+  if (
+    book === approvedRateBook &&
+    draft.scope === "Whole home" &&
+    draft.condition === "Renovation"
+  ) {
+    const selected = renovationPackages.find((tier) => tier.id === draft.renovationTier);
+    if (!selected) return review("Choose a full-home renovation package.");
+    const area = quantity(draft.workArea);
+    if (area === null || area < 1)
+      return review("Enter the floor area of renovation work to calculate a budget.");
+    const total = Math.round(area * selected.rate);
+    return {
+      status: "priced" as const,
+      priceKind: "starting" as const,
+      reason: renovationCalculatorNote,
+      min: total,
+      max: total,
+      rate: selected.rate,
+      packageName: selected.name,
+      lines: [
+        {
+          id: "whole-home",
+          quantity: area,
+          unit: "sq ft of renovation work",
+          min: total,
+          max: total,
+          inclusions: [] as string[],
+          exclusions: [] as string[],
+        },
+      ],
+      version: "owner-renovation-rates-2026-10-27",
+      taxNote: "Taxes and applicable extras will be detailed in the final quotation.",
+    };
+  }
   const expiry = Date.parse(book.validUntil + "T23:59:59Z");
   if (!book.approved || !Number.isFinite(expiry) || expiry < now.getTime() || !book.taxNote.trim())
     return review("Your selections need a studio review before a price is available.");
@@ -199,6 +254,7 @@ export function calculateEstimate(
   }
   return {
     status: "priced" as const,
+    priceKind: "range" as const,
     reason: "Indicative only. Final scope, site measurements and quotation require approval.",
     min: lines.reduce((sum, line) => sum + line.min, 0),
     max: lines.reduce((sum, line) => sum + line.max, 0),
@@ -208,6 +264,11 @@ export function calculateEstimate(
   };
 }
 export function describeEstimate(draft: EstimateDraft) {
+  const renovation =
+    draft.scope === "Whole home" && draft.condition === "Renovation"
+      ? renovationPackages.find((tier) => tier.id === draft.renovationTier)
+      : undefined;
+  const budget = renovation ? calculateEstimate(draft) : null;
   const work =
     draft.scope === "Modular interiors"
       ? [
@@ -229,7 +290,12 @@ export function describeEstimate(draft: EstimateDraft) {
     draft.city.trim() + ", " + draft.region,
     draft.condition,
     work,
-    "Finish preference: " + draft.finish,
+    renovation
+      ? `Renovation package: ${renovation.name} · ₹${renovation.rate.toLocaleString("en-IN")}/sq ft`
+      : "Finish preference: " + draft.finish,
+    renovation && budget?.status === "priced" && budget.priceKind === "starting"
+      ? `Area of renovation work: ${draft.workArea} sq ft\nIndicative budget: ₹${budget.min.toLocaleString("en-IN")}+\n${renovationCalculatorNote}`
+      : "",
   ]
     .filter(Boolean)
     .join("\n");
@@ -293,6 +359,10 @@ export function readEstimate(): EstimateDraft | null {
       wardrobes: raw.wardrobes === true,
       kitchenArea: typeof raw.kitchenArea === "string" ? raw.kitchenArea.slice(0, 8) : "",
       wardrobeArea: typeof raw.wardrobeArea === "string" ? raw.wardrobeArea.slice(0, 8) : "",
+      workArea: typeof raw.workArea === "string" ? raw.workArea.slice(0, 8) : "",
+      renovationTier: renovationPackages.some((tier) => tier.id === raw.renovationTier)
+        ? raw.renovationTier
+        : "",
     };
   } catch {
     return null;

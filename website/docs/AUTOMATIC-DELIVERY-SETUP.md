@@ -4,7 +4,7 @@
 
 ## What happens when connected
 
-The visitor submits a short quote, welcome request, detailed brief or partnership introduction on the website. The server validates it, saves the full text request privately, then sends an approved WhatsApp template notification to the internal team number. The visitor receives a reference without opening WhatsApp or pressing Send in another app. Approved-price planning results also offer this submission after the visitor reviews the result; actual prices remain inactive until approved.
+The visitor submits a short quote, welcome request, detailed brief or partnership introduction on the website. The server validates it, saves the full text request privately, then sends an approved WhatsApp template notification to the internal team number. The visitor receives a reference without opening WhatsApp or pressing Send in another app. Approved-price planning results also offer this submission after the visitor reviews the result. Full home renovation now has owner-approved starting rates; other numerical pricing remains inactive until approved. This does not activate the separate WhatsApp account connection described here.
 
 The notification contains reference, request type, name, phone, city and a short summary. It is labelled as a summary; the full request remains on the private server. File checklists may be included, but photos/plans are not uploaded or attached automatically. A brief receipt offers a reference-based manual file-sharing link.
 
@@ -16,20 +16,20 @@ Success means the full text was saved and Meta accepted the notification. It is 
 2. Connect a WhatsApp Business Platform account, its sending Phone Number ID and a server access token. Plan the sending number and internal receiving number explicitly. Existing WhatsApp app/coexistence arrangements depend on the provider; do not move a working number without checking the account setup.
 3. Confirm the internal receiving team number and its consent to notifications. The intended customer-contact number is +91 9026271638; recipient configuration is deliberately blank until the sender/recipient arrangement is confirmed.
 4. Create and obtain approval for a template with exactly six positional BODY variables in the order below. No header or button variables are sent. Obtain the exact language code and a currently supported Graph API version from the account/provider. Do not assume that an arbitrary template name or example API version will work.
-5. Enter the server variables below privately in the hosting dashboard. Never paste credentials into chat, commit them, put them in VITE_ variables or expose them in screenshots. Keep the enable flag false during setup.
+5. Enter the server variables below privately in the hosting dashboard. Never paste credentials into chat, commit them, put them in VITE\_ variables or expose them in screenshots. Keep the enable flag false during setup.
 6. Run the offline readiness check, then test on an access-controlled staging host. Enable only after the template/account, actual receipt, private storage, failure behavior and ingress protections have been checked. No activation or account purchase has been performed here.
 
-| Server variable | Meaning |
-| --- | --- |
-| LUXE_ENQUIRY_DELIVERY_ENABLED | false now; explicitly set true after connection and staging checks |
-| LUXE_ENQUIRY_DATA_DIR | Absolute private persistent directory; outside the source checkout, or under its excluded .private folder. Source/public/build directories are rejected |
-| SITE_URL | Exact website origin accepted by the public intake, normally https://luxeinfra.in. Redirect www to the selected canonical origin |
-| LUXE_WHATSAPP_ACCESS_TOKEN | Private server token |
-| LUXE_WHATSAPP_PHONE_NUMBER_ID | Sender's numeric Phone Number ID |
-| LUXE_WHATSAPP_RECIPIENT | Internal receiving number, international digits |
-| LUXE_WHATSAPP_TEMPLATE | Exact approved template name |
-| LUXE_WHATSAPP_LANGUAGE | Exact approved language code |
-| LUXE_WHATSAPP_GRAPH_VERSION | Explicit supported version supplied by Meta/provider |
+| Server variable               | Meaning                                                                                                                                                 |
+| ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| LUXE_ENQUIRY_DELIVERY_ENABLED | false now; explicitly set true after connection and staging checks                                                                                      |
+| LUXE_ENQUIRY_DATA_DIR         | Absolute private persistent directory; outside the source checkout, or under its excluded .private folder. Source/public/build directories are rejected |
+| SITE_URL                      | Exact website origin accepted by the public intake, normally https://luxeinfra.in. Redirect www to the selected canonical origin                        |
+| LUXE_WHATSAPP_ACCESS_TOKEN    | Private server token                                                                                                                                    |
+| LUXE_WHATSAPP_PHONE_NUMBER_ID | Sender's numeric Phone Number ID                                                                                                                        |
+| LUXE_WHATSAPP_RECIPIENT       | Internal receiving number, international digits                                                                                                         |
+| LUXE_WHATSAPP_TEMPLATE        | Exact approved template name                                                                                                                            |
+| LUXE_WHATSAPP_LANGUAGE        | Exact approved language code                                                                                                                            |
+| LUXE_WHATSAPP_GRAPH_VERSION   | Explicit supported version supplied by Meta/provider                                                                                                    |
 
 Run `npm run delivery:check` in the host environment. It checks configuration locally, prints booleans only and sends nothing. The production start command reads the host environment; merely editing .env.example does not load credentials. For a private local check, Node's --env-file option can load a separately protected file; do not include it in source handovers.
 

@@ -1,4 +1,5 @@
-import { approvedRateBook, type RateBook } from "./estimate.ts";
+import { approvedRateBook, renovationPricingIsReady, type RateBook } from "./estimate.ts";
+export { renovationPricingIsReady } from "./estimate.ts";
 import { materialBrands } from "./material-brands.ts";
 import { commercialSpaceType } from "./welcome.ts";
 
@@ -37,17 +38,23 @@ export function pricingIsReady(book: RateBook = approvedRateBook, now = new Date
 }
 
 export function planningJourney() {
-  return pricingIsReady()
+  return renovationPricingIsReady()
     ? {
         label: "Estimate my budget",
-        title: "Plan your interiors budget",
-        note: "An indicative range based on your selections. Final scope and price need a studio review.",
+        title: "Plan your renovation budget",
+        note: "Choose your home, work area and package for a full-home renovation estimate. Final pricing follows a site visit.",
       }
-    : {
-        label: "Plan my interiors",
-        title: "Plan your interiors",
-        note: "Review your scope without contact details. The studio provides pricing after a review; this planner does not give an instant price.",
-      };
+    : pricingIsReady()
+      ? {
+          label: "Estimate my budget",
+          title: "Plan your interiors budget",
+          note: "An indicative range based on your selections. Final scope and price need a studio review.",
+        }
+      : {
+          label: "Plan my interiors",
+          title: "Plan your interiors",
+          note: "Review your scope without contact details. The studio provides pricing after a review; this planner does not give an instant price.",
+        };
 }
 
 export function quoteScope(search: { scope?: string; module?: string; room?: string }) {

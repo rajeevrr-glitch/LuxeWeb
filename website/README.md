@@ -16,6 +16,12 @@ Ask Luxe provides site-specific guidance in English, Hindi and Hinglish. Quick a
 
 The homepage keeps the main room photograph and simple quote/design links. The project choices are inside the welcome popup, which becomes ready ten seconds after arrival without requiring a scroll. It appears once per tab session and defers while a visitor is typing, using another dialog/menu or viewing a background tab. Get a quote can reopen it on browsing pages.
 
+## Full home renovation estimates
+
+The owner-approved full home renovation packages are **Essential — ₹1,100/sq ft** (Affordable and practical), **Signature — ₹1,400/sq ft** (Best balance of quality and price), and **Luxe — ₹1,700/sq ft** (Premium finish and experience). After size, the visitor chooses a package. The calculator multiplies the explicitly entered work floor area by that rate and displays the starting amount with **+**. Home carpet area/size band describes the property separately; BHK and size bands do not substitute for the work area.
+
+The calculator is in its early stages; the final price will be quoted after a site visit. These rates do not price modular interiors, selected-room work or commercial spaces. Detailed material specifications, inclusions/exclusions, tax treatment and offer-calculation rules still require owner input; do not infer them or automatically apply the Diwali discount.
+
 ## Folder guide
 
 - `src/` — website pages, components, styles and images.
@@ -66,6 +72,6 @@ Migration 005 is installed and `npm run traffic:check -- --connect` confirms sch
 
 Only 35 fixed public pages, nine source buckets and four device categories are counted. Query strings, fragments, contact details, raw IP addresses and raw user agents are not stored. Daily keyed visitor hashes and event identifiers are retained for seven IST calendar days; aggregates for 90. Older records are pruned on the next capture, not by a timer. There are no analytics cookies; the only statistics value kept in browser storage is an opt-out preference. DNT/GPC and the [privacy-page opt-out](https://fantastic-liger-68a1da.netlify.app/privacy#site-statistics) suppress recording. Private workspace/recovery pages and common bots are excluded. See [traffic setup and limits](docs/LAUNCH.md#aggregate-site-traffic-migration-005).
 
-The portfolio includes eleven unique photos and two project films. Films are assigned to Harsh Pal and Dharmendra Singh as instructed; other photographs stay unassigned and review wording needs confirmation. The floating WhatsApp button stays above the mobile actions and steps aside while the welcome popup or Luxe chat is open. It opens the confirmed studio number; visitors still send their own messages. Rates, detailed warranty coverage and remaining business terms are still needed; the owner-input notes remain local and are excluded from Git. Automatic WhatsApp delivery and public image AI are not activated merely by adding a local Gemini key.
+The portfolio includes eleven unique photos and two project films. Films are assigned to Harsh Pal and Dharmendra Singh as instructed; other photographs stay unassigned and review wording needs confirmation. The floating WhatsApp button stays above the mobile actions and steps aside while the welcome popup or Luxe chat is open. It opens the confirmed studio number; visitors still send their own messages. Rates for other scopes, detailed renovation specifications, warranty coverage and remaining business terms are still needed; the owner-input notes remain local and are excluded from Git. Automatic WhatsApp delivery and public image AI are not activated merely by adding a local Gemini key.
 
 Update this project and workdone.md in place. Do not create another preview folder, numbered report or ZIP unless requested.

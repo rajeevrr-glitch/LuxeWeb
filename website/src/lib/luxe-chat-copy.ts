@@ -1,5 +1,11 @@
 // Visitor-facing website guidance, translated alongside the English source.
 // Prices, claims and approvals remain in the canonical site data, not these replies.
+import { renovationPackages } from "./estimate.ts";
+
+const renovationRates = renovationPackages
+  .map(({ name, rate }) => `${name} ₹${rate.toLocaleString("en-IN")}/sq ft`)
+  .join(", ");
+
 export const luxeChatCopy = {
   secrets: [
     "Please keep API keys, passwords and OTPs out of this chat. For project help, share only the type of space and what you want to change.",
@@ -42,14 +48,14 @@ export const luxeChatCopy = {
     "Our work gallery mein LuxeInfra ke photos aur short project films hain, Harsh Pal aur Dharmendra Singh ke films ke saath. Design ideas alag inspiration collection hai.",
   ],
   pricePending: [
-    "We do not have an approved instant rate list online yet. Your quote depends on measured quantities, materials, finishes and site conditions. Plan your scope without contact details first, or ask the studio for an itemised quote.",
-    "अभी स्वीकृत instant rate list online नहीं है। Quote measured quantities, materials, finishes और site conditions पर निर्भर होगा। पहले बिना contact details के scope plan करें, या स्टूडियो से itemised quote माँगें।",
-    "Abhi approved instant rate list online nahi hai. Quote measured quantities, materials, finishes aur site conditions par depend karega. Pehle contact details ke bina scope plan karein, ya studio se itemised quote lein.",
+    "This scope needs a studio quotation based on measured work, materials and site conditions. Full home renovation has a separate starting-price calculator; its rates do not apply to modular interiors, selected-room work or commercial spaces.",
+    "इस scope का quote measured work, materials और site conditions देखकर स्टूडियो देगा। Full home renovation का अलग starting-price calculator है; उसके rates modular interiors, selected-room work या commercial spaces पर लागू नहीं हैं।",
+    "Is scope ka quote measured work, materials aur site conditions dekhkar studio dega. Full home renovation ka alag starting-price calculator hai; uske rates modular interiors, selected-room work ya commercial spaces par apply nahi hote.",
   ],
   priceReady: [
-    "The planner can show an indicative range for selections matching approved, current specifications; other choices still need studio review. The final quote depends on measured scope, materials and site conditions.",
-    "Planner स्वीकृत और वर्तमान specifications से मिलती selections का indicative range दिखा सकता है। बाकी choices को studio review चाहिए। Final quote measured scope, materials और site conditions पर निर्भर होगा।",
-    "Planner approved, current specifications se matching selections ka indicative range dikha sakta hai; baaki choices ko studio review chahiye. Final quote measured scope, materials aur site conditions se decide hoga.",
+    `For full home renovation: ${renovationRates}. The calculator multiplies the floor area where work is required by your chosen rate and shows the starting amount with “+”. It is in its early stages; the final price will be quoted after a site visit. Modular, selected-room and commercial work need separate quotes.`,
+    `Full home renovation के लिए: ${renovationRates}। Calculator काम वाले floor area को चुने हुए rate से गुणा करके starting amount के साथ “+” दिखाता है। यह शुरुआती चरण में है; final price site visit के बाद quote होगा। Modular, selected-room और commercial work के quotes अलग होंगे।`,
+    `Full home renovation ke liye: ${renovationRates}. Calculator kaam wale floor area ko selected rate se multiply karke starting amount ke saath “+” dikhata hai. Yeh early stage mein hai; final price site visit ke baad quote hoga. Modular, selected-room aur commercial work ke quotes alag honge.`,
   ],
   commercialPrice: [
     "Commercial spaces need a site-specific quote; there is no approved commercial instant rate list here. Share the business type and approximate area in the short enquiry. Layout, specifications and site needs determine the scope and price.",

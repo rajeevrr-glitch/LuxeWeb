@@ -1,7 +1,7 @@
 import { business } from "./business.ts";
 import { materialBrands } from "./material-brands.ts";
 import { publishedProjects, publishedReviews } from "./owner-content.ts";
-import { pricingIsReady } from "./journey.ts";
+import { pricingIsReady, renovationPricingIsReady } from "./journey.ts";
 import { buildLuxeChatKnowledge } from "./luxe-knowledge.ts";
 import { luxeChatCopy } from "./luxe-chat-copy.ts";
 import { portfolioMedia } from "./portfolio.ts";
@@ -122,7 +122,11 @@ export function luxeLocalReply(question: string): LuxeChatReply {
     )
   )
     return reply(
-      commercial ? "commercialPrice" : pricingIsReady() ? "priceReady" : "pricePending",
+      commercial
+        ? "commercialPrice"
+        : renovationPricingIsReady() || pricingIsReady()
+          ? "priceReady"
+          : "pricePending",
       commercial ? [projectQuote] : [planner, projectQuote],
     );
   if (/warranty|guarantee|वारंटी|गारंटी/.test(text)) return reply("warranty", [projectQuote]);

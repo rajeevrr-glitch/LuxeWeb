@@ -29,7 +29,8 @@ For a public-mode local check, stop development, then run `npm start` after a no
 
 ## Before publishing
 
-- Complete OWNER-INPUTS.md: real rates/specifications, permissioned content/images, terms and approved promotions. Never publish labelled sample reviews or proposed offers as real business facts.
+- Verify the full home renovation calculator against the owner-approved rates: Essential ₹1,100/sq ft, Signature ₹1,400/sq ft and Luxe ₹1,700/sq ft. Enter the actual work floor area, then select a package after size. Display the exact product as a starting amount with **+**, alongside the small early-stage/final-price-after-site-visit note. Do not use a BHK/size-band threshold as a quantity, apply these rates to other scopes, add tax assumptions or automatically apply a campaign discount.
+- Complete OWNER-INPUTS.md: remaining scope rates and material specifications, permissioned content/images, terms and approved promotions. Package materials/inclusions, tax treatment and rate validity have not been supplied. Never publish labelled sample reviews or proposed offers as real business facts.
 - Check all ten brand options against the selected specification. Confirm genuine review wording and publication consent; project photos remain unassigned rather than paired with reviewers. Keep detailed Lifetime warranty\* coverage/exclusions and Diwali gift/calculation terms available before booking.
 - Luxe website guidance works without an AI account. Optional AI text chat needs its own private chat settings and account/quota checks; follow AI-SETUP.md. Never reuse an image enable flag as chat authorisation. Keep one server instance for the file-based counter, or provide a shared atomic allowance store before scaling out.
 - Choose a Node-capable host, review the normal build privately, configure secure server secrets and durable private storage, and verify message receipt and failure recovery with the business team.

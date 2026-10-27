@@ -616,6 +616,170 @@
   font-size: 11px;
   margin-block: 10px;
 }
+.lf-package-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 13px;
+  margin-top: 18px;
+}
+.lf-package-card {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+  padding: 9px 9px 0;
+  border: 1px solid #dbe1e6;
+  border-radius: 12px;
+  background: #fffefa;
+  color: #173d71;
+  overflow: hidden;
+  transition:
+    border-color 180ms ease,
+    box-shadow 180ms ease,
+    transform 180ms ease;
+}
+.lf-package-card:hover {
+  transform: translateY(-3px);
+  border-color: #8298b4;
+  box-shadow: 0 8px 20px #173d7110;
+}
+.lf-package-card[aria-pressed="true"] {
+  border-color: #173d71;
+  box-shadow: 0 0 0 1px #173d71;
+}
+.lf-package-swatch {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  min-height: 80px;
+  padding: 10px;
+  margin-bottom: 16px;
+  border-radius: 6px;
+  color: #43555f;
+  font-size: 10px;
+  font-weight: 600;
+}
+.lf-package-swatch-essential {
+  background: linear-gradient(135deg, #ded2bc, #f3ecdd 48%, #c7bba3);
+}
+.lf-package-swatch-signature {
+  background: linear-gradient(135deg, #7b8e92, #c9d4d0 48%, #99a9ab);
+}
+.lf-package-swatch-luxe {
+  background: linear-gradient(135deg, #183b66, #4a6589 48%, #19375b);
+  color: #f2e8d4;
+}
+.lf-package-check {
+  opacity: 0;
+  background: #173d71;
+  color: #fff;
+  border-radius: 50%;
+  padding: 3px;
+  box-sizing: content-box;
+}
+.lf-package-card[aria-pressed="true"] .lf-package-check {
+  opacity: 1;
+}
+.lf-package-card > strong,
+.lf-package-price,
+.lf-package-description {
+  padding-inline: 5px;
+}
+.lf-package-card > strong {
+  font-size: 17px;
+}
+.lf-package-price {
+  margin-top: 6px;
+  font-size: 23px;
+  font-weight: 600;
+  letter-spacing: -0.04em;
+}
+.lf-package-price small {
+  margin-left: 3px;
+  font-size: 10px;
+  font-weight: 400;
+  letter-spacing: 0;
+  color: #62717d;
+}
+.lf-package-description {
+  margin: 8px 0 19px;
+  font-size: 11px;
+  line-height: 1.6;
+  color: #536574;
+}
+.lf-package-select {
+  display: block;
+  margin: auto -9px 0;
+  padding: 11px 14px;
+  border-top: 1px solid #e2e6eb;
+  font-size: 11px;
+  font-weight: 600;
+}
+.lf-package-card[aria-pressed="true"] .lf-package-select {
+  background: #173d71;
+  color: #fff;
+}
+.lf-work-area {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 160px;
+  align-items: center;
+  gap: 25px;
+  margin-top: 24px;
+  padding: 20px;
+  background: #f2f4f3;
+  border-radius: 10px;
+}
+.lf-work-area label {
+  display: block;
+  margin-top: 9px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #173d71;
+}
+.lf-work-area p {
+  font-size: 11px;
+  line-height: 1.7;
+  color: #5b6b76;
+  margin: 8px 0 0;
+}
+.lf-work-area-input {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 12px;
+  background: #fffefa;
+  border: 1px solid #9aabbd;
+  border-radius: 6px;
+}
+.lf-work-area-input input {
+  width: 100%;
+  min-width: 0;
+  min-height: 52px;
+  border: none;
+  background: transparent;
+  color: #173d71;
+  font-size: 19px;
+}
+.lf-work-area-input > span {
+  white-space: nowrap;
+  font-size: 11px;
+  color: #5b6b76;
+}
+.lf-calculator-note {
+  margin: 15px 0;
+  font-size: 11px;
+  line-height: 1.7;
+  color: #596b78;
+}
+.lf-budget-formula {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 14px;
+  font-size: 12px;
+  color: #365e50;
+}
+.lf-budget-formula > span:first-child {
+  font-weight: 600;
+}
 .lf-ready {
   display: flex;
   align-items: center;
@@ -889,6 +1053,58 @@
   }
 }
 @media (max-width: 760px) {
+  .lf-package-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  .lf-package-card {
+    display: grid;
+    grid-template-columns: 55px minmax(0, 1fr) auto;
+    gap: 5px 10px;
+    padding: 13px;
+  }
+  .lf-package-swatch {
+    grid-row: 1 / 4;
+    min-height: 90px;
+    padding: 7px;
+    margin: 0;
+  }
+  .lf-package-swatch > span {
+    display: none;
+  }
+  .lf-package-card > strong {
+    grid-column: 2;
+    font-size: 16px;
+  }
+  .lf-package-price {
+    grid-column: 3;
+    grid-row: 1;
+    align-self: center;
+    font-size: 19px;
+    margin: 0;
+  }
+  .lf-package-price small {
+    display: block;
+    text-align: right;
+  }
+  .lf-package-description {
+    grid-column: 2 / 4;
+    margin: 0;
+    font-size: 11px;
+  }
+  .lf-package-select {
+    grid-column: 2 / 4;
+    margin: 3px 0 0;
+    border: none;
+    border-radius: 4px;
+    padding: 6px 5px;
+    font-size: 10px;
+  }
+  .lf-work-area {
+    grid-template-columns: 1fr;
+    gap: 15px;
+    padding: 16px;
+  }
   .lf-intro {
     padding-block: 24px 19px;
   }
@@ -1139,5 +1355,11 @@
 @media (prefers-reduced-motion: reduce) {
   .lf-size-reveal {
     animation: none;
+  }
+  .lf-package-card {
+    transition: none;
+  }
+  .lf-package-card:hover {
+    transform: none;
   }
 }

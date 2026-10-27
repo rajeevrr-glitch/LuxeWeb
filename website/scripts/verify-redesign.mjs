@@ -152,8 +152,8 @@ for (const route of routes) {
     assert.match(html, /What kind of home is yours/);
     assert.match(html, /1 RK/);
     assert.doesNotMatch(html, /autoComplete="(?:name|tel)"/i);
-    assert.match(html, /does not give an instant price/);
-    assert.match(html, /STEP 1 OF 3/);
+    assert.match(html, /full-home renovation estimate/);
+    assert.match(html, /STEP 1 OF 4/);
     assert.match(html, /Room collections/);
   }
   if (route === "/estimate?configuration=2%20BHK") {

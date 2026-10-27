@@ -1,14 +1,19 @@
 import { business, rooms, stages } from "./business.ts";
 import { materialBrands } from "./material-brands.ts";
 import { publishedProjects, publishedReviews } from "./owner-content.ts";
-import { pricingIsReady } from "./journey.ts";
+import { pricingIsReady, renovationPricingIsReady } from "./journey.ts";
 import { partnerRoles } from "./partnership.ts";
 import { commercialSpaceTypes } from "./welcome.ts";
 import { roomWork } from "./room-work.ts";
 import { businessProof } from "./business-proof.ts";
 import { diwaliCampaign } from "./promotion.ts";
 import { portfolioMedia } from "./portfolio.ts";
-import { homeConfigurations, homeSizeThresholds } from "./estimate.ts";
+import {
+  homeConfigurations,
+  homeSizeThresholds,
+  renovationPackages,
+  renovationCalculatorNote,
+} from "./estimate.ts";
 
 // Public site facts only. This module must never import deployment settings, owner
 // notes, private records or API keys. Update page descriptions when journeys change.
@@ -26,7 +31,7 @@ export const luxeSitePages = [
   {
     path: "/estimate",
     purpose:
-      "Plan modular interiors, a whole home or selected rooms without contact details. Home configuration and approximate size help describe scope; size bands are not measured quotations. Only currently approved, valid and matching rate specifications can return an indicative budget.",
+      "Plan modular interiors, a whole home or selected rooms. Full home renovation uses the entered work floor area in square feet multiplied by Essential, Signature or Luxe's approved rate, shown as a starting amount with +. Choose the tier after size; a size band alone cannot give an area or total. The calculator is in its early stages and the final price follows a site visit. Other residential scopes and commercial work need separate quotes.",
   },
   {
     path: "/plan",
@@ -119,7 +124,10 @@ export function luxeKnowledgeSnapshot(now = new Date()) {
     roomSpecificWork: roomWork,
     pricing: {
       indicativeRatesEnabled: pricingIsReady(undefined, now),
-      rule: "Only approved, valid, exactly matching specifications can give an indicative range. Never infer a total from BHK/area alone, promise an instant price for every selection, quote a made-up per-square-foot rate, or claim that an estimate is final.",
+      fullHomeRenovationEnabled: renovationPricingIsReady(),
+      fullHomeRenovationPackages: renovationPackages,
+      fullHomeRenovationNote: renovationCalculatorNote,
+      rule: "For full home renovation only, multiply the explicitly entered work floor area in square feet by the chosen approved tier rate and show the calculated starting amount with +. Do not substitute a BHK or size-band threshold for work area. Essential, Signature and Luxe are the approved package names and descriptions, not evidence of specific material grades, inclusions or tax treatment. The early-stage calculator is not a measured quotation; final price follows a site visit. Modular, selected-room and commercial rates are not approved. Other future rate-book scenarios require approved, valid, exactly matching specifications. Do not invent totals, discounts applied to the calculator, taxes, expiry dates or final-price promises.",
     },
     brands: materialBrands.map(({ name, category, detail, question }) => ({
       name,

@@ -19,6 +19,7 @@ import {
 import { business, rooms, stages } from "../src/lib/business.ts";
 import { materialBrands } from "../src/lib/material-brands.ts";
 import { publishedProjects, publishedReviews } from "../src/lib/owner-content.ts";
+import { renovationPackages, renovationCalculatorNote } from "../src/lib/estimate.ts";
 
 const testKey = "AIza" + "x".repeat(35); // Synthetic syntax fixture, never a real credential.
 const env = { LUXE_CHAT_ENABLED: "true", LUXE_CHAT_API_KEY: testKey, LUXE_CHAT_DAILY_LIMIT: "2" };
@@ -70,6 +71,9 @@ test("site knowledge derives approved facts and never promotes samples or draft 
   );
   assert.equal(facts.approvedProjectCount, publishedProjects.length);
   assert.equal(facts.pricing.indicativeRatesEnabled, false);
+  assert.equal(facts.pricing.fullHomeRenovationEnabled, true);
+  assert.deepEqual(facts.pricing.fullHomeRenovationPackages, renovationPackages);
+  assert.equal(facts.pricing.fullHomeRenovationNote, renovationCalculatorNote);
   assert.ok(!facts.roomSpecificWork["Master bedroom"].options.includes("Modular kitchen"));
   const context = buildLuxeChatKnowledge();
   assert.match(context, /not model fine-tuning/);
@@ -120,9 +124,9 @@ test("commercial context carries its subtype, while a home office remains reside
 
 test("Hindi and Hinglish questions receive relevant guidance in their language", () => {
   assert.equal(chatLanguage("मेरी किचन की कीमत क्या होगी?"), "hi");
-  assert.match(luxeLocalReply("मेरी किचन की कीमत क्या होगी?").text, /अभी स्वीकृत/);
+  assert.match(luxeLocalReply("मेरी किचन की कीमत क्या होगी?").text, /Modular.*quotes अलग/);
   assert.equal(chatLanguage("mujhe ghar ka budget chahiye"), "hinglish");
-  assert.match(luxeLocalReply("mujhe ghar ka budget chahiye").text, /Abhi approved/);
+  assert.match(luxeLocalReply("mujhe ghar ka budget chahiye").text, /Full home renovation ke liye/);
   assert.match(luxeLocalReply("मुझे वारंटी बताइए").text, /लिखित में confirm/);
   assert.match(
     luxeLocalReply("What is Samsung included with?").text,
@@ -152,7 +156,7 @@ test("website guidance makes no fake price, warranty or delivery claim and suppo
   assert.match(commercial.text, /offices, shops and showrooms/);
   assert.match(
     luxeLocalReply("What will it cost?").text,
-    /do not have an approved instant rate list/,
+    /full home renovation: Essential ₹1,100\/sq ft, Signature ₹1,400\/sq ft, Luxe ₹1,700\/sq ft/i,
   );
   assert.match(luxeLocalReply("What is the warranty?").text, /cannot promise/);
   assert.match(luxeLocalReply("Can you generate an AI image?").text, /separate from this chat/);
@@ -166,6 +170,18 @@ test("website guidance makes no fake price, warranty or delivery claim and suppo
     assert.equal(luxeLocalReply(secret).actions.length, 0);
   }
   assert.match(luxeLocalReply("Where do you serve?").text, /Uttar Pradesh, Delhi NCR, Bengaluru/);
+});
+
+test("chat confines the approved renovation rates to a starting estimate and site review", () => {
+  const answer = luxeLocalReply("Full home renovation budget").text;
+  assert.match(answer, /floor area where work is required/);
+  assert.match(answer, /starting amount with “\+”/);
+  assert.match(answer, /early stages/);
+  assert.match(answer, /final price will be quoted after a site visit/);
+  assert.match(answer, /Modular, selected-room and commercial work need separate quotes/);
+  const commercial = luxeLocalReply("Commercial office price").text;
+  assert.match(commercial, /no approved commercial instant rate list/);
+  assert.doesNotMatch(commercial, /₹1,[147]00/);
 });
 
 test("Gemini adapter sends one bounded text-only request and never persists interactions", async () => {

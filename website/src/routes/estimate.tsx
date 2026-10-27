@@ -26,6 +26,9 @@ import {
   calculateEstimate,
   saveEstimate,
   readEstimate,
+  renovationPackages,
+  renovationCalculatorNote,
+  renovationPricingIsReady,
   type EstimateDraft,
 } from "@/lib/estimate";
 import kitchen from "@/assets/kitchen.jpg";
@@ -93,6 +96,7 @@ function PlanMark({ index }: { index: number }) {
 const freshEstimate = (): EstimateDraft => ({
   ...emptyEstimate,
   scope: "Whole home",
+  condition: "Renovation",
   configuration: "",
   rooms: [],
 });
@@ -122,15 +126,18 @@ function initialEstimate(
           configuration: search.configuration === "4+ BHK" ? "" : search.configuration,
           area: "",
           areaBand: "" as const,
+          workArea: saved?.configuration === search.configuration ? saved.workArea : "",
         }
       : {}),
   };
 }
 
 function Estimate() {
-  const pricingEnabled = pricingIsReady();
   const search = Route.useSearch();
   const [draft, setDraft] = useState<EstimateDraft>(() => initialEstimate(search));
+  const isRenovation = draft.scope === "Whole home" && draft.condition === "Renovation";
+  const pricingEnabled = (isRenovation && renovationPricingIsReady()) || pricingIsReady();
+  const selectedPackage = renovationPackages.find((tier) => tier.id === draft.renovationTier);
   const [contact, setContact] = useState<LeadContact>({ ...emptyContact });
   const [step, setStep] = useState(0);
   const [error, setError] = useState("");
@@ -215,6 +222,20 @@ function Estimate() {
         }
       }
     }
+    if (step === 1 && isRenovation) {
+      if (!selectedPackage) {
+        setError("Choose Essential, Signature or Luxe to continue.");
+        return;
+      }
+      const area = Number(draft.workArea);
+      if (!draft.workArea.trim() || !Number.isFinite(area) || area < 1 || area > 100000) {
+        setError(
+          "Enter the floor area of work between 1 and 100,000 sq ft to calculate your budget.",
+        );
+        document.getElementById("renovation-work-area")?.focus();
+        return;
+      }
+    }
     go(step === 1 && !pricingEnabled ? 3 : step + 1);
   }
   function prepare(event: React.FormEvent<HTMLFormElement>) {
@@ -246,7 +267,7 @@ function Estimate() {
       : draft.scope === "Modular interiors"
         ? "What would you like to transform?"
         : "Which rooms need a new chapter?",
-    "Let’s make it feel like you.",
+    isRenovation ? "Choose the renovation that feels right." : "Let’s make it feel like you.",
     "Who are we designing for?",
     result.status === "priced"
       ? "Your indicative interiors budget."
@@ -276,7 +297,7 @@ function Estimate() {
         <div className="lf-planner-main">
           <ol className="lf-progress" aria-label="Budget planning progress">
             {(pricingEnabled
-              ? ["Your home", "Your interiors", "Your details", "Your budget"]
+              ? ["Your home", "Your package", "Your details", "Your budget"]
               : ["Your home", "Your interiors", "Your scope"]
             ).map((label, i) => (
               <li
@@ -342,6 +363,7 @@ function Estimate() {
                               configuration: config,
                               areaBand: "",
                               area: "",
+                              workArea: "",
                             }));
                             setError("");
                           }}
@@ -497,32 +519,97 @@ function Estimate() {
                   ))}
                 </div>
               </fieldset>
-              <fieldset className="lf-choice-field">
-                <legend>A finish direction for your storage</legend>
-                <p>
-                  A starting preference. Final materials and specifications are discussed with your
-                  designer.
-                </p>
-                <div className="lf-finish-grid">
-                  {[
-                    ["Laminate", "Warm, versatile surfaces", "lf-oak"],
-                    ["Acrylic", "A smooth, polished look", "lf-gloss"],
-                    ["Discuss with designer", "Help me choose", "lf-neutral"],
-                  ].map(([finish, text, swatch]) => (
-                    <button
-                      type="button"
-                      key={finish}
-                      aria-pressed={draft.finish === finish}
-                      onClick={() => update("finish", finish)}
-                    >
-                      <span className={swatch} />
-                      <strong>{finish === "Discuss with designer" ? "Guide me" : finish}</strong>
-                      <small>{text}</small>
-                      <Check className="lf-choice-check" size={13} />
-                    </button>
-                  ))}
-                </div>
-              </fieldset>
+              {isRenovation ? (
+                <>
+                  <fieldset className="lf-choice-field lf-renovation-packages">
+                    <legend>Three ways to make it yours.</legend>
+                    <p>Full-home renovation · choose the package that suits your priorities.</p>
+                    <div className="lf-package-grid">
+                      {renovationPackages.map((tier, index) => (
+                        <button
+                          type="button"
+                          key={tier.id}
+                          aria-pressed={draft.renovationTier === tier.id}
+                          className="lf-package-card"
+                          onClick={() => update("renovationTier", tier.id)}
+                        >
+                          <span className={`lf-package-swatch lf-package-swatch-${tier.id}`}>
+                            <span>0{index + 1}</span>
+                            <Check className="lf-package-check" size={16} />
+                          </span>
+                          <strong>{tier.name}</strong>
+                          <span className="lf-package-price">
+                            {money.format(tier.rate)}
+                            <small>/sq ft</small>
+                          </span>
+                          <span className="lf-package-description">{tier.description}</span>
+                          <span className="lf-package-select">
+                            {draft.renovationTier === tier.id ? "Selected" : "Choose " + tier.name}
+                          </span>
+                        </button>
+                      ))}
+                    </div>
+                  </fieldset>
+                  <div className="lf-work-area">
+                    <div>
+                      <span className="lf-kicker">
+                        <Ruler size={14} /> THE SPACE WE’LL WORK ON
+                      </span>
+                      <label htmlFor="renovation-work-area">Floor area of renovation work</label>
+                      <p id="renovation-area-help">
+                        Enter the actual area to be renovated. We multiply this by your package
+                        rate; the home-size band is not used as a measurement.
+                      </p>
+                    </div>
+                    <div className="lf-work-area-input">
+                      <input
+                        id="renovation-work-area"
+                        type="number"
+                        inputMode="decimal"
+                        min="1"
+                        max="100000"
+                        step="0.01"
+                        value={draft.workArea}
+                        placeholder="e.g. 800"
+                        aria-describedby="renovation-area-help"
+                        onChange={(event) => update("workArea", event.target.value)}
+                      />
+                      <span>sq ft</span>
+                    </div>
+                  </div>
+                  <p className="lf-calculator-note">{renovationCalculatorNote}</p>
+                  <Link to="/callback" search={{ from: "estimate" }} className="lx-underlink">
+                    Unsure of the area? Ask the studio for a quote
+                  </Link>
+                </>
+              ) : (
+                <fieldset className="lf-choice-field">
+                  <legend>A finish direction for your storage</legend>
+                  <p>
+                    A starting preference. Final materials and specifications are discussed with
+                    your designer.
+                  </p>
+                  <div className="lf-finish-grid">
+                    {[
+                      ["Laminate", "Warm, versatile surfaces", "lf-oak"],
+                      ["Acrylic", "A smooth, polished look", "lf-gloss"],
+                      ["Discuss with designer", "Help me choose", "lf-neutral"],
+                    ].map(([finish, text, swatch]) => (
+                      <button
+                        type="button"
+                        key={finish}
+                        aria-pressed={draft.finish === finish}
+                        onClick={() => update("finish", finish)}
+                      >
+                        <span className={swatch} />
+                        <strong>{finish === "Discuss with designer" ? "Guide me" : finish}</strong>
+                        <small>{text}</small>
+                        <Check className="lf-choice-check" size={13} />
+                      </button>
+                    ))}
+                  </div>
+                </fieldset>
+              )}
               {draft.scope === "Modular interiors" && (
                 <details className="lf-contact-extra">
                   <summary>
@@ -582,7 +669,7 @@ function Estimate() {
                 </button>
                 <button type="submit" className="button">
                   <Check size={17} />
-                  {result.status === "priced" ? "See my budget" : "Review my quote request"}
+                  {isRenovation ? "See my budget" : "Review my quote request"}
                 </button>
               </div>
               <p className="lf-disclosure">
@@ -598,7 +685,7 @@ function Estimate() {
                 <strong>{selection}</strong>
                 <span>
                   {draft.scope === "Whole home" ? homeSizeLabel(draft) + " · " : ""}
-                  {draft.condition} · {draft.finish}
+                  {draft.condition} · {isRenovation ? selectedPackage?.name : draft.finish}
                 </span>
                 {draft.city && (
                   <span>
@@ -611,23 +698,40 @@ function Estimate() {
               </div>
               {result.status === "priced" ? (
                 <div className="lf-priced-result">
-                  <span>INDICATIVE RANGE</span>
+                  <span>
+                    {result.priceKind === "starting"
+                      ? "YOUR RENOVATION STARTS FROM"
+                      : "INDICATIVE RANGE"}
+                  </span>
                   <strong>
-                    {money.format(result.min!)} – {money.format(result.max!)}
+                    {result.priceKind === "starting"
+                      ? money.format(result.min) + "+"
+                      : money.format(result.min!) + " – " + money.format(result.max!)}
                   </strong>
+                  {result.priceKind === "starting" && (
+                    <div className="lf-budget-formula">
+                      <span>{result.packageName}</span>
+                      <span>
+                        {Number(draft.workArea).toLocaleString("en-IN")} sq ft ×{" "}
+                        {money.format(result.rate)}/sq ft
+                      </span>
+                    </div>
+                  )}
                   <p>
                     {result.reason} {result.taxNote}
                   </p>
-                  {result.lines.map((line) => (
-                    <details key={line.id}>
-                      <summary>
-                        {line.id} · {line.quantity} {line.unit}
-                      </summary>
-                      <p>Includes: {line.inclusions.join(", ")}</p>
-                      <p>Excludes: {line.exclusions.join(", ")}</p>
-                    </details>
-                  ))}
-                  <small>Rate version: {result.version}</small>
+                  {result.lines
+                    .filter((line) => line.inclusions.length || line.exclusions.length)
+                    .map((line) => (
+                      <details key={line.id}>
+                        <summary>
+                          {line.id} · {line.quantity} {line.unit}
+                        </summary>
+                        <p>Includes: {line.inclusions.join(", ")}</p>
+                        <p>Excludes: {line.exclusions.join(", ")}</p>
+                      </details>
+                    ))}
+                  {result.priceKind === "range" && <small>Rate version: {result.version}</small>}
                 </div>
               ) : (
                 <div className="lf-tailored-note">
@@ -684,7 +788,9 @@ function Estimate() {
                 )}
                 <button type="button" className="button" onClick={next}>
                   {step === 0
-                    ? "Choose my interiors"
+                    ? isRenovation
+                      ? "Choose my package"
+                      : "Choose my interiors"
                     : pricingEnabled
                       ? "Continue to my details"
                       : "Review my scope"}
@@ -693,7 +799,7 @@ function Estimate() {
               </div>
               <p className="lf-funnel-note">
                 {pricingEnabled
-                  ? "Home & size → interiors → contact details → indicative budget."
+                  ? "Home & size → package & work area → contact details → starting budget."
                   : "Home & size → interiors → your scope. No contact details required to explore."}
               </p>
             </>

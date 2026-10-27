@@ -53,7 +53,7 @@ export const faqs = [
   ],
   [
     "Will I get an instant price?",
-    "The planner currently brings your scope together without asking for contact details. It does not give an instant price. Choose Get a quote when you want the studio to review measurements, specifications and site requirements for pricing.",
+    "For full home renovation, enter the floor area where work is required and choose Essential, Signature or Luxe to see a starting estimate. The calculator is in its early stages; your final price will be quoted after a site visit. Modular interiors, selected-room work and commercial spaces need a separate studio quotation.",
   ],
   [
     "Where do you work?",
